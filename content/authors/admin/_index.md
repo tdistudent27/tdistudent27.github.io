@@ -61,8 +61,8 @@ work:
     company_name: Restaurants & Beach Resorts
     company_url: ''
     company_logo: ''
-    date_start: Summer 2020
-    date_end: Summer 2024
+    date_start: 2020
+    date_end: 2024
     summary: |2-
       - Worked in fast-paced, high-pressure environments during peak tourist seasons
       - Developed interpersonal skills, stress management, and team coordination
