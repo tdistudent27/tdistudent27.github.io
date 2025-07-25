@@ -26,6 +26,8 @@ profiles:
     url: 'mailto:demar.tommaso@gmail.com'
   - icon: brands/linkedin
     url: 'https://www.linkedin.com/in/tommaso-de-martino-a3792a321'
+  - icon: brands/github
+    url: 'https://github.com/tdistudent27'
 
 interests:
   - Asset Pricing & Machine Learning
@@ -45,11 +47,6 @@ education:
       Focus on quantitative methods and financial econometrics.  
       Expected thesis on **Asset Pricing via Machine Learning**.
 
-      Selected projects:
-      - **Forecasting Macro Trends with Factor Models**: PCA with missing data on FRED-MD; 7 factors explaining 47.36% of total variance (up to March 2025); one-step-ahead forecast of inflation and industrial production.
-      - **Volatility Forecasting**: Benchmarking GARCH model on Euro Stoxx 50; Multilayer Perceptron (MLP) outperformed all models out-of-sample.
-      - **Identifying Macroeconomic Shocks**: VAR and Local Projections; explored multiple identification strategies from academic macro literature.
-      - **Statistical Models**: Linear regression, Lasso with cross-validation, classification with logistic regression, LDA, KNN.
   - area: BS Economics
     institution: Sapienza University of Rome
     date_start: 2020-09-01
@@ -64,8 +61,8 @@ work:
     company_name: Restaurants & Beach Resorts
     company_url: ''
     company_logo: ''
-    date_start: 2020-06-01
-    date_end: 2024-09-01
+    date_start: Summer 2020
+    date_end: Summer 2024
     summary: |2-
       - Worked in fast-paced, high-pressure environments during peak tourist seasons
       - Developed interpersonal skills, stress management, and team coordination
@@ -92,7 +89,6 @@ skills:
     items:
       - name: Leadership & Teamwork
         description: Curious and resilient, takes initiative and responsibility; strong communicator and listener; leads when needed, always a team player
-        percent: 85
         icon: users
 
 languages:
@@ -105,10 +101,10 @@ languages:
 ---
 ## About Me
 
-I'm a **Master's student in Economics and Finance at Sapienza University of Rome**, with strong interests in **quantitative methods, financial econometrics, and Asset Pricing using Machine Learning**.  
+I'm a **Master's student in Economics and Finance at Sapienza University of Rome**, with strong interests in **quantitative trading, quantitative methods, financial econometrics, and Machine Learning**.  
 
 My work spans **macro forecasting using factor models**, **volatility prediction with GARCH and neural networks**, **macroeconomic shock identification with VAR and Local Projections**, and **portfolio optimization via the Markowitz model**.
 
-I also build and backtest **systematic trading strategies** — including a **mean-reverting system** using rolling Z-scores on price and ATR, and a **contrarian approach** exploiting short-term statistical patterns — all fully automated, with attention to overfitting through robust train/test splits.
+I also build and backtest **trading strategies** — including a **mean-reverting system** using rolling Z-scores on price and ATR, and a **contrarian approach** exploiting short-term statistical patterns — all fully automated, with attention to overfitting through robust train/test splits.
 
 I speak **Italian (native)**, **English (fluent)**, **Spanish (intermediate)**, and **French (intermediate)**. In my spare time, I enjoy **freediving**, **literature**, and **soccer** (playing and watching).
