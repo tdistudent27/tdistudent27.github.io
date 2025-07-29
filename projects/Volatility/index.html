@@ -1,0 +1,935 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Volatility Forecasting | Tommaso de Martino </title> <meta name="author" content="Tommaso de Martino"> <meta name="description" content="A comparative analysis of volatility forecasting models applied to the Euro Stoxx 50"> <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website"> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="/assets/img/favicon.png?1d8de0bac7da496e8c69cdbb6842c663"> <link rel="stylesheet" href="/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://tdistudent27.github.io/projects/Volatility/"> <script src="/assets/js/theme.js?a81d82887dd692e91686b43de4542f18"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> Tommaso de Martino </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item active"> <a class="nav-link" href="/projects/">Projects <span class="sr-only">(current)</span> </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">CV </a> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="ti ti-sun-moon" id="light-toggle-system"></i> <i class="ti ti-moon-filled" id="light-toggle-dark"></i> <i class="ti ti-sun-filled" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">Volatility Forecasting</h1> <p class="post-description">A comparative analysis of volatility forecasting models applied to the Euro Stoxx 50</p> </header> <article> <h2 id="introduction">Introduction</h2> <p>This project was carried out by Valentina Sanna (Sapienza University of Rome), Tommaso de Martino (Sapienza University of Rome), and Omar Tronelli (Sapienza University of Rome). Each of us focused on a specific Machine Learning model:</p> <ul> <li> <p>Long Short-Term Memory (LSTM)</p> </li> <li> <p>Multilayer Perceptron (MLP)</p> </li> <li> <p>Random Forest (RF)</p> </li> </ul> <p>The goal of the project is to compare the accuracy of different machine learning methods in forecasting volatility. As a benchmark, we use the GARCH model. The evaluation metrics applied to assess model performance are MAE, MSE, and RMSE. The analysis is conducted on daily data from the European stock index Euro Stoxx 50.</p> <h2 id="libraries">Libraries</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># === Standard libraries
+</span><span class="kn">import</span> <span class="n">os</span>
+<span class="kn">import</span> <span class="n">sys</span>
+<span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="n">random</span>
+<span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">import</span> <span class="n">warnings</span>
+<span class="kn">import</span> <span class="n">math</span>
+<span class="kn">from</span> <span class="n">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="n">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="n">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="c1"># === Numerical computing and DataFrames
+</span><span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="n">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+
+<span class="c1"># === Visualization
+</span><span class="kn">import</span> <span class="n">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="n">matplotlib.dates</span> <span class="k">as</span> <span class="n">mdates</span>
+<span class="kn">import</span> <span class="n">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+
+<span class="c1"># === Statistics
+</span><span class="kn">from</span> <span class="n">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="n">scipy.stats</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">norm</span><span class="p">,</span>
+    <span class="n">skew</span><span class="p">,</span>
+    <span class="n">kurtosis</span><span class="p">,</span>
+    <span class="n">jarque_bera</span><span class="p">,</span>
+    <span class="n">shapiro</span>  <span class="c1"># Added as per your request
+</span><span class="p">)</span>
+
+<span class="c1"># === Econometrics
+</span><span class="kn">import</span> <span class="n">statsmodels.api</span> <span class="k">as</span> <span class="n">sm</span>
+<span class="kn">from</span> <span class="n">statsmodels.graphics.tsaplots</span> <span class="kn">import</span> <span class="n">plot_acf</span><span class="p">,</span> <span class="n">plot_pacf</span>
+<span class="kn">from</span> <span class="n">statsmodels.tsa.stattools</span> <span class="kn">import</span> <span class="n">adfuller</span>
+<span class="kn">from</span> <span class="n">arch</span> <span class="kn">import</span> <span class="n">arch_model</span>  <span class="c1"># for GARCH models
+</span>
+<span class="c1"># === Machine Learning
+</span><span class="kn">from</span> <span class="n">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_absolute_error</span><span class="p">,</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+<span class="kn">from</span> <span class="n">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">MinMaxScaler</span><span class="p">,</span> <span class="n">PolynomialFeatures</span>
+<span class="kn">from</span> <span class="n">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+<span class="kn">from</span> <span class="n">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">TimeSeriesSplit</span><span class="p">,</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="n">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
+<span class="kn">from</span> <span class="n">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">SelectFromModel</span>
+<span class="kn">from</span> <span class="n">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span> <span class="n">sklearn.inspection</span> <span class="kn">import</span> <span class="n">permutation_importance</span>
+
+<span class="c1"># === Deep Learning
+</span><span class="kn">import</span> <span class="n">tensorflow</span> <span class="k">as</span> <span class="n">tf</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.layers</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Input</span><span class="p">,</span>
+    <span class="n">Dense</span><span class="p">,</span>
+    <span class="n">Dropout</span><span class="p">,</span>
+    <span class="n">BatchNormalization</span><span class="p">,</span>
+    <span class="n">Activation</span><span class="p">,</span>
+    <span class="n">LSTM</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.optimizers</span> <span class="kn">import</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">RMSprop</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.callbacks</span> <span class="kn">import</span> <span class="n">EarlyStopping</span><span class="p">,</span> <span class="n">ReduceLROnPlateau</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.regularizers</span> <span class="kn">import</span> <span class="n">l2</span>
+<span class="kn">from</span> <span class="n">tensorflow.keras.optimizers.schedules</span> <span class="kn">import</span> <span class="n">ExponentialDecay</span>
+
+<span class="c1"># === TensorFlow Probability
+</span><span class="kn">import</span> <span class="n">tensorflow_probability</span> <span class="k">as</span> <span class="n">tfp</span>
+<span class="n">tfpl</span> <span class="o">=</span> <span class="n">tfp</span><span class="p">.</span><span class="n">layers</span>
+<span class="n">tfd</span>  <span class="o">=</span> <span class="n">tfp</span><span class="p">.</span><span class="n">distributions</span>
+
+<span class="c1"># === Optimization and Hyperparameter Tuning
+</span><span class="kn">import</span> <span class="n">optuna</span>
+<span class="kn">from</span> <span class="n">optuna</span> <span class="kn">import</span> <span class="n">create_study</span>
+<span class="kn">from</span> <span class="n">optuna.integration</span> <span class="kn">import</span> <span class="n">TFKerasPruningCallback</span>
+<span class="kn">from</span> <span class="n">optuna.samplers</span> <span class="kn">import</span> <span class="n">TPESampler</span>
+<span class="kn">from</span> <span class="n">optuna.pruners</span> <span class="kn">import</span> <span class="n">MedianPruner</span>
+<span class="kn">from</span> <span class="n">optuna.logging</span>  <span class="kn">import</span> <span class="n">set_verbosity</span><span class="p">,</span> <span class="n">WARNING</span>
+
+<span class="c1"># === Miscellaneous
+</span><span class="kn">from</span> <span class="n">threadpoolctl</span> <span class="kn">import</span> <span class="n">threadpool_limits</span>
+
+<span class="c1"># === Reproducibility (set random seeds)
+</span><span class="n">SEED</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
+<span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
+<span class="n">tf</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">set_seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">PYTHONHASHSEED</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="nf">str</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">TF_DETERMINISTIC_OPS</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">1</span><span class="sh">'</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">TF_CUDNN_DETERMINISTIC</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">1</span><span class="sh">'</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">'</span><span class="s">TF_CPP_MIN_LOG_LEVEL</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="sh">'</span><span class="s">3</span><span class="sh">'</span>
+
+<span class="c1"># TensorFlow Probability seed generator
+</span><span class="n">tfp_seed_generator</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">Generator</span><span class="p">.</span><span class="nf">from_seed</span><span class="p">(</span><span class="n">SEED</span><span class="p">)</span>
+<span class="c1"># Optuna sampler with fixed seed
+</span><span class="n">optuna_sampler</span> <span class="o">=</span> <span class="nc">TPESampler</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<span class="nf">set_verbosity</span><span class="p">(</span><span class="n">WARNING</span><span class="p">)</span>  <span class="c1"># silence Optuna warnings
+</span>
+<span class="c1"># Force TensorFlow to use only CPU
+</span><span class="n">tf</span><span class="p">.</span><span class="n">config</span><span class="p">.</span><span class="nf">set_visible_devices</span><span class="p">([],</span> <span class="sh">'</span><span class="s">GPU</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="c1"># Silence TensorFlow and Python warnings
+</span><span class="n">tf</span><span class="p">.</span><span class="nf">get_logger</span><span class="p">().</span><span class="nf">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">warnings</span><span class="p">.</span><span class="nf">filterwarnings</span><span class="p">(</span><span class="sh">"</span><span class="s">ignore</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div> <h2 id="our-volatility-measure">Our Volatility Measure</h2> <p>The log return is defined as:</p> \[\text{Log Return}_t = \ln\left(\frac{P_t}{P_{t-1}}\right)\] <p>Where:</p> <ul> <li>$\ P_t$ is the closing price at time $\ t$,</li> <li>$\ P_{t-1}$ is the closing price at time $\ t-1$.</li> </ul> \[\text{Volatility}_t = |\text{Log Return}_t| = | \ln\left(\frac{P_t}{P_{t-1}}\right) |\] <h2 id="garchpq-model">GARCH(p,q) Model</h2> <p>$p$ = order of the GARCH → how many past variance terms ($\sigma^2$) are used.</p> <p>$q$ = order of the ARCH → how many past shock/innovation squared terms ($\varepsilon^2$) are used.</p> <h3 id="data">Data</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">eurostoxx50_garch</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                   Open         High          Low        Close    Volume
+Date                                                                    
+2010-01-05  3016.639893  3025.600098  3006.469971  3012.360107         0
+2010-01-06  3010.889893  3016.830078  2997.050049  3009.659912         0
+2010-01-07  3000.139893  3013.899902  2979.800049  3007.340088         0
+2010-01-08  3012.969971  3024.580078  2993.729980  3017.850098         0
+2010-01-11  3030.419922  3044.370117  3007.340088  3010.239990         0
+...                 ...          ...          ...          ...       ...
+2024-12-20  4861.589844  4872.660156  4803.200195  4862.279785  52536500
+2024-12-23  4859.040039  4862.509766  4832.149902  4852.930176  13206800
+2024-12-27  4854.160156  4898.879883  4847.890137  4898.879883  17347300
+2024-12-30  4890.520020  4904.080078  4862.160156  4869.279785  14296800
+2025-01-03  4915.540039  4917.339844  4861.120117  4871.450195  17720300
+
+[3763 rows x 5 columns]
+Missing values per column:
+ Open      0
+High      0
+Low       0
+Close     0
+Volume    0
+dtype: int64
+</code></pre></div></div> <p><img src="/assets/proj/Volatility_files/close.png" alt="Close Image" style="max-width: 100%; height: auto;"></p> <h3 id="log-returns">Log-Returns</h3> <p><img src="/assets/proj/Volatility_files/log_ret.png" alt="Log-Ret" style="max-width: 100%; height: auto;"></p> <h3 id="optimal-textp-and-textq">Optimal $\text{p}$ and $\text{q}$</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p_range_garch</span> <span class="o">=</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># from 1 to 5
+</span><span class="n">q_range_garch</span> <span class="o">=</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>  <span class="c1"># from 1 to 5
+</span>
+<span class="n">best_aic_garch</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">inf</span>
+<span class="n">best_bic_garch</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">inf</span>
+<span class="n">best_aic_order_garch</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">best_bic_order_garch</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="k">for</span> <span class="n">p_garch</span> <span class="ow">in</span> <span class="n">p_range_garch</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">q_garch</span> <span class="ow">in</span> <span class="n">q_range_garch</span><span class="p">:</span>
+        <span class="c1"># Define a GARCH(p, q) model with constant mean and Normal residuals
+</span>        <span class="n">model_garch</span> <span class="o">=</span> <span class="nf">arch_model</span><span class="p">(</span><span class="n">eurostoxx50_garch</span><span class="p">[</span><span class="sh">'</span><span class="s">Log_Returns</span><span class="sh">'</span><span class="p">],</span> <span class="n">vol</span><span class="o">=</span><span class="sh">'</span><span class="s">GARCH</span><span class="sh">'</span><span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                 <span class="n">p</span><span class="o">=</span><span class="n">p_garch</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">q_garch</span><span class="p">,</span>
+                                 <span class="n">mean</span><span class="o">=</span><span class="sh">'</span><span class="s">constant</span><span class="sh">'</span><span class="p">,</span>
+                                 <span class="n">dist</span><span class="o">=</span><span class="sh">'</span><span class="s">normal</span><span class="sh">'</span><span class="p">)</span>
+        <span class="c1"># Fit the model
+</span>        <span class="n">res_garch</span> <span class="o">=</span> <span class="n">model_garch</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">disp</span><span class="o">=</span><span class="sh">'</span><span class="s">off</span><span class="sh">'</span><span class="p">)</span>
+
+        <span class="c1"># Update best AIC
+</span>        <span class="k">if</span> <span class="n">res_garch</span><span class="p">.</span><span class="n">aic</span> <span class="o">&lt;</span> <span class="n">best_aic_garch</span><span class="p">:</span>
+            <span class="n">best_aic_garch</span> <span class="o">=</span> <span class="n">res_garch</span><span class="p">.</span><span class="n">aic</span>
+            <span class="n">best_aic_order_garch</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_garch</span><span class="p">,</span> <span class="n">q_garch</span><span class="p">)</span>
+
+        <span class="c1"># Update best BIC
+</span>        <span class="k">if</span> <span class="n">res_garch</span><span class="p">.</span><span class="n">bic</span> <span class="o">&lt;</span> <span class="n">best_bic_garch</span><span class="p">:</span>
+            <span class="n">best_bic_garch</span> <span class="o">=</span> <span class="n">res_garch</span><span class="p">.</span><span class="n">bic</span>
+            <span class="n">best_bic_order_garch</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_garch</span><span class="p">,</span> <span class="n">q_garch</span><span class="p">)</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="se">\n</span><span class="s">=== (p, q) Selection Results ===</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Best (p, q) based on AIC: </span><span class="si">{</span><span class="n">best_aic_order_garch</span><span class="si">}</span><span class="s">, AIC = </span><span class="si">{</span><span class="n">best_aic_garch</span><span class="si">:</span><span class="p">.</span><span class="mi">3</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Best (p, q) based on BIC: </span><span class="si">{</span><span class="n">best_bic_order_garch</span><span class="si">}</span><span class="s">, BIC = </span><span class="si">{</span><span class="n">best_bic_garch</span><span class="si">:</span><span class="p">.</span><span class="mi">3</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>=== (p, q) Selection Results ===
+Best (p, q) based on AIC: (1, 1), AIC = -23111.520
+Best (p, q) based on BIC: (1, 1), BIC = -23086.589
+</code></pre></div></div> <h3 id="train-and-test-data">Train and Test Data</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TRAIN SET range: from 2010-01-06 to 2021-11-30
+Number of observations in TRAIN: 2985
+
+TEST SET range: from 2021-12-01 to 2025-01-03
+Number of observations in TEST: 777
+</code></pre></div></div> <h3 id="fit-garch11-constant-mean-and-normal-distribution-on-train-set">Fit GARCH(1,1) Constant Mean and Normal Distribution on TRAIN SET</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>=== GARCH(1,1) train fit summary ===
+                     Constant Mean - GARCH Model Results                      
+==============================================================================
+Dep. Variable:            Log_Returns   R-squared:                       0.000
+Mean Model:             Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                      GARCH   Log-Likelihood:                9124.03
+Distribution:                  Normal   AIC:                          -18240.1
+Method:            Maximum Likelihood   BIC:                          -18216.1
+                                        No. Observations:                 2985
+Date:                Thu, May 08 2025   Df Residuals:                     2984
+Time:                        16:45:18   Df Model:                            1
+                                 Mean Model                                 
+============================================================================
+                 coef    std err          t      P&gt;|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+mu         4.9415e-04  1.032e-04      4.789  1.674e-06 [2.919e-04,6.964e-04]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P&gt;|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega      3.4725e-06  9.230e-12  3.762e+05      0.000 [3.473e-06,3.473e-06]
+alpha[1]       0.1000  1.907e-02      5.245  1.566e-07   [6.263e-02,  0.137]
+beta[1]        0.8800  1.548e-02     56.848      0.000     [  0.850,  0.910]
+============================================================================
+
+Covariance estimator: robust
+</code></pre></div></div> <h3 id="one-step-forecast-ahead">One-Step Forecast Ahead</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">full_returns_garch</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">concat</span><span class="p">([</span><span class="n">train_returns_garch</span><span class="p">,</span> <span class="n">test_returns_garch</span><span class="p">])</span>
+<span class="n">test_index_garch</span> <span class="o">=</span> <span class="n">test_returns_garch</span><span class="p">.</span><span class="n">index</span>
+
+<span class="k">def</span> <span class="nf">rolling_forecast_1step_garch</span><span class="p">(</span><span class="n">train_series_garch</span><span class="p">,</span> <span class="n">full_series_garch</span><span class="p">,</span> <span class="n">test_idx_garch</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">
+    Performs rolling day-by-day (1-step ahead) forecasts.
+    For each date in test_idx:
+      - fits a GARCH(1,1) model with constant mean and normal residuals,
+        using data up to the previous day
+      - obtains the forecasted variance for that date (out-of-sample)
+    Returns a Series with the predicted variance, indexed by test_idx.
+    </span><span class="sh">"""</span>
+    <span class="n">predictions_garch</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">date_garch</span> <span class="ow">in</span> <span class="n">test_idx_garch</span><span class="p">:</span>
+        <span class="c1"># Subset: all data up to the previous day (exclude 'date' itself)
+</span>        <span class="n">subset_garch</span> <span class="o">=</span> <span class="n">full_series_garch</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">date_garch</span><span class="p">].</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Define the GARCH(1,1) model with constant mean and normal distribution
+</span>        <span class="n">am_garch</span> <span class="o">=</span> <span class="nf">arch_model</span><span class="p">(</span><span class="n">subset_garch</span><span class="p">,</span> <span class="n">vol</span><span class="o">=</span><span class="sh">'</span><span class="s">GARCH</span><span class="sh">'</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="sh">'</span><span class="s">constant</span><span class="sh">'</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="sh">'</span><span class="s">normal</span><span class="sh">'</span><span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="c1"># Fit the model on data up to the previous day
+</span>        <span class="n">res_garch</span> <span class="o">=</span> <span class="n">am_garch</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">disp</span><span class="o">=</span><span class="sh">'</span><span class="s">off</span><span class="sh">'</span><span class="p">)</span>
+
+        <span class="c1"># 1-step ahead forecast
+</span>        <span class="n">fcst_garch</span> <span class="o">=</span> <span class="n">res_garch</span><span class="p">.</span><span class="nf">forecast</span><span class="p">(</span><span class="n">horizon</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Extract the predicted variance (last row, column 'h.1')
+</span>        <span class="n">var_pred_garch</span> <span class="o">=</span> <span class="n">fcst_garch</span><span class="p">.</span><span class="n">variance</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">predictions_garch</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">var_pred_garch</span><span class="p">)</span>
+
+    <span class="c1"># Return a Series with the same index as the test set
+</span>    <span class="k">return</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Series</span><span class="p">(</span><span class="n">predictions_garch</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">test_idx_garch</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sh">'</span><span class="s">Predicted_Variance</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="c1"># Obtain the predicted variances using rolling forecast
+</span><span class="n">pred_var_series_garch</span> <span class="o">=</span> <span class="nf">rolling_forecast_1step_garch</span><span class="p">(</span><span class="n">train_returns_garch</span><span class="p">,</span> <span class="n">full_returns_garch</span><span class="p">,</span> <span class="n">test_index_garch</span><span class="p">)</span>
+
+<span class="c1"># Convert variance to volatility (standard deviation)
+</span><span class="n">pred_vol_series_garch</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">pred_var_series_garch</span><span class="p">)</span>
+
+<span class="c1"># Realized volatility = absolute value of log-return in the test set
+</span><span class="n">realized_vol_garch</span> <span class="o">=</span> <span class="n">test_returns_garch</span><span class="p">.</span><span class="nf">abs</span><span class="p">()</span>
+
+<span class="c1"># Insert everything into the test_data for convenience
+</span><span class="n">test_data_garch</span><span class="p">[</span><span class="sh">'</span><span class="s">Predicted_Vol</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pred_vol_series_garch</span>
+<span class="n">test_data_garch</span><span class="p">[</span><span class="sh">'</span><span class="s">Realized_Vol</span><span class="sh">'</span><span class="p">]</span>  <span class="o">=</span> <span class="n">realized_vol_garch</span>
+</code></pre></div></div> <h3 id="garch11-results">GARCH(1,1) Results</h3> <p><img src="/assets/proj/Volatility_files/garch.png" alt="GARCH" style="max-width: 100%; height: auto;"></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MAE: 0.0064304569
+MSE: 0.0000658292
+RMSE: 0.0081135219
+</code></pre></div></div> <h2 id="long-short-term-memory-lstm-by-omar-tronelli">Long Short-Term Memory (LSTM) by <strong>Omar Tronelli</strong> </h2> <h3 id="data-1">Data</h3> <p>Additional regressors were included in this model.</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        Date         Open         High          Low        Close  Volume  \
+0 2010-01-07  3000.139893  3013.899902  2979.800049  3007.340088       0   
+1 2010-01-08  3012.969971  3024.580078  2993.729980  3017.850098       0   
+2 2010-01-11  3030.419922  3044.370117  3007.340088  3010.239990       0   
+3 2010-01-12  3010.580078  3019.169922  2966.149902  2976.889893       0   
+4 2010-01-13  2967.429932  2986.219971  2964.110107  2978.409912       0   
+
+   Log_Returns  Volatility_1d  Log_Trading_Range  Volatility_1d_lag1  \
+0    -0.000771       0.000771           0.011379            0.000897   
+1     0.003489       0.003489           0.010252            0.000771   
+2    -0.002525       0.002525           0.012238            0.003489   
+3    -0.011141       0.011141           0.017717            0.002525   
+4     0.000510       0.000510           0.007432            0.011141   
+
+   Log_Trading_Range_lag1  day_0  day_1  day_2  day_3  day_4  
+0                0.006578  False  False  False   True  False  
+1                0.011379  False  False  False  False   True  
+2                0.010252   True  False  False  False  False  
+3                0.012238  False   True  False  False  False  
+4                0.017717  False  False   True  False  False  
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Convert 'Date' to index to facilitate splitting
+</span><span class="n">df_lstm</span> <span class="o">=</span> <span class="n">df_lstm</span><span class="p">.</span><span class="nf">set_index</span><span class="p">(</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># Split by date
+</span><span class="n">train_df_lstm</span> <span class="o">=</span> <span class="n">df_lstm</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="sh">'</span><span class="s">2021-11-30</span><span class="sh">'</span><span class="p">]</span>
+<span class="n">test_df_lstm</span> <span class="o">=</span> <span class="n">df_lstm</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="sh">'</span><span class="s">2021-12-01</span><span class="sh">'</span><span class="p">:]</span>
+
+</code></pre></div></div> <h3 id="model">Model</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># === 0. Set time window (window)
+</span><span class="n">window_size_lstm</span> <span class="o">=</span> <span class="mi">17</span>  <span class="c1"># You can change this to 5, 15, 20 etc. to test other options
+</span><span class="n">lr_lstm</span> <span class="o">=</span> <span class="mf">0.0005</span>
+
+<span class="n">features_lstm</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sh">"</span><span class="s">Log_Trading_Range_lag1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">Volatility_1d_lag1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">day_0</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">day_1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">day_2</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">day_3</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">day_4</span><span class="sh">"</span>
+<span class="p">]</span>
+
+<span class="n">target_col_lstm</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Volatility_1d</span><span class="sh">"</span>
+
+<span class="c1"># === 2. Normalization
+</span><span class="n">scaler_lstm</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+<span class="n">scaler_lstm</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">train_df_lstm</span><span class="p">[</span><span class="n">features_lstm</span><span class="p">])</span>
+<span class="n">train_scaled_lstm</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">scaler_lstm</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">train_df_lstm</span><span class="p">[</span><span class="n">features_lstm</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="n">features_lstm</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">train_df_lstm</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">test_scaled_lstm</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">scaler_lstm</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">test_df_lstm</span><span class="p">[</span><span class="n">features_lstm</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="n">features_lstm</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">test_df_lstm</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>
+
+<span class="c1"># === 3. Sequence creation
+</span><span class="k">def</span> <span class="nf">create_sequences_multifeat_lstm</span><span class="p">(</span><span class="n">data_lstm</span><span class="p">,</span> <span class="n">target_lstm</span><span class="p">,</span> <span class="n">window_lstm</span><span class="p">):</span>
+    <span class="n">X_lstm</span><span class="p">,</span> <span class="n">y_lstm</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">window_lstm</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">data_lstm</span><span class="p">)):</span>
+        <span class="n">X_lstm</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">data_lstm</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">window_lstm</span><span class="p">:</span><span class="n">i</span><span class="p">].</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">y_lstm</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">target_lstm</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># target goes beyond the sequence
+</span>    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">X_lstm</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">y_lstm</span><span class="p">)</span>
+
+<span class="n">X_train_lstm</span><span class="p">,</span> <span class="n">y_train_lstm</span> <span class="o">=</span> <span class="nf">create_sequences_multifeat_lstm</span><span class="p">(</span><span class="n">train_scaled_lstm</span><span class="p">,</span> <span class="n">train_df_lstm</span><span class="p">[</span><span class="n">target_col_lstm</span><span class="p">],</span> <span class="n">window_lstm</span><span class="o">=</span><span class="n">window_size_lstm</span><span class="p">)</span>
+<span class="n">X_test_lstm</span><span class="p">,</span> <span class="n">y_test_lstm</span> <span class="o">=</span> <span class="nf">create_sequences_multifeat_lstm</span><span class="p">(</span><span class="n">test_scaled_lstm</span><span class="p">,</span> <span class="n">test_df_lstm</span><span class="p">[</span><span class="n">target_col_lstm</span><span class="p">],</span> <span class="n">window_lstm</span><span class="o">=</span><span class="n">window_size_lstm</span><span class="p">)</span>
+
+<span class="c1"># === 4. Build simple model
+</span><span class="n">model_lstm</span> <span class="o">=</span> <span class="nc">Sequential</span><span class="p">()</span>
+<span class="n">model_lstm</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="nc">LSTM</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">X_train_lstm</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">X_train_lstm</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">recurrent_dropout</span><span class="o">=</span><span class="mf">0.2</span><span class="p">))</span>
+<span class="n">model_lstm</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="nc">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">hmae_lstm</span><span class="p">(</span><span class="n">y_true_lstm</span><span class="p">,</span> <span class="n">y_pred_lstm</span><span class="p">):</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span>  <span class="c1"># avoid division by zero or very small values
+</span>    <span class="n">denominator</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="nf">maximum</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">y_true_lstm</span><span class="p">),</span> <span class="n">epsilon</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="p">.</span><span class="nf">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="nf">abs</span><span class="p">((</span><span class="n">y_pred_lstm</span> <span class="o">-</span> <span class="n">y_true_lstm</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">hmse_lstm</span><span class="p">(</span><span class="n">y_true_lstm</span><span class="p">,</span> <span class="n">y_pred_lstm</span><span class="p">):</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="nf">maximum</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="nf">abs</span><span class="p">(</span><span class="n">y_true_lstm</span><span class="p">),</span> <span class="n">epsilon</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tf</span><span class="p">.</span><span class="nf">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="nf">square</span><span class="p">((</span><span class="n">y_pred_lstm</span> <span class="o">-</span> <span class="n">y_true_lstm</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span><span class="p">))</span>
+
+<span class="n">model_lstm</span><span class="p">.</span><span class="nf">compile</span><span class="p">(</span>
+    <span class="n">optimizer</span><span class="o">=</span><span class="nc">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">lr_lstm</span><span class="p">),</span>
+    <span class="n">loss</span><span class="o">=</span><span class="sh">"</span><span class="s">mse</span><span class="sh">"</span><span class="p">,</span>  <span class="c1"># or any other loss
+</span>    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">mae</span><span class="sh">"</span><span class="p">,</span> <span class="n">hmae_lstm</span><span class="p">,</span> <span class="n">hmse_lstm</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="c1"># === 5. Training
+</span><span class="n">early_stop_lstm</span> <span class="o">=</span> <span class="nc">EarlyStopping</span><span class="p">(</span><span class="n">monitor</span><span class="o">=</span><span class="sh">'</span><span class="s">val_loss</span><span class="sh">'</span><span class="p">,</span> <span class="n">patience</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">restore_best_weights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">val_size_lstm</span> <span class="o">=</span> <span class="nf">int</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">X_train_lstm</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">)</span>
+<span class="n">X_val_lstm</span> <span class="o">=</span> <span class="n">X_train_lstm</span><span class="p">[</span><span class="o">-</span><span class="n">val_size_lstm</span><span class="p">:]</span>
+<span class="n">y_val_lstm</span> <span class="o">=</span> <span class="n">y_train_lstm</span><span class="p">[</span><span class="o">-</span><span class="n">val_size_lstm</span><span class="p">:]</span>
+<span class="n">X_train_lstm</span> <span class="o">=</span> <span class="n">X_train_lstm</span><span class="p">[:</span><span class="o">-</span><span class="n">val_size_lstm</span><span class="p">]</span>
+<span class="n">y_train_lstm</span> <span class="o">=</span> <span class="n">y_train_lstm</span><span class="p">[:</span><span class="o">-</span><span class="n">val_size_lstm</span><span class="p">]</span>
+
+<span class="n">history_lstm</span> <span class="o">=</span> <span class="n">model_lstm</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span>
+    <span class="n">X_train_lstm</span><span class="p">,</span> <span class="n">y_train_lstm</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">X_val_lstm</span><span class="p">,</span> <span class="n">y_val_lstm</span><span class="p">),</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">early_stop_lstm</span><span class="p">],</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</code></pre></div></div> <h3 id="one-step-ahead-forecast">One-Step Ahead Forecast</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># === 6. Simulated one-step ahead forecast (real-life scenario)
+</span><span class="n">y_pred_lstm</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">window_size_lstm</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">test_scaled_lstm</span><span class="p">)):</span>
+    <span class="n">x_input_lstm</span> <span class="o">=</span> <span class="n">test_scaled_lstm</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">window_size_lstm</span><span class="p">:</span><span class="n">i</span><span class="p">].</span><span class="n">values</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">window_size_lstm</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">features_lstm</span><span class="p">))</span>
+    <span class="n">pred_lstm</span> <span class="o">=</span> <span class="n">model_lstm</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">x_input_lstm</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y_pred_lstm</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">pred_lstm</span><span class="p">)</span>
+
+<span class="n">y_test_aligned_lstm</span> <span class="o">=</span> <span class="n">y_test_lstm</span><span class="p">[:</span><span class="nf">len</span><span class="p">(</span><span class="n">y_pred_lstm</span><span class="p">)]</span>
+</code></pre></div></div> <h3 id="lstm-results">LSTM Results</h3> <p><img src="/assets/proj/Volatility_files/lstm.png" alt="LSTM" style="max-width: 100%; height: auto;"></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LSTM - One-step ahead forecast
+MAE:  0.0051580811
+MSE:  0.0000550418
+RMSE: 0.0074190130
+</code></pre></div></div> <h2 id="multilayer-perceptron-mlp-by-tommaso-de-martino">Multilayer Perceptron (MLP) by <strong>Tommaso de Martino</strong> </h2> <h3 id="data-2">Data</h3> <p>Here I used 2 datasets:</p> <ul> <li> <p><code class="language-plaintext highlighter-rouge">df_mlp</code> = the closing price of both the target asset and the predictors</p> </li> <li> <p><code class="language-plaintext highlighter-rouge">eur50_mlp</code> = the OHLC prices for Euro Stoxx 50, it will be used later to do some features engineering</p> <div class="language-plaintext highlighter-rouge"> <div class="highlight"><pre class="highlight"><code>  df_mlp:
+              Date  eurostoxx50    EURUSD   EURCHF     EXY     DXY  XDS_CHF  \
+  0     2010-01-05  3012.360107  1.436596  1.48460  105.82   77.62    96.70   
+  1     2010-01-06  3009.659912  1.440403  1.48000  106.11   77.49    97.31   
+  2     2010-01-07  3007.340088  1.431803  1.47970  105.84   77.91    96.67   
+  3     2010-01-08  3017.850098  1.441109  1.47470  106.18   77.47    97.65   
+  4     2010-01-11  3010.239990  1.451126  1.47530  106.64   77.00    98.43   
+  ...          ...          ...       ...      ...     ...     ...      ...   
+  3758  2024-12-20  4862.279785  1.036495  0.93172  126.20  107.62   111.90   
+  3759  2024-12-23  4852.930176  1.043308  0.93169  126.33  108.04   111.26   
+  3760  2024-12-27  4898.879883  1.042318  0.93683  126.67  108.00   110.83   
+  3761  2024-12-30  4869.279785  1.042938  0.94052  126.77  108.13   110.60   
+  3762  2025-01-03  4871.450195  1.026821  0.93641  125.62  108.95   110.08   
+    
+        BTP_Yield_10y  BUND_Yield_10y  BTP_BUND_SPREAD        cac40  \
+  0             4.095          3.3690           0.7260  4012.909912   
+  1             4.116          3.3910           0.7250  4017.669922   
+  2             4.089          3.3710           0.7180  4024.800049   
+  3             4.100          3.3790           0.7210  4045.139893   
+  4             4.054          3.3450           0.7090  4043.090088   
+  ...             ...             ...              ...          ...   
+  3758          3.447          2.2865           1.1605  7274.479980   
+  3759          3.499          2.3270           1.1720  7272.319824   
+  3760          3.535          2.3895           1.1455  7355.370117   
+  3761          3.522          2.3590           1.1630  7313.560059   
+  3762          3.592          2.4245           1.1675  7282.220215   
+    
+                 dax  ftsemib        sp500      brent        wti         gold  
+  0      6031.859863  23556.0  1136.520020  80.589996  81.769997  1118.099976  
+  1      6034.330078  23622.0  1137.140015  81.889999  83.180000  1135.900024  
+  2      6019.359863  23709.0  1141.689941  81.510002  82.660004  1133.099976  
+  3      6037.609863  23811.0  1144.979980  81.370003  82.750000  1138.199951  
+  4      6040.500000  23775.0  1146.979980  80.970001  82.519997  1150.699951  
+  ...            ...      ...          ...        ...        ...          ...  
+  3758  19884.750000  33766.0  5930.850098  72.940002  69.459999  2628.699951  
+  3759  19848.769531  33740.0  5974.069824  72.629997  69.239998  2612.300049  
+  3760  19984.320312  34161.0  5970.839844  74.169998  70.599998  2617.199951  
+  3761  19909.140625  34186.0  5906.939941  74.389999  70.989998  2606.100098  
+  3762  19906.080078  34128.0  5942.470215  76.510002  73.959999  2645.000000  
+    
+  [3763 rows x 17 columns]
+  eur50_mlp:
+              Date         Open         High          Low        Close    Volume
+  0     2010-01-05  3016.639893  3025.600098  3006.469971  3012.360107         0
+  1     2010-01-06  3010.889893  3016.830078  2997.050049  3009.659912         0
+  2     2010-01-07  3000.139893  3013.899902  2979.800049  3007.340088         0
+  3     2010-01-08  3012.969971  3024.580078  2993.729980  3017.850098         0
+  4     2010-01-11  3030.419922  3044.370117  3007.340088  3010.239990         0
+  ...          ...          ...          ...          ...          ...       ...
+  3758  2024-12-20  4861.589844  4872.660156  4803.200195  4862.279785  52536500
+  3759  2024-12-23  4859.040039  4862.509766  4832.149902  4852.930176  13206800
+  3760  2024-12-27  4854.160156  4898.879883  4847.890137  4898.879883  17347300
+  3761  2024-12-30  4890.520020  4904.080078  4862.160156  4869.279785  14296800
+  3762  2025-01-03  4915.540039  4917.339844  4861.120117  4871.450195  17720300
+    
+  [3763 rows x 6 columns]
+</code></pre></div> </div> </li> </ul> <h3 id="absolute-log-returns-as-daily-volatility">Absolute Log-Returns as Daily Volatility</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Log returns computation
+</span><span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">log_return_eur50</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">eurostoxx50</span><span class="sh">'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">eurostoxx50</span><span class="sh">'</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># Daily volatility computation
+</span><span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">log_return_eur50</span><span class="sh">'</span><span class="p">].</span><span class="nf">abs</span><span class="p">()</span>
+
+<span class="c1"># Creation of the variable 'vol'
+</span><span class="n">vol_mlp</span> <span class="o">=</span> <span class="n">df_mlp</span><span class="p">[[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">]].</span><span class="nf">copy</span><span class="p">()</span>
+
+</code></pre></div></div> <h3 id="choosing-the-optimal-number-of-lags-for-volatility">Choosing the Optimal Number of Lags for Volatility</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vol_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">to_datetime</span><span class="p">(</span><span class="n">vol_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">])</span>
+<span class="n">vol_mlp</span><span class="p">.</span><span class="nf">set_index</span><span class="p">(</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="c1"># Maximum lag parameter to test
+</span><span class="n">P_max_mlp</span> <span class="o">=</span> <span class="mi">30</span>
+
+<span class="n">aic_vals_mlp</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">bic_vals_mlp</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">p_mlp</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">P_max_mlp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># 1) Create the matrix of regressors with p lags
+</span>    <span class="n">df_lags_mlp</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">vol_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_mlp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)],</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="n">df_lags_mlp</span><span class="p">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">vol_lag</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="sh">'</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_mlp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+    <span class="c1"># Join with the target (drop NaN)
+</span>    <span class="n">data_mlp</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">concat</span><span class="p">([</span><span class="n">vol_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">],</span> <span class="n">df_lags_mlp</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="nf">dropna</span><span class="p">()</span>
+    <span class="n">y_mlp</span> <span class="o">=</span> <span class="n">data_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">]</span>
+    <span class="n">X_mlp</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="nf">add_constant</span><span class="p">(</span><span class="n">data_mlp</span><span class="p">.</span><span class="nf">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">))</span>
+
+    <span class="c1"># 2) Estimate OLS
+</span>    <span class="n">model_mlp</span> <span class="o">=</span> <span class="n">sm</span><span class="p">.</span><span class="nc">OLS</span><span class="p">(</span><span class="n">y_mlp</span><span class="p">,</span> <span class="n">X_mlp</span><span class="p">).</span><span class="nf">fit</span><span class="p">()</span>
+
+    <span class="c1"># 3) Extract AIC and BIC
+</span>    <span class="n">aic_vals_mlp</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">model_mlp</span><span class="p">.</span><span class="n">aic</span><span class="p">)</span>
+    <span class="n">bic_vals_mlp</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">model_mlp</span><span class="p">.</span><span class="n">bic</span><span class="p">)</span>
+
+<span class="c1"># Create a DataFrame to store results
+</span><span class="n">crit_mlp</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">({</span>
+    <span class="sh">'</span><span class="s">p</span><span class="sh">'</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="nf">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">P_max_mlp</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="sh">'</span><span class="s">AIC</span><span class="sh">'</span><span class="p">:</span> <span class="n">aic_vals_mlp</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">BIC</span><span class="sh">'</span><span class="p">:</span> <span class="n">bic_vals_mlp</span>
+<span class="p">})</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">crit_mlp</span><span class="p">)</span>
+
+<span class="c1"># 4) Optimal lag
+</span><span class="n">best_p_aic_mlp</span> <span class="o">=</span> <span class="n">crit_mlp</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">crit_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">AIC</span><span class="sh">'</span><span class="p">].</span><span class="nf">idxmin</span><span class="p">(),</span> <span class="sh">'</span><span class="s">p</span><span class="sh">'</span><span class="p">]</span>
+<span class="n">best_p_bic_mlp</span> <span class="o">=</span> <span class="n">crit_mlp</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">crit_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">BIC</span><span class="sh">'</span><span class="p">].</span><span class="nf">idxmin</span><span class="p">(),</span> <span class="sh">'</span><span class="s">p</span><span class="sh">'</span><span class="p">]</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">p* (AIC) = </span><span class="si">{</span><span class="n">best_p_aic_mlp</span><span class="si">}</span><span class="s">,   p* (BIC) = </span><span class="si">{</span><span class="n">best_p_bic_mlp</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     p           AIC           BIC
+0    1 -24698.451879 -24685.986999
+1    2 -24843.250779 -24824.554256
+2    3 -24988.678176 -24963.750543
+3    4 -25046.216967 -25015.058757
+4    5 -25051.693611 -25014.305355
+5    6 -25086.851282 -25043.233514
+6    7 -25088.074963 -25038.228215
+7    8 -25108.182050 -25052.106855
+8    9 -25113.158244 -25050.855136
+9   10 -25110.691492 -25042.161004
+10  11 -25107.091561 -25032.334228
+11  12 -25103.200034 -25022.216389
+12  13 -25093.556848 -25006.347426
+13  14 -25084.136774 -24990.702109
+14  15 -25076.299100 -24976.639727
+15  16 -25067.078175 -24961.194629
+16  17 -25059.752118 -24947.644934
+17  18 -25051.900097 -24933.569810
+18  19 -25042.776205 -24918.223351
+19  20 -25033.445852 -24902.670967
+20  21 -25024.756271 -24887.759889
+21  22 -25027.268577 -24884.051236
+22  23 -25026.494638 -24877.056874
+23  24 -25024.244340 -24868.586690
+24  25 -25017.375051 -24855.498051
+25  26 -25007.811241 -24839.715430
+26  27 -24998.999698 -24824.685611
+27  28 -24990.444466 -24809.912642
+28  29 -24981.598888 -24794.849863
+29  30 -24978.215862 -24785.250176
+p* (AIC) = 9,   p* (BIC) = 8
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vol_mlp</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">.</span><span class="nf">reset_index</span><span class="p">()</span>
+<span class="n">vol_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">].</span><span class="n">dt</span><span class="p">.</span><span class="nf">strftime</span><span class="p">(</span><span class="sh">'</span><span class="s">%Y-%m-%d</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># now it is an object
+</span>
+</code></pre></div></div> <h3 id="features-engineering">Features Engineering</h3> <p>Now I build the variable <code class="language-plaintext highlighter-rouge">features</code> which will contain all the necessary features (or predictors)</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Columns to keep
+</span><span class="n">columns_to_keep_mlp</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df_mlp</span><span class="p">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="sh">'</span><span class="s">eurostoxx50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">log_return_eur50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">]]</span>
+
+<span class="c1"># Creation of 'features' variable
+</span><span class="n">features_mlp</span> <span class="o">=</span> <span class="n">df_mlp</span><span class="p">[</span><span class="n">columns_to_keep_mlp</span><span class="p">].</span><span class="nf">copy</span><span class="p">()</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. Intraday volatility proxy: use the log-range High/Low
+</span><span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">range_log</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">High</span><span class="sh">"</span><span class="p">]</span> <span class="o">/</span> <span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">Low</span><span class="sh">"</span><span class="p">])</span>
+
+<span class="c1"># 2. Open-Close spread percentage (absolute value, only magnitude)
+</span><span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">open_close_pct</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">Open</span><span class="sh">"</span><span class="p">]</span> <span class="o">-</span> <span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">Close</span><span class="sh">"</span><span class="p">]).</span><span class="nf">abs</span><span class="p">()</span> <span class="o">/</span> <span class="n">eur50_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">Close</span><span class="sh">"</span><span class="p">]</span>
+
+<span class="c1"># 3. Keep only the two new columns + Date
+</span><span class="n">spreads_mlp</span> <span class="o">=</span> <span class="n">eur50_mlp</span><span class="p">[[</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">range_log</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">open_close_pct</span><span class="sh">"</span><span class="p">]]</span>
+
+<span class="c1"># 4. Merge with the 'features' DataFrame
+</span><span class="n">features_mlp</span> <span class="o">=</span> <span class="n">features_mlp</span><span class="p">.</span><span class="nf">merge</span><span class="p">(</span><span class="n">spreads_mlp</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="sh">"</span><span class="s">left</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. Create the variable ret_sign (−1, 0, +1; 0 for initial NaNs)
+</span><span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">ret_sign</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sign</span><span class="p">(</span><span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">log_return_eur50</span><span class="sh">'</span><span class="p">]).</span><span class="nf">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="nf">astype</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">int8</span><span class="p">)</span>
+
+<span class="c1"># 2. Add it to the 'features' DataFrame, aligning by index/Date
+</span><span class="n">features_mlp</span> <span class="o">=</span> <span class="n">features_mlp</span><span class="p">.</span><span class="nf">assign</span><span class="p">(</span><span class="n">ret_sign</span><span class="o">=</span><span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">ret_sign</span><span class="sh">'</span><span class="p">])</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. Calculate rolling std over windows 5 and 10
+</span><span class="k">for</span> <span class="n">w_mlp</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">col_mlp</span> <span class="o">=</span> <span class="sa">f</span><span class="sh">"</span><span class="s">vol_std_</span><span class="si">{</span><span class="n">w_mlp</span><span class="si">}</span><span class="sh">"</span>
+    <span class="n">vol_mlp</span><span class="p">[</span><span class="n">col_mlp</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">vol_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">vol_eur50</span><span class="sh">"</span><span class="p">]</span>
+        <span class="p">.</span><span class="nf">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">w_mlp</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="n">w_mlp</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">std</span><span class="p">()</span>
+    <span class="p">)</span>
+
+<span class="c1"># 2. Merge the rolling stds into features
+</span><span class="n">vol_stds_mlp</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">[[</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_std_5</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_std_10</span><span class="sh">"</span><span class="p">]]</span>
+<span class="n">features_mlp</span> <span class="o">=</span> <span class="n">features_mlp</span><span class="p">.</span><span class="nf">merge</span><span class="p">(</span><span class="n">vol_stds_mlp</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="sh">"</span><span class="s">left</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1) log-return of EuroStoxx 50
+</span><span class="n">features_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">log_return_eur50</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">log_return_eur50</span><span class="sh">'</span><span class="p">]</span>
+</code></pre></div></div> <h3 id="lagging">Lagging</h3> <p>We want to predict volatility at time <code class="language-plaintext highlighter-rouge">t</code> and to do so we must use only the informations up to <code class="language-plaintext highlighter-rouge">t-1</code> since otherwise we will be using variables that we don’t really know at time <code class="language-plaintext highlighter-rouge">t</code> (it will be like cheating, i.e. using infos not available at <code class="language-plaintext highlighter-rouge">t</code>).</p> <p>To do so we use the <code class="language-plaintext highlighter-rouge">lag</code> of the variable, i.e. its previous observation</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># New variable to store lagged features
+</span><span class="n">features_lag_mlp</span> <span class="o">=</span> <span class="n">features_mlp</span><span class="p">[[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">]].</span><span class="nf">copy</span><span class="p">()</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Desired lags
+</span><span class="n">lags_mlp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># List to accumulate lagged series
+</span><span class="n">parts_mlp</span> <span class="o">=</span> <span class="p">[</span><span class="n">features_mlp</span><span class="p">[[</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">]]]</span>  <span class="c1"># always keep the Date
+</span>
+<span class="k">for</span> <span class="n">col_mlp</span> <span class="ow">in</span> <span class="n">features_mlp</span><span class="p">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">col_mlp</span> <span class="ow">in</span> <span class="p">[</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">]:</span>  <span class="c1"># NO lag for dummies or Date
+</span>        <span class="k">continue</span>
+    <span class="k">for</span> <span class="n">k_mlp</span> <span class="ow">in</span> <span class="n">lags_mlp</span><span class="p">:</span>  <span class="c1"># lags 1-3
+</span>        <span class="n">parts_mlp</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">features_mlp</span><span class="p">[</span><span class="n">col_mlp</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="n">k_mlp</span><span class="p">).</span><span class="nf">rename</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="si">{</span><span class="n">col_mlp</span><span class="si">}</span><span class="s">_lag</span><span class="si">{</span><span class="n">k_mlp</span><span class="si">}</span><span class="sh">"</span><span class="p">))</span>
+
+<span class="c1"># Combine all lagged features
+</span><span class="n">features_lag_mlp</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">concat</span><span class="p">(</span><span class="n">parts_mlp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Lag of vol_eur50 (target) 1-9
+</span><span class="k">for</span> <span class="n">k_mlp</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span>
+    <span class="n">vol_mlp</span><span class="p">[</span><span class="sa">f</span><span class="sh">"</span><span class="s">vol_eur50_lag</span><span class="si">{</span><span class="n">k_mlp</span><span class="si">}</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">[</span><span class="sh">"</span><span class="s">vol_eur50</span><span class="sh">"</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="n">k_mlp</span><span class="p">)</span>
+
+<span class="n">vol_lags_mlp</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">[[</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag2</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag3</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag4</span><span class="sh">"</span><span class="p">,</span>
+                        <span class="sh">"</span><span class="s">vol_eur50_lag5</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag6</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag7</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag8</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">vol_eur50_lag9</span><span class="sh">"</span><span class="p">]]</span>
+
+<span class="c1"># Merge with other lagged features
+</span><span class="n">features_lag_mlp</span> <span class="o">=</span> <span class="n">features_lag_mlp</span><span class="p">.</span><span class="nf">merge</span><span class="p">(</span><span class="n">vol_lags_mlp</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="sh">"</span><span class="s">left</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># (a) Create a boolean mask for rows where all lagged features are not null
+</span><span class="n">mask_mlp</span> <span class="o">=</span> <span class="n">features_lag_mlp</span><span class="p">.</span><span class="nf">notnull</span><span class="p">().</span><span class="nf">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># mask_mlp[i] == True only if ALL columns in features_lag_mlp.iloc[i] are NOT NaN
+</span>
+<span class="c1"># (b) Apply the mask and reset index
+</span><span class="n">features_lag_mlp</span> <span class="o">=</span> <span class="n">features_lag_mlp</span><span class="p">[</span><span class="n">mask_mlp</span><span class="p">].</span><span class="nf">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div> <blockquote> <p>Ultimately, the model includes 72 predictors, each appropriately lagged to prevent look-ahead bias.</p> </blockquote> <h3 id="adjusting-the-vol_mlp-variable-as-well">Adjusting the <code class="language-plaintext highlighter-rouge">vol_mlp</code> variable as well</h3> <p>In computing some new features we lost come initial rows in the dataset, se we need to remove them also in our <code class="language-plaintext highlighter-rouge">Y</code>, i.e. the variable <code class="language-plaintext highlighter-rouge">vol_mlp</code></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">vol_mlp</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">[[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">]].</span><span class="nf">copy</span><span class="p">()</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># (c) Apply the same mask to vol and reset the index
+</span><span class="n">vol_mlp</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">[</span><span class="n">mask_mlp</span><span class="p">].</span><span class="nf">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">vol_mlp</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>            Date  vol_eur50
+0     2010-01-22   0.009281
+1     2010-01-25   0.010453
+2     2010-01-26   0.007255
+3     2010-01-27   0.014369
+4     2010-01-28   0.018126
+...          ...        ...
+3745  2024-12-20   0.003433
+3746  2024-12-23   0.001925
+3747  2024-12-27   0.009424
+3748  2024-12-30   0.006061
+3749  2025-01-03   0.000446
+
+[3750 rows x 2 columns]
+</code></pre></div></div> <h3 id="train-and-test">Train and Test</h3> <p>Now we must split our <code class="language-plaintext highlighter-rouge">Y</code> (the <code class="language-plaintext highlighter-rouge">vol_mlp</code> variable) and the <code class="language-plaintext highlighter-rouge">X</code> matrix (the <code class="language-plaintext highlighter-rouge">features_lag_mlp</code> variable) into <code class="language-plaintext highlighter-rouge">train_mlp</code> and <code class="language-plaintext highlighter-rouge">test_mlp</code> data. Obviously the split is the same as the GARCH.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Y
+</span><span class="n">Y_mlp</span> <span class="o">=</span> <span class="n">vol_mlp</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+<span class="n">Y_mlp</span><span class="p">.</span><span class="nf">set_index</span><span class="p">(</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># date as index
+</span><span class="n">Y_mlp</span><span class="p">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">to_datetime</span><span class="p">(</span><span class="n">Y_mlp</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>  <span class="c1"># converting the index to datetime
+</span>
+<span class="n">Y_train_mlp</span> <span class="o">=</span> <span class="n">Y_mlp</span><span class="p">[:</span><span class="sh">'</span><span class="s">2021-11-30</span><span class="sh">'</span><span class="p">]</span>  <span class="c1"># Y_train
+</span><span class="n">Y_test_mlp</span> <span class="o">=</span> <span class="n">Y_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">2021-12-01</span><span class="sh">'</span><span class="p">:]</span>   <span class="c1"># Y_test
+</span>
+<span class="c1"># X
+</span><span class="n">X_mlp</span> <span class="o">=</span> <span class="n">features_lag_mlp</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+<span class="n">X_mlp</span><span class="p">.</span><span class="nf">set_index</span><span class="p">(</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  <span class="c1"># date as index
+</span><span class="n">X_mlp</span><span class="p">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">to_datetime</span><span class="p">(</span><span class="n">X_mlp</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>  <span class="c1"># converting the index to datetime
+</span>
+<span class="n">X_train_mlp</span> <span class="o">=</span> <span class="n">X_mlp</span><span class="p">[:</span><span class="sh">'</span><span class="s">2021-11-30</span><span class="sh">'</span><span class="p">]</span>  <span class="c1"># X_train
+</span><span class="n">X_test_mlp</span> <span class="o">=</span> <span class="n">X_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">2021-12-01</span><span class="sh">'</span><span class="p">:]</span>   <span class="c1"># X_test
+</span></code></pre></div></div> <h3 id="variables-selection-with-lasso">Variables Selection with Lasso</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1) Time series splitter as before
+</span><span class="n">tscv_mlp</span> <span class="o">=</span> <span class="nc">TimeSeriesSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># 2) Pipeline with scaler + LassoCV
+</span><span class="n">pipe_mlp</span> <span class="o">=</span> <span class="nf">make_pipeline</span><span class="p">(</span>
+    <span class="nc">StandardScaler</span><span class="p">(),</span>
+    <span class="nc">LassoCV</span><span class="p">(</span>
+        <span class="n">cv</span><span class="o">=</span><span class="n">tscv_mlp</span><span class="p">,</span>
+        <span class="n">n_alphas</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>      <span class="c1"># explore more α values
+</span>        <span class="n">max_iter</span><span class="o">=</span><span class="mi">100000</span><span class="p">,</span>    <span class="c1"># more iterations for convergence
+</span>        <span class="n">random_state</span><span class="o">=</span><span class="n">SEED</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># 3) Fit the pipeline
+</span><span class="n">pipe_mlp</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_train_mlp</span><span class="p">,</span> <span class="n">Y_train_mlp</span><span class="p">[</span><span class="sh">'</span><span class="s">vol_eur50</span><span class="sh">'</span><span class="p">])</span>
+
+<span class="c1"># 4) Extract the Lasso model from the pipeline
+</span><span class="n">lasso_mlp</span> <span class="o">=</span> <span class="n">pipe_mlp</span><span class="p">.</span><span class="n">named_steps</span><span class="p">[</span><span class="sh">'</span><span class="s">lassocv</span><span class="sh">'</span><span class="p">]</span>
+
+<span class="c1"># 5) Mask of non-zero features
+</span><span class="n">mask_mlp</span> <span class="o">=</span> <span class="n">lasso_mlp</span><span class="p">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span>
+<span class="n">selected_features_mlp</span> <span class="o">=</span> <span class="n">X_train_mlp</span><span class="p">.</span><span class="n">columns</span><span class="p">[</span><span class="n">mask_mlp</span><span class="p">].</span><span class="nf">tolist</span><span class="p">()</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Selected features (</span><span class="si">{</span><span class="nf">len</span><span class="p">(</span><span class="n">selected_features_mlp</span><span class="p">)</span><span class="si">}</span><span class="s">):</span><span class="se">\n</span><span class="sh">"</span><span class="p">,</span> <span class="n">selected_features_mlp</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Selected features (14):
+ ['cac40_lag1', 'range_log_lag1', 'range_log_lag2', 'range_log_lag3', 'open_close_pct_lag1', 'vol_std_10_lag3', 'log_return_eur50_lag1', 'log_return_eur50_lag2', 'log_return_eur50_lag3', 'vol_eur50_lag3', 'vol_eur50_lag4', 'vol_eur50_lag6', 'vol_eur50_lag8', 'vol_eur50_lag9']
+</code></pre></div></div> <h3 id="scaling">Scaling</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ==== SCALING ====
+</span>
+<span class="c1"># Initialize scalers for X and Y
+</span><span class="n">scaler_X_mlp</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+<span class="n">scaler_Y_mlp</span> <span class="o">=</span> <span class="nc">MinMaxScaler</span><span class="p">()</span>
+
+<span class="c1"># Fit &amp; transform on the training set, transform on the test set
+</span><span class="n">X_train_scaled_mlp</span> <span class="o">=</span> <span class="n">scaler_X_mlp</span><span class="p">.</span><span class="nf">fit_transform</span><span class="p">(</span><span class="n">X_train_mlp</span><span class="p">)</span>
+<span class="n">X_test_scaled_mlp</span> <span class="o">=</span> <span class="n">scaler_X_mlp</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">X_test_mlp</span><span class="p">)</span>
+
+<span class="n">Y_train_scaled_mlp</span> <span class="o">=</span> <span class="n">scaler_Y_mlp</span><span class="p">.</span><span class="nf">fit_transform</span><span class="p">(</span><span class="n">Y_train_mlp</span><span class="p">)</span>
+<span class="n">Y_test_scaled_mlp</span> <span class="o">=</span> <span class="n">scaler_Y_mlp</span><span class="p">.</span><span class="nf">transform</span><span class="p">(</span><span class="n">Y_test_mlp</span><span class="p">)</span>
+
+</code></pre></div></div> <h3 id="mlp">MLP</h3> <blockquote> <p><strong>Theorem</strong>: A neural network with a single hidden layer with any (continuous and non-constant) activation function can approximate any continuous function on a closed and bounded interval, provided it has a sufficient number of neurons in its hidden layer.</p> </blockquote> <h3 id="optimal-neurons">Optimal Neurons</h3> <p>To choose the optimal number of hidden nodes, the training MSE was evaluated as the number of nodes increased from 1 up to the number of input features.</p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>→ Optimal number of neurons = 1  (train-MSE = 1.4373e-02)
+</code></pre></div></div> <p><img src="/assets/proj/Volatility_files/mse_neurons.png" alt="opt_nodes" style="max-width: 100%; height: auto;"></p> <h3 id="model-1">Model</h3> <p>The model uses a <strong>Bayesian loss function</strong> that combines two components:</p> <ol> <li> <p><strong>Mean Squared Error (MSE)</strong> – This is the standard loss for regression tasks. It measures the average squared difference between predicted values and actual targets. It ensures the model fits the training data well.</p> </li> <li> <p><strong>KL Divergence (regularization term)</strong> – This term acts as a Bayesian regularizer. For each layer with weights, the model assumes:</p> <ul> <li>a <strong>prior distribution</strong> over weights: standard normal $ \mathcal{N}(0, 1) $,</li> <li>and a <strong>posterior distribution</strong>: normal with mean equal to the actual weights and a fixed standard deviation (0.1).</li> </ul> <p>The KL divergence between the posterior and prior measures how much the learned weights deviate from the prior belief. Minimizing it prevents overfitting by penalizing overly complex weight configurations.</p> </li> </ol> <p>The <strong>total loss</strong> is:</p> \[\text{Loss} = \text{MSE} + \frac{1}{N} \cdot \text{KL divergence}\] <p>where $N$ is the number of training samples, used here as a scaling factor ($\lambda = 1/N$) to balance the regularization term.</p> <p>This loss encourages the model not only to fit the data but also to keep weights close to a prior distribution.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Build the final model
+</span><span class="n">inp_mlp</span> <span class="o">=</span> <span class="nc">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">input_dim_mlp</span><span class="p">,))</span>
+<span class="n">x_mlp</span> <span class="o">=</span> <span class="nc">Dense</span><span class="p">(</span><span class="n">best_h_mlp</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="sh">"</span><span class="s">relu</span><span class="sh">"</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="sh">"</span><span class="s">glorot_uniform</span><span class="sh">"</span><span class="p">)(</span><span class="n">inp_mlp</span><span class="p">)</span>
+<span class="n">out_mlp</span> <span class="o">=</span> <span class="nc">Dense</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="sh">"</span><span class="s">linear</span><span class="sh">"</span><span class="p">)(</span><span class="n">x_mlp</span><span class="p">)</span>
+<span class="n">model_mlp</span> <span class="o">=</span> <span class="nc">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inp_mlp</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">out_mlp</span><span class="p">)</span>
+
+<span class="c1"># Bayesian loss function with regularization
+</span><span class="k">def</span> <span class="nf">bayesian_loss_mlp</span><span class="p">(</span><span class="n">y_true_mlp</span><span class="p">,</span> <span class="n">y_pred_mlp</span><span class="p">):</span>
+    <span class="c1"># Error term (MSE)
+</span>    <span class="n">mse_loss_mlp</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="nf">reduce_mean</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="nf">square</span><span class="p">(</span><span class="n">y_true_mlp</span> <span class="o">-</span> <span class="n">y_pred_mlp</span><span class="p">))</span>
+    
+    <span class="c1"># Regularization term (KL divergence)
+</span>    <span class="n">kl_loss_mlp</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">layer_mlp</span> <span class="ow">in</span> <span class="n">model_mlp</span><span class="p">.</span><span class="n">layers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nf">hasattr</span><span class="p">(</span><span class="n">layer_mlp</span><span class="p">,</span> <span class="sh">"</span><span class="s">kernel</span><span class="sh">"</span><span class="p">):</span>  <span class="c1"># Check if the layer has weights
+</span>            <span class="n">kernel_mlp</span> <span class="o">=</span> <span class="n">layer_mlp</span><span class="p">.</span><span class="n">kernel</span>
+            <span class="n">prior_mlp</span> <span class="o">=</span> <span class="n">tfp</span><span class="p">.</span><span class="n">distributions</span><span class="p">.</span><span class="nc">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Prior: Normal(0, 1)
+</span>            <span class="n">posterior_mlp</span> <span class="o">=</span> <span class="n">tfp</span><span class="p">.</span><span class="n">distributions</span><span class="p">.</span><span class="nc">Normal</span><span class="p">(</span><span class="n">kernel_mlp</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># Posterior: Normal(kernel, 0.1)
+</span>            <span class="n">kl_loss_mlp</span> <span class="o">+=</span> <span class="n">tf</span><span class="p">.</span><span class="nf">reduce_sum</span><span class="p">(</span><span class="n">tfp</span><span class="p">.</span><span class="n">distributions</span><span class="p">.</span><span class="nf">kl_divergence</span><span class="p">(</span><span class="n">posterior_mlp</span><span class="p">,</span> <span class="n">prior_mlp</span><span class="p">))</span>
+    
+    <span class="c1"># Total loss with regularization term
+</span>    <span class="k">return</span> <span class="n">mse_loss_mlp</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">N_mlp</span><span class="p">)</span> <span class="o">*</span> <span class="n">kl_loss_mlp</span>  <span class="c1"># Using λ = 1/N
+</span>
+<span class="c1"># Compile the model
+</span><span class="n">model_mlp</span><span class="p">.</span><span class="nf">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="nc">Adam</span><span class="p">(),</span> <span class="n">loss</span><span class="o">=</span><span class="n">bayesian_loss_mlp</span><span class="p">)</span>
+
+<span class="c1"># Train the final model
+</span><span class="n">hist_mlp</span> <span class="o">=</span> <span class="n">model_mlp</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span>
+    <span class="n">X_train_values_mlp</span><span class="p">,</span> <span class="n">Y_train_values_mlp</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>      <span class="c1"># Use the same number of epochs
+</span>    <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span>
+<span class="p">)</span>
+</code></pre></div></div> <h3 id="one-step-ahead-forecast-1">One-Step Ahead Forecast</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ════════════════════════════════════════════════════════════════
+# 2. Static OSA loop on the test period (no fine-tuning)
+# ════════════════════════════════════════════════════════════════
+</span><span class="n">y_pred_scaled_mlp</span><span class="p">,</span> <span class="n">y_true_scaled_mlp</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i_mlp</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">X_test_scaled_mlp</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="n">x_i_mlp</span> <span class="o">=</span> <span class="n">X_test_scaled_mlp</span><span class="p">[</span><span class="n">i_mlp</span><span class="p">:</span><span class="n">i_mlp</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>          <span class="c1"># Features known up to t-1
+</span>    <span class="n">y_i_true_mlp</span> <span class="o">=</span> <span class="n">Y_test_scaled_mlp</span><span class="p">[</span><span class="n">i_mlp</span><span class="p">]</span>             <span class="c1"># True target (scaled 0-1)
+</span>    <span class="n">y_i_pred_mlp</span> <span class="o">=</span> <span class="n">model_mlp</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">x_i_mlp</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Model prediction
+</span>
+    <span class="n">y_pred_scaled_mlp</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">y_i_pred_mlp</span><span class="p">)</span>
+    <span class="n">y_true_scaled_mlp</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">y_i_true_mlp</span><span class="p">)</span>
+
+<span class="n">y_pred_scaled_mlp</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">y_pred_scaled_mlp</span><span class="p">)</span>
+<span class="n">y_true_scaled_mlp</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="n">y_true_scaled_mlp</span><span class="p">)</span>
+
+<span class="c1"># ════════════════════════════════════════════════════════════════
+# 3. Invert scaling to return to the original scale
+# ════════════════════════════════════════════════════════════════
+</span><span class="n">y_pred_mlp</span> <span class="o">=</span> <span class="n">scaler_Y_mlp</span><span class="p">.</span><span class="nf">inverse_transform</span><span class="p">(</span><span class="n">y_pred_scaled_mlp</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)).</span><span class="nf">ravel</span><span class="p">()</span>
+<span class="n">y_true_mlp</span> <span class="o">=</span> <span class="n">scaler_Y_mlp</span><span class="p">.</span><span class="nf">inverse_transform</span><span class="p">(</span><span class="n">y_true_scaled_mlp</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)).</span><span class="nf">ravel</span><span class="p">()</span>
+</code></pre></div></div> <h3 id="mlp-results">MLP Results</h3> <p><img src="/assets/proj/Volatility_files/mlp.png" alt="mlp" style="max-width: 100%; height: auto;"></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MAE: 0.0050319649
+MSE: 0.0000540227
+RMSE: 0.0073500164
+</code></pre></div></div> <h2 id="random-forest-by-valentina-sanna">Random Forest by <strong>Valentina Sanna</strong> </h2> <h3 id="raw-data">Raw Data</h3> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        Date  EUROSTOXX50        SP500          DAX    EURUSD         GOLD  \
+0 2010-01-05  3012.360107  1136.520020  6031.859863  1.436596  1118.099976   
+1 2010-01-06  3009.659912  1137.140015  6034.330078  1.440403  1135.900024   
+2 2010-01-07  3007.340088  1141.689941  6019.359863  1.431803  1133.099976   
+3 2010-01-08  3017.850098  1144.979980  6037.609863  1.441109  1138.199951   
+4 2010-01-11  3010.239990  1146.979980  6040.500000  1.451126  1150.699951   
+
+    BRENTOIL  US10Y_Yield  US10Y_Change  BTP10Y  BUND10Y  BTP_BUND_SPREAD  \
+0  80.589996        3.763       -0.0157   4.095    3.369            0.726   
+1  81.889999        3.829        0.0175   4.116    3.391            0.725   
+2  81.510002        3.827       -0.0005   4.089    3.371            0.718   
+3  81.370003        3.836        0.0024   4.100    3.379            0.721   
+4  80.970001        3.824       -0.0031   4.054    3.345            0.709   
+
+   ECB_POLICYRATE  
+0             1.0  
+1             1.0  
+2             1.0  
+3             1.0  
+4             1.0  
+</code></pre></div></div> <h3 id="target-variable">Target Variable</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">LOG_RET_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">EUROSTOXX50</span><span class="sh">'</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">REALIZED_VOLATILITY</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">LOG_RET_EUROSTOXX50</span><span class="sh">'</span><span class="p">].</span><span class="nf">abs</span><span class="p">()</span>
+</code></pre></div></div> <h3 id="feature-engineering">Feature Engineering</h3> <h4 id="eurostoxx50">EUROSTOXX50</h4> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Memory of the *target* itself
+</span><span class="n">target_ret_rf</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">LOG_RET_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span>
+
+<span class="c1"># --- Target memory: 5- and 10-day lags of log-returns -----------------------
+</span><span class="k">for</span> <span class="n">w_rf</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+    <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">ROLL_STD_</span><span class="si">{</span><span class="n">w_rf</span><span class="si">}</span><span class="s">D_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_ret_rf</span><span class="p">.</span><span class="nf">rolling</span><span class="p">(</span><span class="n">w_rf</span><span class="p">).</span><span class="nf">std</span><span class="p">()</span>
+    <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">MOV_AVE_</span><span class="si">{</span><span class="n">w_rf</span><span class="si">}</span><span class="s">D_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span>  <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">REALIZED_VOLATILITY</span><span class="sh">'</span><span class="p">].</span><span class="nf">rolling</span><span class="p">(</span><span class="n">w_rf</span><span class="p">).</span><span class="nf">mean</span><span class="p">()</span>
+    <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">VOL_STD_</span><span class="si">{</span><span class="n">w_rf</span><span class="si">}</span><span class="s">D_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span>  <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">REALIZED_VOLATILITY</span><span class="sh">'</span><span class="p">].</span><span class="nf">rolling</span><span class="p">(</span><span class="n">w_rf</span><span class="p">).</span><span class="nf">std</span><span class="p">()</span>
+
+</code></pre></div></div> <h4 id="macro-asset">Macro-Asset</h4> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">macro_assets_rf</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">SP500</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">DAX</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">EURUSD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">GOLD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">BRENTOIL</span><span class="sh">'</span><span class="p">]</span>
+<span class="n">logret_cols_rf</span>  <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">name_rf</span> <span class="ow">in</span> <span class="n">macro_assets_rf</span><span class="p">:</span>
+    <span class="n">lr_rf</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">df_rf</span><span class="p">[</span><span class="n">name_rf</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_rf</span><span class="p">[</span><span class="n">name_rf</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">col_lr_rf</span> <span class="o">=</span> <span class="sa">f</span><span class="sh">'</span><span class="s">LOGRET_</span><span class="si">{</span><span class="n">name_rf</span><span class="si">}</span><span class="sh">'</span>
+    <span class="n">df_rf</span><span class="p">[</span><span class="n">col_lr_rf</span><span class="p">]</span> <span class="o">=</span> <span class="n">lr_rf</span>
+    <span class="n">logret_cols_rf</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">col_lr_rf</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">w_rf</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">ROLL_STD_</span><span class="si">{</span><span class="n">w_rf</span><span class="si">}</span><span class="s">D_</span><span class="si">{</span><span class="n">name_rf</span><span class="si">}</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">lr_rf</span><span class="p">.</span><span class="nf">rolling</span><span class="p">(</span><span class="n">w_rf</span><span class="p">).</span><span class="nf">std</span><span class="p">()</span>
+        <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">MOV_AVE_</span><span class="si">{</span><span class="n">w_rf</span><span class="si">}</span><span class="s">D_</span><span class="si">{</span><span class="n">name_rf</span><span class="si">}</span><span class="sh">'</span><span class="p">]</span>  <span class="o">=</span> <span class="n">lr_rf</span><span class="p">.</span><span class="nf">rolling</span><span class="p">(</span><span class="n">w_rf</span><span class="p">).</span><span class="nf">mean</span><span class="p">()</span>
+        <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">VOL_STD_</span><span class="si">{</span><span class="n">w_rf</span><span class="si">}</span><span class="s">D_</span><span class="si">{</span><span class="n">name_rf</span><span class="si">}</span><span class="sh">'</span><span class="p">]</span>  <span class="o">=</span> <span class="n">lr_rf</span><span class="p">.</span><span class="nf">rolling</span><span class="p">(</span><span class="n">w_rf</span><span class="p">).</span><span class="nf">std</span><span class="p">()</span>
+
+</code></pre></div></div> <h3 id="price-lags--extra-memory">Price lags &amp; extra memory</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">lag_rf</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+    <span class="c1"># --- Eurostoxx price lags ------------------------------------
+</span>    <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">LAG</span><span class="si">{</span><span class="n">lag_rf</span><span class="si">}</span><span class="s">_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">EUROSTOXX50</span><span class="sh">'</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="n">lag_rf</span><span class="p">)</span>
+    <span class="c1"># --- Log-return macro asset lags ------------------------------
+</span>    <span class="k">for</span> <span class="n">col_rf</span> <span class="ow">in</span> <span class="n">logret_cols_rf</span><span class="p">:</span>
+        <span class="n">df_rf</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="si">{</span><span class="n">col_rf</span><span class="si">}</span><span class="s">_L</span><span class="si">{</span><span class="n">lag_rf</span><span class="si">}</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="n">col_rf</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="n">lag_rf</span><span class="p">)</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Total engineered columns: </span><span class="si">{</span><span class="n">df_rf</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="si">:</span><span class="n">d</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Total engineered columns: 72
+</code></pre></div></div> <h3 id="build-x-and-y">Build X and y</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">y_rf</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">[</span><span class="sh">'</span><span class="s">REALIZED_VOLATILITY</span><span class="sh">'</span><span class="p">]</span>
+
+<span class="n">cols_to_drop_rf</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">REALIZED_VOLATILITY</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOG_RET_EUROSTOXX50</span><span class="sh">'</span><span class="p">]</span>
+<span class="n">X_rf</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">.</span><span class="nf">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">cols_to_drop_rf</span><span class="p">)</span>
+
+<span class="c1"># --- Identify already lagged features --------------------------
+</span><span class="n">lag_flags_rf</span> <span class="o">=</span> <span class="n">X_rf</span><span class="p">.</span><span class="n">columns</span><span class="p">.</span><span class="nb">str</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">'</span><span class="s">LAG</span><span class="sh">'</span><span class="p">)</span> <span class="o">|</span> <span class="n">X_rf</span><span class="p">.</span><span class="n">columns</span><span class="p">.</span><span class="nb">str</span><span class="p">.</span><span class="nf">contains</span><span class="p">(</span><span class="sh">'</span><span class="s">_L[123]$</span><span class="sh">'</span><span class="p">)</span>
+<span class="n">cols_raw_rf</span>  <span class="o">=</span> <span class="n">X_rf</span><span class="p">.</span><span class="n">columns</span><span class="p">[</span><span class="o">~</span><span class="n">lag_flags_rf</span><span class="p">]</span>          <span class="c1"># to be shifted by +1
+</span>
+<span class="c1"># --- Apply 1-day shift ONLY to raw features ---------------------
+</span><span class="n">X_lagged_rf</span> <span class="o">=</span> <span class="n">X_rf</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+<span class="n">X_lagged_rf</span><span class="p">[</span><span class="n">cols_raw_rf</span><span class="p">]</span> <span class="o">=</span> <span class="n">X_lagged_rf</span><span class="p">[</span><span class="n">cols_raw_rf</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># --- Remove rows with NaN in X or y ---------------------------
+</span><span class="n">mask_valid_rf</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">X_lagged_rf</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">y_rf</span><span class="p">.</span><span class="nf">isna</span><span class="p">())</span>
+<span class="n">X_lagged_rf</span> <span class="o">=</span> <span class="n">X_lagged_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask_valid_rf</span><span class="p">]</span>
+<span class="n">y_rf</span>        <span class="o">=</span> <span class="n">y_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask_valid_rf</span><span class="p">]</span>
+
+<span class="c1"># --- Re-index with the date -----------------------------------
+</span><span class="n">dates_rf</span> <span class="o">=</span> <span class="n">df_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask_valid_rf</span><span class="p">,</span> <span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">]</span>
+<span class="n">X_lagged_rf</span><span class="p">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">dates_rf</span>
+<span class="n">y_rf</span><span class="p">.</span><span class="n">index</span>        <span class="o">=</span> <span class="n">dates_rf</span>
+
+</code></pre></div></div> <h3 id="train-and-test-split">Train and Test split</h3> <p>Obviously the split is the same as the GARCH.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">TRAIN_END_rf</span>  <span class="o">=</span> <span class="sh">'</span><span class="s">2021-11-30</span><span class="sh">'</span>
+<span class="n">TEST_START_rf</span> <span class="o">=</span> <span class="sh">'</span><span class="s">2021-12-01</span><span class="sh">'</span>
+
+<span class="n">train_X_rf</span> <span class="o">=</span> <span class="n">X_lagged_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">TRAIN_END_rf</span><span class="p">]</span>
+<span class="n">train_y_rf</span> <span class="o">=</span> <span class="n">y_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">TRAIN_END_rf</span><span class="p">]</span>
+<span class="n">test_X_rf</span>  <span class="o">=</span> <span class="n">X_lagged_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TEST_START_rf</span><span class="p">:]</span>
+<span class="n">test_y_rf</span>  <span class="o">=</span> <span class="n">y_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">TEST_START_rf</span><span class="p">:]</span>
+</code></pre></div></div> <blockquote> <h3 id="read-me">READ ME</h3> <p>The hyperparameter and features optimization was accelerated using <code class="language-plaintext highlighter-rouge">n_jobs = -1</code>, which enables parallel processing across all available CPU cores. While this significantly reduces computation time, parallel execution can lead to slight variability between runs because different core/thread scheduling can affect the order and precision of floating-point operations. This variability may also differ across machines or operating systems, regardless the <code class="language-plaintext highlighter-rouge">SEED</code> set at the beginning. To ensure reproducibility, I re-trained the final model using <code class="language-plaintext highlighter-rouge">n_jobs = 1</code> and applied the exact hyperparameters and features identified during the best optimization.</p> </blockquote> <h3 id="cross-validated-permutation-importance">Cross Validated permutation importance</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tscv_rf</span> <span class="o">=</span> <span class="nc">TimeSeriesSplit</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">gap</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>  <span class="c1"># gap avoids overlap
+</span><span class="n">importance_accum_rf</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Series</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">train_X_rf</span><span class="p">.</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="n">t0_rf</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">fold_rf</span><span class="p">,</span> <span class="p">(</span><span class="n">idx_tr_rf</span><span class="p">,</span> <span class="n">idx_val_rf</span><span class="p">)</span> <span class="ow">in</span> <span class="nf">enumerate</span><span class="p">(</span><span class="n">tscv_rf</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="n">train_X_rf</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">X_tr_rf</span><span class="p">,</span> <span class="n">X_val_rf</span> <span class="o">=</span> <span class="n">train_X_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_tr_rf</span><span class="p">],</span> <span class="n">train_X_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_val_rf</span><span class="p">]</span>
+    <span class="n">y_tr_rf</span><span class="p">,</span> <span class="n">y_val_rf</span> <span class="o">=</span> <span class="n">train_y_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_tr_rf</span><span class="p">],</span> <span class="n">train_y_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_val_rf</span><span class="p">]</span>
+
+    <span class="n">rf_fold_rf</span> <span class="o">=</span> <span class="nc">RandomForestRegressor</span><span class="p">(</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+        <span class="n">random_state</span><span class="o">=</span><span class="n">SEED</span><span class="p">,</span>
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">).</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_tr_rf</span><span class="p">,</span> <span class="n">y_tr_rf</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nf">threadpool_limits</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>  <span class="c1"># no nested threads
+</span>        <span class="n">imp_rf</span> <span class="o">=</span> <span class="nf">permutation_importance</span><span class="p">(</span>
+            <span class="n">rf_fold_rf</span><span class="p">,</span> <span class="n">X_val_rf</span><span class="p">,</span> <span class="n">y_val_rf</span><span class="p">,</span>
+            <span class="n">n_repeats</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="n">SEED</span><span class="p">,</span>
+            <span class="n">scoring</span><span class="o">=</span><span class="sh">'</span><span class="s">neg_mean_squared_error</span><span class="sh">'</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="n">importance_accum_rf</span> <span class="o">+=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Series</span><span class="p">(</span><span class="n">imp_rf</span><span class="p">.</span><span class="n">importances_mean</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X_val_rf</span><span class="p">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="nf">ping_rf</span><span class="p">(</span><span class="n">fold_rf</span><span class="p">,</span> <span class="n">tscv_rf</span><span class="p">.</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">t0_rf</span><span class="p">,</span> <span class="n">every</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="sh">'</span><span class="s">perm‑imp folds</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="n">importances_rf</span> <span class="o">=</span> <span class="p">(</span><span class="n">importance_accum_rf</span> <span class="o">/</span> <span class="n">tscv_rf</span><span class="p">.</span><span class="n">n_splits</span><span class="p">).</span><span class="nf">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+</code></pre></div></div> <h3 id="elbow-curve">ELBOW curve</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mse_curve_cv_rf</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">t0_rf</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">k_rf</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">importances_rf</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">subset_rf</span> <span class="o">=</span> <span class="n">importances_rf</span><span class="p">.</span><span class="n">index</span><span class="p">[:</span><span class="n">k_rf</span><span class="p">]</span>  <span class="c1"># top k features by perm‑imp
+</span>
+    <span class="c1"># ---------- CV MSE with the same tscv (gap=5) ---------------
+</span>    <span class="n">cv_mse_rf</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">idx_tr_rf</span><span class="p">,</span> <span class="n">idx_val_rf</span> <span class="ow">in</span> <span class="n">tscv_rf</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="n">train_X_rf</span><span class="p">):</span>
+        <span class="n">X_tr_rf</span><span class="p">,</span> <span class="n">X_val_rf</span> <span class="o">=</span> <span class="n">train_X_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_tr_rf</span><span class="p">][</span><span class="n">subset_rf</span><span class="p">],</span> <span class="n">train_X_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_val_rf</span><span class="p">][</span><span class="n">subset_rf</span><span class="p">]</span>
+        <span class="n">y_tr_rf</span><span class="p">,</span> <span class="n">y_val_rf</span> <span class="o">=</span> <span class="n">train_y_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_tr_rf</span><span class="p">],</span> <span class="n">train_y_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">idx_val_rf</span><span class="p">]</span>
+
+        <span class="n">rf_tmp_rf</span> <span class="o">=</span> <span class="nc">RandomForestRegressor</span><span class="p">(</span>
+            <span class="n">n_estimators</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">SEED</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">).</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_tr_rf</span><span class="p">,</span> <span class="n">y_tr_rf</span><span class="p">)</span>
+
+        <span class="n">cv_mse_rf</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">mean_squared_error</span><span class="p">(</span><span class="n">y_val_rf</span><span class="p">,</span> <span class="n">rf_tmp_rf</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">X_val_rf</span><span class="p">)))</span>
+
+    <span class="n">mse_curve_cv_rf</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">cv_mse_rf</span><span class="p">))</span>
+    <span class="nf">ping_rf</span><span class="p">(</span><span class="n">k_rf</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">importances_rf</span><span class="p">),</span> <span class="n">t0_rf</span><span class="p">,</span> <span class="n">every</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="sh">'</span><span class="s">elbow‑CV</span><span class="sh">'</span><span class="p">)</span>
+
+</code></pre></div></div> <p><img src="/assets/proj/Volatility_files/elbow.png" alt="elbow" style="max-width: 100%; height: auto;"></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ---------------------------------------------------------
+# arg-min on the MSE curve (CV-safe)
+# ---------------------------------------------------------
+</span><span class="n">k_best_rf</span>  <span class="o">=</span> <span class="nf">int</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">argmin</span><span class="p">(</span><span class="n">mse_curve_cv_rf</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># +1 because Python indexing starts at 0
+</span><span class="n">mse_min_rf</span> <span class="o">=</span> <span class="nf">float</span><span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">mse_curve_cv_rf</span><span class="p">))</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Minimum CV‑MSE = </span><span class="si">{</span><span class="n">mse_min_rf</span><span class="si">:</span><span class="p">.</span><span class="mi">6</span><span class="n">f</span><span class="si">}</span><span class="s"> reached at k = </span><span class="si">{</span><span class="n">k_best_rf</span><span class="si">}</span><span class="s"> features</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># The top k_best features from the permutation importance ranking
+</span><span class="n">top_k_features_rf</span> <span class="o">=</span> <span class="n">importances_rf</span><span class="p">.</span><span class="n">index</span><span class="p">[:</span><span class="n">k_best_rf</span><span class="p">].</span><span class="nf">tolist</span><span class="p">()</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Minimum CV‑MSE = 0.000087 reached at k = 15 features
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">top_k_features_rf</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['MOV_AVE_10D_EUROSTOXX50', 'ROLL_STD_10D_SP500', 'LAG1_EUROSTOXX50', 'MOV_AVE_5D_DAX', 'VOL_STD_10D_SP500', 'BRENTOIL', 'VOL_STD_10D_EUROSTOXX50', 'MOV_AVE_10D_DAX', 'MOV_AVE_5D_SP500', 'MOV_AVE_10D_SP500', 'LOGRET_SP500_L2', 'LOGRET_SP500_L1', 'LOGRET_BRENTOIL_L3', 'LOGRET_SP500', 'ROLL_STD_10D_EUROSTOXX50']
+</code></pre></div></div> <h3 id="hyperparameter-tuning">Hyperparameter Tuning</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">N_TRIALS_rf</span>  <span class="o">=</span> <span class="mi">200</span>
+<span class="n">LOG_EVERY_rf</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="k">def</span> <span class="nf">objective_rf</span><span class="p">(</span><span class="n">trial_rf</span><span class="p">):</span>
+    <span class="n">params_rf</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sh">"</span><span class="s">n_estimators</span><span class="sh">"</span><span class="p">:</span>      <span class="n">trial_rf</span><span class="p">.</span><span class="nf">suggest_int</span><span class="p">(</span><span class="sh">"</span><span class="s">n_estimators</span><span class="sh">"</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">900</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+        <span class="sh">"</span><span class="s">max_depth</span><span class="sh">"</span><span class="p">:</span>         <span class="n">trial_rf</span><span class="p">.</span><span class="nf">suggest_categorical</span><span class="p">(</span><span class="sh">"</span><span class="s">max_depth</span><span class="sh">"</span><span class="p">,</span>
+                                                         <span class="p">[</span><span class="bp">None</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">20</span><span class="p">]),</span>
+        <span class="sh">"</span><span class="s">min_samples_split</span><span class="sh">"</span><span class="p">:</span> <span class="n">trial_rf</span><span class="p">.</span><span class="nf">suggest_int</span><span class="p">(</span><span class="sh">"</span><span class="s">min_samples_split</span><span class="sh">"</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+        <span class="sh">"</span><span class="s">min_samples_leaf</span><span class="sh">"</span><span class="p">:</span>  <span class="n">trial_rf</span><span class="p">.</span><span class="nf">suggest_int</span><span class="p">(</span><span class="sh">"</span><span class="s">min_samples_leaf</span><span class="sh">"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+        <span class="sh">"</span><span class="s">max_features</span><span class="sh">"</span><span class="p">:</span>      <span class="n">trial_rf</span><span class="p">.</span><span class="nf">suggest_float</span><span class="p">(</span><span class="sh">"</span><span class="s">max_features</span><span class="sh">"</span><span class="p">,</span> <span class="mf">0.10</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="sh">"</span><span class="s">bootstrap</span><span class="sh">"</span><span class="p">:</span>         <span class="n">trial_rf</span><span class="p">.</span><span class="nf">suggest_categorical</span><span class="p">(</span><span class="sh">"</span><span class="s">bootstrap</span><span class="sh">"</span><span class="p">,</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">]),</span>
+        <span class="sh">"</span><span class="s">random_state</span><span class="sh">"</span><span class="p">:</span>      <span class="n">SEED</span><span class="p">,</span>
+        <span class="sh">"</span><span class="s">n_jobs</span><span class="sh">"</span><span class="p">:</span>            <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">cv_mse_rf</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">tr_idx_rf</span><span class="p">,</span> <span class="n">val_idx_rf</span> <span class="ow">in</span> <span class="n">tscv_rf</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="n">train_X_rf</span><span class="p">):</span>
+        <span class="n">X_tr_rf</span> <span class="o">=</span> <span class="n">train_X_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">tr_idx_rf</span><span class="p">][</span><span class="n">top_k_features_rf</span><span class="p">]</span>
+        <span class="n">X_val_rf</span> <span class="o">=</span> <span class="n">train_X_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">val_idx_rf</span><span class="p">][</span><span class="n">top_k_features_rf</span><span class="p">]</span>
+        <span class="n">y_tr_rf</span> <span class="o">=</span> <span class="n">train_y_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">tr_idx_rf</span><span class="p">]</span>
+        <span class="n">y_val_rf</span> <span class="o">=</span> <span class="n">train_y_rf</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">val_idx_rf</span><span class="p">]</span>
+
+        <span class="n">model_rf</span> <span class="o">=</span> <span class="nc">RandomForestRegressor</span><span class="p">(</span><span class="o">**</span><span class="n">params_rf</span><span class="p">).</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_tr_rf</span><span class="p">,</span> <span class="n">y_tr_rf</span><span class="p">)</span>
+        <span class="n">cv_mse_rf</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nf">mean_squared_error</span><span class="p">(</span><span class="n">y_val_rf</span><span class="p">,</span> <span class="n">model_rf</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">X_val_rf</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="nf">float</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">cv_mse_rf</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">progress_cb_rf</span><span class="p">(</span><span class="n">study_rf</span><span class="p">,</span> <span class="n">trial_rf</span><span class="p">):</span>
+    <span class="n">done_rf</span> <span class="o">=</span> <span class="n">trial_rf</span><span class="p">.</span><span class="n">number</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">done_rf</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">done_rf</span> <span class="o">%</span> <span class="n">LOG_EVERY_rf</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">done_rf</span> <span class="o">==</span> <span class="n">N_TRIALS_rf</span><span class="p">:</span>
+        <span class="n">best_rf</span> <span class="o">=</span> <span class="n">study_rf</span><span class="p">.</span><span class="n">best_trial</span>
+        <span class="n">elapsed_rf</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0_rf</span>
+        <span class="n">eta_rf</span> <span class="o">=</span> <span class="n">elapsed_rf</span> <span class="o">/</span> <span class="n">done_rf</span> <span class="o">*</span> <span class="p">(</span><span class="n">N_TRIALS_rf</span> <span class="o">-</span> <span class="n">done_rf</span><span class="p">)</span>
+        <span class="n">stamp_rf</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">.</span><span class="nf">now</span><span class="p">().</span><span class="nf">strftime</span><span class="p">(</span><span class="sh">"</span><span class="s">%Y-%m-%d %H:%M:%S</span><span class="sh">"</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">[I </span><span class="si">{</span><span class="n">stamp_rf</span><span class="si">}</span><span class="s">] trial </span><span class="si">{</span><span class="n">done_rf</span><span class="si">:</span><span class="mi">4</span><span class="si">}</span><span class="s">/</span><span class="si">{</span><span class="n">N_TRIALS_rf</span><span class="si">}</span><span class="s">  </span><span class="sh">"</span>
+              <span class="sa">f</span><span class="sh">"</span><span class="s">value </span><span class="si">{</span><span class="n">trial_rf</span><span class="p">.</span><span class="n">value</span><span class="si">:</span><span class="p">.</span><span class="mi">6</span><span class="n">f</span><span class="si">}</span><span class="s">  best </span><span class="si">{</span><span class="n">best_rf</span><span class="p">.</span><span class="n">value</span><span class="si">:</span><span class="p">.</span><span class="mi">6</span><span class="n">f</span><span class="si">}</span><span class="s">  </span><span class="sh">"</span>
+              <span class="sa">f</span><span class="sh">"</span><span class="s">ETA </span><span class="si">{</span><span class="nf">eta_hms_rf</span><span class="p">(</span><span class="n">eta_rf</span><span class="p">)</span><span class="si">}</span><span class="sh">"</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="p">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+<span class="n">study_rf</span> <span class="o">=</span> <span class="n">optuna</span><span class="p">.</span><span class="nf">create_study</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="sh">"</span><span class="s">minimize</span><span class="sh">"</span><span class="p">,</span>
+                               <span class="n">sampler</span><span class="o">=</span><span class="nc">TPESampler</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">))</span>
+
+<span class="n">t0_rf</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+<span class="n">study_rf</span><span class="p">.</span><span class="nf">optimize</span><span class="p">(</span><span class="n">objective_rf</span><span class="p">,</span>
+                  <span class="n">n_trials</span><span class="o">=</span><span class="n">N_TRIALS_rf</span><span class="p">,</span>
+                  <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">progress_cb_rf</span><span class="p">],</span>
+                  <span class="n">show_progress_bar</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                  <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># one trial at a time to avoid race conditions
+</span>
+<span class="n">best_params_rf</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">study_rf</span><span class="p">.</span><span class="n">best_params</span><span class="p">,</span>
+                  <span class="sh">"</span><span class="s">random_state</span><span class="sh">"</span><span class="p">:</span> <span class="n">SEED</span><span class="p">,</span>
+                  <span class="sh">"</span><span class="s">n_jobs</span><span class="sh">"</span><span class="p">:</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="se">\n</span><span class="s">Best MSE (CV):</span><span class="sh">"</span><span class="p">,</span> <span class="n">study_rf</span><span class="p">.</span><span class="n">best_value</span><span class="p">,</span> <span class="sh">"</span><span class="se">\n</span><span class="s">params:</span><span class="sh">"</span><span class="p">,</span> <span class="n">best_params_rf</span><span class="p">)</span>
+
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Best MSE (CV): 6.987525013856155e-05 
+params: {'n_estimators': 500, 'max_depth': 6, 'min_samples_split': 18, 'min_samples_leaf': 8, 'max_features': 0.1912960433663199, 'bootstrap': True, 'random_state': 42, 'n_jobs': -1}
+</code></pre></div></div> <h3 id="best-optimization-model">Best Optimization Model</h3> <p>Here I use the the exact hyperparameters and features identified during the best optimization applying <code class="language-plaintext highlighter-rouge">n_jobs = 1</code> ensuring reproducibility</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">final_features_rf</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sh">'</span><span class="s">MOV_AVE_10D_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">ROLL_STD_10D_SP500</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LAG1_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">MOV_AVE_5D_DAX</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">VOL_STD_10D_SP500</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">BRENTOIL</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">MOV_AVE_10D_DAX</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">MOV_AVE_10D_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOGRET_SP500_L2</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">MOV_AVE_5D_SP500</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">MOV_AVE_10D_SP500</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOGRET_SP500</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">ROLL_STD_5D_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">LOGRET_SP500_L1</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOGRET_BRENTOIL_L3</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">EURUSD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">MOV_AVE_5D_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">ROLL_STD_10D_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">VOL_STD_5D_EUROSTOXX50</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">ROLL_STD_10D_DAX</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">LOGRET_DAX_L2</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOGRET_DAX_L1</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">ROLL_STD_5D_DAX</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">VOL_STD_10D_DAX</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">DAX</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOGRET_DAX_L3</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">VOL_STD_5D_DAX</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">LOGRET_BRENTOIL</span><span class="sh">'</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">VOL_STD_10D_BRENTOIL</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">MOV_AVE_5D_GOLD</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">ROLL_STD_5D_BRENTOIL</span><span class="sh">'</span>
+<span class="p">]</span>
+
+<span class="n">final_params_rf</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">'</span><span class="s">n_estimators</span><span class="sh">'</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">max_depth</span><span class="sh">'</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">min_samples_split</span><span class="sh">'</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">min_samples_leaf</span><span class="sh">'</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">max_features</span><span class="sh">'</span><span class="p">:</span> <span class="mf">0.1166744064508401</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">bootstrap</span><span class="sh">'</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">random_state</span><span class="sh">'</span><span class="p">:</span> <span class="n">SEED</span><span class="p">,</span>
+    <span class="sh">'</span><span class="s">n_jobs</span><span class="sh">'</span><span class="p">:</span> <span class="mi">1</span>   <span class="c1"># for determinism
+</span><span class="p">}</span>
+</code></pre></div></div> <h3 id="best-optimization-one-step-ahead-forecast">Best Optimization One-Step Ahead Forecast</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">final_preds_rf</span><span class="p">,</span> <span class="n">final_truth_rf</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="n">t0_rf</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span>
+<span class="n">dates_test_rf</span> <span class="o">=</span> <span class="n">test_X_rf</span><span class="p">.</span><span class="n">index</span>
+
+<span class="k">for</span> <span class="n">i_rf</span><span class="p">,</span> <span class="n">pred_date_rf</span> <span class="ow">in</span> <span class="nf">enumerate</span><span class="p">(</span><span class="n">dates_test_rf</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">X_tr_final_rf</span> <span class="o">=</span> <span class="n">X_lagged_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">pred_date_rf</span> <span class="o">-</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">final_features_rf</span><span class="p">]</span>
+    <span class="n">y_tr_final_rf</span> <span class="o">=</span> <span class="n">y_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">pred_date_rf</span> <span class="o">-</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+    <span class="n">X_pd_final_rf</span> <span class="o">=</span> <span class="n">test_X_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[[</span><span class="n">pred_date_rf</span><span class="p">],</span> <span class="n">final_features_rf</span><span class="p">]</span>
+
+    <span class="n">final_model_rf</span> <span class="o">=</span> <span class="nc">RandomForestRegressor</span><span class="p">(</span><span class="o">**</span><span class="n">final_params_rf</span><span class="p">).</span><span class="nf">fit</span><span class="p">(</span><span class="n">X_tr_final_rf</span><span class="p">,</span> <span class="n">y_tr_final_rf</span><span class="p">)</span>
+
+    <span class="n">final_preds_rf</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">final_model_rf</span><span class="p">.</span><span class="nf">predict</span><span class="p">(</span><span class="n">X_pd_final_rf</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">final_truth_rf</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">test_y_rf</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pred_date_rf</span><span class="p">])</span>
+
+    <span class="nf">ping_rf</span><span class="p">(</span><span class="n">i_rf</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">dates_test_rf</span><span class="p">),</span> <span class="n">t0_rf</span><span class="p">,</span> <span class="n">every</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="sh">'</span><span class="s">final rolling forecast</span><span class="sh">'</span><span class="p">)</span>
+
+<span class="c1"># Series with the final predictions
+</span><span class="n">final_pred_series_rf</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Series</span><span class="p">(</span><span class="n">final_preds_rf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">dates_test_rf</span><span class="p">)</span>
+</code></pre></div></div> <h3 id="best-optimization-rf-results">Best Optimization RF Results</h3> <p><img src="/assets/proj/Volatility_files/rf.png" alt="rf" style="max-width: 100%; height: auto;"></p> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MAE: 0.0052309866
+MSE: 0.0000530746
+RMSE: 0.0072852287
+</code></pre></div></div> <h2 id="conclusion">Conclusion</h2> <p><img src="/assets/proj/Volatility_files/comparison.png" alt="comparison" style="max-width: 100%; height: auto;"></p> <blockquote> <p>The MLP is the model with the lowest prediction errors, although all machine learning methods outperform the GARCH benchmark.</p> </blockquote> </article> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2025 Tommaso de Martino. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?a0db7e5d5c70cc3252b3138b0c91dcaf" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/js/zoom.js?85ddb88934d28b74e78031fd54cf8308"></script> <script src="/assets/js/no_defer.js?2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?e0514a05c5c95ac1a93a8dfd5249b92e"></script> <script defer src="/assets/js/copy_code.js?c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?a5bb4e6a542c546dd929b24b8b236dfd"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script defer src="/assets/js/progress-bar.js?2f30e0e6801ea8f5036fa66e1ab0a71a" type="text/javascript"></script> <script src="/assets/js/vanilla-back-to-top.min.js?f40d453793ff4f64e238e420181a1d17"></script> <script>
+    addBackToTop();
+  </script> </body> </html>

@@ -452,6 +452,11 @@ ninja.data = [{
           description: "Using Factor Models to Predict Macro Variables",
           section: "Projects",handler: () => {
               window.location.href = "/projects/FactorModels/";
+            },},{id: "projects-volatility-forecasting",
+          title: 'Volatility Forecasting',
+          description: "A comparative analysis of volatility forecasting models applied to the Euro Stoxx 50",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/Volatility/";
             },},{
         id: 'social-email',
         title: 'email',
