@@ -1,0 +1,1698 @@
+
+<!DOCTYPE html>
+<html data-app-version="4.8.2">
+    <head>
+        <title>Historical Replay Report | cTrader</title>
+
+        <meta name="title" content="Historical Replay Report | cTrader">
+        <meta name="description" content="Backtesting report of a cBot from cTrader Algo: equity, trade statistics, parameters, used symbols, positions, orders, history.">
+
+        <meta name="author" content="Spotware Systems Ltd">
+
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-eval' 'unsafe-inline' data: https: http: gap: ws: wss: blob: filesystem: file:">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <meta name="format-detection" content="telephone=no">
+
+        <style type="text/css" data-fela-rehydration="58" data-fela-type="KEYFRAME">@-webkit-keyframes spinner-k1{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@-moz-keyframes spinner-k1{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@keyframes spinner-k1{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}@-webkit-keyframes spinner-k2{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}@-moz-keyframes spinner-k2{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}@keyframes spinner-k2{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}</style><style type="text/css" data-fela-rehydration="58" data-fela-type="RULE">.spinner-a{position:absolute}.spinner-b{margin-left:auto}.spinner-c{margin-bottom:auto}.spinner-d{margin-right:auto}.spinner-e{margin-top:auto}.spinner-f{top:0}.spinner-g{bottom:0}.spinner-h{left:0}.spinner-i{right:0}.spinner-j{width:50px}.spinner-k{height:50px}.spinner-l{display:flex}.spinner-m{z-index:200}.spinner-n:before{content:""}.spinner-o:before{position:absolute}.spinner-p:before{border-style:solid}.spinner-q:before{border-top-left-radius:50%}.spinner-r:before{border-top-right-radius:50%}.spinner-s:before{border-bottom-right-radius:50%}.spinner-t:before{border-bottom-left-radius:50%}.spinner-u:before{display:inline-block}.spinner-v:before{box-sizing:border-box}.spinner-w:before{border-width:7px}.spinner-x:before{border-top-color:transparent}.spinner-y:before{border-left-color:transparent}.spinner-z:before{margin-top:7px}.spinner-ab:before{margin-right:7px}.spinner-ac:before{margin-bottom:7px}.spinner-ae:before{margin-left:7px}.spinner-af:before{width:calc(100% - 14px)}.spinner-ag:before{height:calc(100% - 14px)}.spinner-ah:before{border-right-color:#e75731}.spinner-ai:before{border-bottom-color:#e75731}.spinner-aj:before{animation-iteration-count:infinite}.spinner-ak:before{animation-timing-function:linear}.spinner-al:before{animation-duration:0.6s}.spinner-am:before{animation-name:spinner-k2}.spinner-an:after{content:""}.spinner-ao:after{position:absolute}.spinner-ap:after{border-style:solid}.spinner-aq:after{border-top-left-radius:50%}.spinner-ar:after{border-top-right-radius:50%}.spinner-as:after{border-bottom-right-radius:50%}.spinner-at:after{border-bottom-left-radius:50%}.spinner-au:after{display:inline-block}.spinner-av:after{box-sizing:border-box}.spinner-aw:after{border-width:7px}.spinner-ax:after{border-top-color:transparent}.spinner-ay:after{border-left-color:transparent}.spinner-az:after{width:100%}.spinner-ba:after{height:100%}.spinner-bb:after{border-right-color:rgba(36, 150, 73, 0.9)}.spinner-bc:after{border-bottom-color:rgba(36, 150, 73, 0.9)}.spinner-bd:after{animation-iteration-count:infinite}.spinner-be:after{animation-timing-function:linear}.spinner-bf:after{animation-duration:0.9s}.spinner-bg:after{animation-name:spinner-k1}</style>
+
+        <style>
+            html {
+                height: 100%;
+            }
+
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            #root {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+
+        <!-- startBacktestingReport -->
+        <script type="application/json" id="backtesting-report">{
+  "main": {
+    "utcOffset": 120,
+    "language": "en",
+    "depositAsset": "EUR",
+    "depositAssetDigits": 2,
+    "period": "m15",
+    "symbol": "EURUSD",
+    "brokerTitle": "FP Markets",
+    "cBotName": "Mean_Reversion_Zscore",
+    "roi": 298.66,
+    "netProfit": 29865.68,
+    "startingCapital": 10000,
+    "endingEquity": 39865.68,
+    "endingBalance": 39865.68,
+    "testingPeriod": {
+      "duration": "3y 2m 10d",
+      "startDate": 1652918400000,
+      "endDate": 1753747200000,
+      "formatted": "3y 2m 10d (19/05/2022 - 29/07/2025)"
+    },
+    "accountType": "hedging",
+    "accountLeverage": 500,
+    "data": {
+      "type": "m1BarsFromServer"
+    },
+    "spread": {
+      "type": "fixed",
+      "min": null,
+      "max": null,
+      "value": 0
+    },
+    "commissions": {
+      "type": "usdPerMillionUsdVolume",
+      "value": 60
+    },
+    "theme": "dark",
+    "titleKind": "backtesting",
+    "authorNickName": "tommasodemartino27",
+    "authorLink": null,
+    "cBotLink": null,
+    "embedded": false
+  },
+  "equity": {
+    "points": [
+      {
+        "balance": 10000,
+        "minEquity": 10000,
+        "maxEquity": 10000,
+        "timestamp": 1652918400000
+      },
+      {
+        "balance": 11946.27,
+        "minEquity": 9894.34,
+        "maxEquity": 9894.34,
+        "timestamp": 1657716360000
+      },
+      {
+        "balance": 13839.54,
+        "minEquity": 10119.35,
+        "maxEquity": 13588.54,
+        "timestamp": 1657809720000
+      },
+      {
+        "balance": 14731.79,
+        "minEquity": 12976.97,
+        "maxEquity": 14731.79,
+        "timestamp": 1658300400000
+      },
+      {
+        "balance": 15593.44,
+        "minEquity": 14434.61,
+        "maxEquity": 15593.44,
+        "timestamp": 1660602600000
+      },
+      {
+        "balance": 17594.71,
+        "minEquity": 15489.7,
+        "maxEquity": 17369.17,
+        "timestamp": 1661247780000
+      },
+      {
+        "balance": 19719.7,
+        "minEquity": 16802.54,
+        "maxEquity": 18988.18,
+        "timestamp": 1661845140000
+      },
+      {
+        "balance": 19538.06,
+        "minEquity": 18821.51,
+        "maxEquity": 20321.27,
+        "timestamp": 1663118100000
+      },
+      {
+        "balance": 17264.92,
+        "minEquity": 18429.04,
+        "maxEquity": 20961.64,
+        "timestamp": 1667485560000
+      },
+      {
+        "balance": 19481.61,
+        "minEquity": 16884.95,
+        "maxEquity": 18712.47,
+        "timestamp": 1669991400000
+      },
+      {
+        "balance": 21463.27,
+        "minEquity": 19193.83,
+        "maxEquity": 21279.79,
+        "timestamp": 1671762720000
+      },
+      {
+        "balance": 23342.89,
+        "minEquity": 21286.77,
+        "maxEquity": 22995.51,
+        "timestamp": 1673942640000
+      },
+      {
+        "balance": 21170.75,
+        "minEquity": 21598.55,
+        "maxEquity": 23868.46,
+        "timestamp": 1674658080000
+      },
+      {
+        "balance": 18705.33,
+        "minEquity": 19085.68,
+        "maxEquity": 21660.33,
+        "timestamp": 1675072860000
+      },
+      {
+        "balance": 18783.73,
+        "minEquity": 17664.99,
+        "maxEquity": 19290.51,
+        "timestamp": 1675409400000
+      },
+      {
+        "balance": 20676.55,
+        "minEquity": 18300.62,
+        "maxEquity": 20330.06,
+        "timestamp": 1678802880000
+      },
+      {
+        "balance": 20804.03,
+        "minEquity": 19973.52,
+        "maxEquity": 21006.84,
+        "timestamp": 1679984100000
+      },
+      {
+        "balance": 22227.86,
+        "minEquity": 20666.81,
+        "maxEquity": 22287.52,
+        "timestamp": 1680564600000
+      },
+      {
+        "balance": 22446.48,
+        "minEquity": 21737.44,
+        "maxEquity": 22682.82,
+        "timestamp": 1680842700000
+      },
+      {
+        "balance": 22246.56,
+        "minEquity": 21365.2,
+        "maxEquity": 22497.69,
+        "timestamp": 1681765200000
+      },
+      {
+        "balance": 24193.13,
+        "minEquity": 21035.1,
+        "maxEquity": 23747.08,
+        "timestamp": 1682087100000
+      },
+      {
+        "balance": 25798.16,
+        "minEquity": 23770.15,
+        "maxEquity": 25798.16,
+        "timestamp": 1683032400000
+      },
+      {
+        "balance": 26085.71,
+        "minEquity": 25632.72,
+        "maxEquity": 26085.71,
+        "timestamp": 1686006900000
+      },
+      {
+        "balance": 26336.3,
+        "minEquity": 25888.24,
+        "maxEquity": 26336.3,
+        "timestamp": 1689030900000
+      },
+      {
+        "balance": 26292.22,
+        "minEquity": 25789.7,
+        "maxEquity": 26916.21,
+        "timestamp": 1689542100000
+      },
+      {
+        "balance": 24040.81,
+        "minEquity": 24313.09,
+        "maxEquity": 26763.54,
+        "timestamp": 1694786820000
+      },
+      {
+        "balance": 24220.49,
+        "minEquity": 22997.3,
+        "maxEquity": 24854.91,
+        "timestamp": 1695867300000
+      },
+      {
+        "balance": 24872.15,
+        "minEquity": 23702.74,
+        "maxEquity": 25002.09,
+        "timestamp": 1698374700000
+      },
+      {
+        "balance": 25013.33,
+        "minEquity": 24068.75,
+        "maxEquity": 25082.94,
+        "timestamp": 1698397200000
+      },
+      {
+        "balance": 27154.24,
+        "minEquity": 23765.95,
+        "maxEquity": 26434.61,
+        "timestamp": 1701352860000
+      },
+      {
+        "balance": 27263.95,
+        "minEquity": 26098.26,
+        "maxEquity": 27420.69,
+        "timestamp": 1704774600000
+      },
+      {
+        "balance": 27468.11,
+        "minEquity": 25844.67,
+        "maxEquity": 28230.64,
+        "timestamp": 1704996900000
+      },
+      {
+        "balance": 27385.04,
+        "minEquity": 26154.47,
+        "maxEquity": 28046.48,
+        "timestamp": 1707846300000
+      },
+      {
+        "balance": 28296.56,
+        "minEquity": 26913.17,
+        "maxEquity": 28296.56,
+        "timestamp": 1709288100000
+      },
+      {
+        "balance": 28133.31,
+        "minEquity": 27322.31,
+        "maxEquity": 28296.56,
+        "timestamp": 1710260100000
+      },
+      {
+        "balance": 27765.67,
+        "minEquity": 27462.46,
+        "maxEquity": 28239.43,
+        "timestamp": 1712637900000
+      },
+      {
+        "balance": 28188.3,
+        "minEquity": 27538.09,
+        "maxEquity": 28350.85,
+        "timestamp": 1714546800000
+      },
+      {
+        "balance": 28032.74,
+        "minEquity": 27542.03,
+        "maxEquity": 28625.31,
+        "timestamp": 1715625900000
+      },
+      {
+        "balance": 27190.74,
+        "minEquity": 26763.92,
+        "maxEquity": 28054.09,
+        "timestamp": 1716200100000
+      },
+      {
+        "balance": 27115.08,
+        "minEquity": 26183.84,
+        "maxEquity": 27396.4,
+        "timestamp": 1716890400000
+      },
+      {
+        "balance": 24940.15,
+        "minEquity": 25323.75,
+        "maxEquity": 27589.69,
+        "timestamp": 1718720400000
+      },
+      {
+        "balance": 25804.14,
+        "minEquity": 24501.3,
+        "maxEquity": 25804.14,
+        "timestamp": 1721050200000
+      },
+      {
+        "balance": 27803.41,
+        "minEquity": 25737.2,
+        "maxEquity": 27570.59,
+        "timestamp": 1725629220000
+      },
+      {
+        "balance": 29010.84,
+        "minEquity": 27674.45,
+        "maxEquity": 29010.84,
+        "timestamp": 1725951600000
+      },
+      {
+        "balance": 30207.88,
+        "minEquity": 28669.95,
+        "maxEquity": 30325.43,
+        "timestamp": 1726138800000
+      },
+      {
+        "balance": 32110.6,
+        "minEquity": 29645.57,
+        "maxEquity": 31774.01,
+        "timestamp": 1727163960000
+      },
+      {
+        "balance": 34031.03,
+        "minEquity": 31815.16,
+        "maxEquity": 33886.9,
+        "timestamp": 1732520160000
+      },
+      {
+        "balance": 34745.12,
+        "minEquity": 33737.41,
+        "maxEquity": 34745.12,
+        "timestamp": 1736832600000
+      },
+      {
+        "balance": 35449.43,
+        "minEquity": 33880.76,
+        "maxEquity": 36029.2,
+        "timestamp": 1738188000000
+      },
+      {
+        "balance": 37422.19,
+        "minEquity": 35268.21,
+        "maxEquity": 37268.37,
+        "timestamp": 1738829700000
+      },
+      {
+        "balance": 38429.53,
+        "minEquity": 37298.7,
+        "maxEquity": 38533.59,
+        "timestamp": 1742579100000
+      },
+      {
+        "balance": 37961.98,
+        "minEquity": 36647.56,
+        "maxEquity": 38806.96,
+        "timestamp": 1742922900000
+      },
+      {
+        "balance": 39982.39,
+        "minEquity": 37367.38,
+        "maxEquity": 39534.96,
+        "timestamp": 1743764040000
+      },
+      {
+        "balance": 41842.61,
+        "minEquity": 39317.89,
+        "maxEquity": 41307.37,
+        "timestamp": 1744269420000
+      },
+      {
+        "balance": 39738.6,
+        "minEquity": 39759.72,
+        "maxEquity": 42287.63,
+        "timestamp": 1749046200000
+      },
+      {
+        "balance": 39237.36,
+        "minEquity": 38954.04,
+        "maxEquity": 39958.43,
+        "timestamp": 1749677400000
+      },
+      {
+        "balance": 38742.19,
+        "minEquity": 37718.06,
+        "maxEquity": 39497.86,
+        "timestamp": 1751531400000
+      },
+      {
+        "balance": 39865.68,
+        "minEquity": 38500.33,
+        "maxEquity": 40128.99,
+        "timestamp": 1751850900000
+      },
+      {
+        "balance": 39865.68,
+        "minEquity": 39865.68,
+        "maxEquity": 39865.68,
+        "timestamp": 1753827300000
+      }
+    ],
+    "maxBalanceDrawdownPercent": 19.86712013808058,
+    "maxEquityDrawdownPercent": 25.99023983952043,
+    "maxBalanceDrawdownAbsolute": 4637.56,
+    "maxEquityDrawdownAbsolute": 6203.47
+  },
+  "tradeStatistics": {
+    "netProfit": {
+      "all": 29865.68,
+      "long": 25616.04,
+      "short": 4249.64
+    },
+    "profitFactor": {
+      "all": 2.75,
+      "long": 10.49,
+      "short": 1.3
+    },
+    "commissions": {
+      "all": -7066.1,
+      "long": -3789.22,
+      "short": -3276.88
+    },
+    "swaps": {
+      "all": -370.62,
+      "long": -551.97,
+      "short": 181.35
+    },
+    "totalTrades": {
+      "all": 57,
+      "long": 31,
+      "short": 26
+    },
+    "winningTrades": {
+      "all": 39,
+      "long": 22,
+      "short": 17
+    },
+    "maxConsecutiveWinningTrades": {
+      "all": 10,
+      "long": 12,
+      "short": 5
+    },
+    "largestWinningTrade": {
+      "all": 2216.69,
+      "long": 2216.69,
+      "short": 2140.91
+    },
+    "losingTrades": {
+      "all": 18,
+      "long": 9,
+      "short": 9
+    },
+    "maxConsecutiveLosingTrades": {
+      "all": 4,
+      "long": 6,
+      "short": 4
+    },
+    "largestLosingTrade": {
+      "all": -2465.42,
+      "long": -842,
+      "short": -2465.42
+    },
+    "averageTrade": {
+      "all": 523.96,
+      "long": 826.32,
+      "short": 163.45
+    }
+  },
+  "usedSymbols": [
+    {
+      "symbol": "EURUSD",
+      "period": "m15",
+      "swapTime": "21:00",
+      "baseAsset": "EUR",
+      "baseAssetDigits": 2,
+      "quoteAsset": "USD",
+      "quoteAssetDigits": 2,
+      "commissions": {
+        "type": "usdPerMillionUsdVolume",
+        "value": 60
+      },
+      "swapLong": -0.97,
+      "swapShort": 0.45,
+      "threeDaySwaps": "wednesday",
+      "weekendSwaps": false,
+      "swapPeriods": 24,
+      "gracePeriods": 0,
+      "digits": 5,
+      "lotSize": 100000,
+      "stepVolume": 1000,
+      "pipPosition": 4,
+      "swapCalculationType": "pips"
+    }
+  ],
+  "positions": {
+    "columns": [
+      "symbol",
+      "quantity",
+      "volume",
+      "direction",
+      "entryPrice",
+      "tp",
+      "sl",
+      "commissions",
+      "closingCommissions",
+      "swaps",
+      "created",
+      "label",
+      "comment",
+      "pips",
+      "gross",
+      "net"
+    ],
+    "items": [],
+    "marginUsed": 0,
+    "freeMargin": 39865.68,
+    "marginLevel": null,
+    "unrealizedNet": 0,
+    "unrealizedGross": 0
+  },
+  "orders": {
+    "columns": [
+      "direction",
+      "orderType",
+      "created",
+      "symbol",
+      "quantity",
+      "submittedPrice",
+      "volume",
+      "limitRange",
+      "distance",
+      "currentPrice",
+      "expiryDate",
+      "tp",
+      "sl",
+      "comment",
+      "label"
+    ],
+    "items": []
+  },
+  "history": {
+    "columns": [
+      "id",
+      "symbol",
+      "quantity",
+      "volume",
+      "direction",
+      "entryPrice",
+      "closePrice",
+      "net",
+      "gross",
+      "balance"
+    ],
+    "items": [
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 2,
+        "net": 1946.27,
+        "gross": 2051.93,
+        "entryTime": 1657716300000,
+        "closeTime": 1657716360000,
+        "entryPrice": 1.00063,
+        "closePrice": 1.00331,
+        "commissions": -105.66,
+        "swaps": 0,
+        "volume": 884000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 11946.27,
+        "quantity": 8.84,
+        "pips": 26.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 4,
+        "net": 1893.27,
+        "gross": 2016.97,
+        "entryTime": 1657805400000,
+        "closeTime": 1657809720000,
+        "entryPrice": 0.99719,
+        "closePrice": 0.99944,
+        "commissions": -123.7,
+        "swaps": 0,
+        "volume": 1035000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 13839.54,
+        "quantity": 10.35,
+        "pips": 22.5
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 6,
+        "net": 892.25,
+        "gross": 1012.73,
+        "entryTime": 1658295900000,
+        "closeTime": 1658300400000,
+        "entryPrice": 1.02384,
+        "closePrice": 1.025,
+        "commissions": -120.48,
+        "swaps": 0,
+        "volume": 1008000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 14731.79,
+        "quantity": 10.08,
+        "pips": 11.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 8,
+        "net": 861.65,
+        "gross": 990.61,
+        "entryTime": 1660601700000,
+        "closeTime": 1660602600000,
+        "entryPrice": 1.01648,
+        "closePrice": 1.01542,
+        "commissions": -128.96,
+        "swaps": 0,
+        "volume": 1079000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 15593.44,
+        "quantity": 10.79,
+        "pips": 10.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 10,
+        "net": 2001.27,
+        "gross": 2105.01,
+        "entryTime": 1661240700000,
+        "closeTime": 1661247780000,
+        "entryPrice": 0.99432,
+        "closePrice": 0.99152,
+        "commissions": -103.74,
+        "swaps": 0,
+        "volume": 868000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 17594.71,
+        "quantity": 8.68,
+        "pips": 28
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 12,
+        "net": 2124.99,
+        "gross": 2248.09,
+        "entryTime": 1661841900000,
+        "closeTime": 1661845140000,
+        "entryPrice": 0.99903,
+        "closePrice": 1.00155,
+        "commissions": -123.1,
+        "swaps": 0,
+        "volume": 1030000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 19719.7,
+        "quantity": 10.3,
+        "pips": 25.2
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 14,
+        "net": -181.64,
+        "gross": -66.66,
+        "entryTime": 1663108200000,
+        "closeTime": 1663118100000,
+        "entryPrice": 0.99737,
+        "closePrice": 0.99745,
+        "commissions": -114.98,
+        "swaps": 0,
+        "volume": 962000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 19538.06,
+        "quantity": 9.62,
+        "pips": -0.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 16,
+        "net": -2273.14,
+        "gross": -2150.5,
+        "entryTime": 1667477700000,
+        "closeTime": 1667485560000,
+        "entryPrice": 0.97549,
+        "closePrice": 0.97791,
+        "commissions": -122.64,
+        "swaps": 0,
+        "volume": 1026000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 17264.92,
+        "quantity": 10.26,
+        "pips": -24.2
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 18,
+        "net": 2216.69,
+        "gross": 2307.41,
+        "entryTime": 1669988700000,
+        "closeTime": 1669991400000,
+        "entryPrice": 1.04481,
+        "closePrice": 1.04832,
+        "commissions": -90.72,
+        "swaps": 0,
+        "volume": 759000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 19481.61,
+        "quantity": 7.59,
+        "pips": 35.1
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 20,
+        "net": 1981.66,
+        "gross": 2114.92,
+        "entryTime": 1671757200000,
+        "closeTime": 1671762720000,
+        "entryPrice": 1.05894,
+        "closePrice": 1.06113,
+        "commissions": -133.26,
+        "swaps": 0,
+        "volume": 1115000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 21463.27,
+        "quantity": 11.15,
+        "pips": 21.9
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 22,
+        "net": 1879.62,
+        "gross": 2009.18,
+        "entryTime": 1673938800000,
+        "closeTime": 1673942640000,
+        "entryPrice": 1.08149,
+        "closePrice": 1.08363,
+        "commissions": -129.56,
+        "swaps": 0,
+        "volume": 1084000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 23342.89,
+        "quantity": 10.84,
+        "pips": 21.4
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 24,
+        "net": -2172.14,
+        "gross": -2051.66,
+        "entryTime": 1674651600000,
+        "closeTime": 1674658080000,
+        "entryPrice": 1.0874,
+        "closePrice": 1.08975,
+        "commissions": -120.48,
+        "swaps": 0,
+        "volume": 1008000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 21170.75,
+        "quantity": 10.08,
+        "pips": -23.5
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 26,
+        "net": -2465.42,
+        "gross": -2330.84,
+        "entryTime": 1675066500000,
+        "closeTime": 1675072860000,
+        "entryPrice": 1.08839,
+        "closePrice": 1.09078,
+        "commissions": -134.58,
+        "swaps": 0,
+        "volume": 1126000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 18705.33,
+        "quantity": 11.26,
+        "pips": -23.9
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 28,
+        "net": 78.4,
+        "gross": 210.36,
+        "entryTime": 1675394100000,
+        "closeTime": 1675409400000,
+        "entryPrice": 1.08949,
+        "closePrice": 1.08927,
+        "commissions": -131.96,
+        "swaps": 0,
+        "volume": 1104000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 18783.73,
+        "quantity": 11.04,
+        "pips": 2.2
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 30,
+        "net": 1892.82,
+        "gross": 2029.44,
+        "entryTime": 1678801500000,
+        "closeTime": 1678802880000,
+        "entryPrice": 1.07023,
+        "closePrice": 1.07228,
+        "commissions": -136.62,
+        "swaps": 0,
+        "volume": 1143000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 20676.55,
+        "quantity": 11.43,
+        "pips": 20.5
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 32,
+        "net": 127.48,
+        "gross": 260.74,
+        "entryTime": 1679976900000,
+        "closeTime": 1679984100000,
+        "entryPrice": 1.08122,
+        "closePrice": 1.08149,
+        "commissions": -133.26,
+        "swaps": 0,
+        "volume": 1115000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 20804.03,
+        "quantity": 11.15,
+        "pips": 2.7
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 34,
+        "net": 1423.83,
+        "gross": 1561.05,
+        "entryTime": 1680555600000,
+        "closeTime": 1680564600000,
+        "entryPrice": 1.08927,
+        "closePrice": 1.09084,
+        "commissions": -137.22,
+        "swaps": 0,
+        "volume": 1148000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 22227.86,
+        "quantity": 11.48,
+        "pips": 15.7
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 36,
+        "net": 218.62,
+        "gross": 354.52,
+        "entryTime": 1680824700000,
+        "closeTime": 1680842700000,
+        "entryPrice": 1.09203,
+        "closePrice": 1.09167,
+        "commissions": -135.9,
+        "swaps": 0,
+        "volume": 1137000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 22446.48,
+        "quantity": 11.37,
+        "pips": 3.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 38,
+        "net": -199.92,
+        "gross": -108.33,
+        "entryTime": 1681751700000,
+        "closeTime": 1681765200000,
+        "entryPrice": 1.09212,
+        "closePrice": 1.09223,
+        "commissions": -135.9,
+        "swaps": 44.31,
+        "volume": 1137000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 22246.56,
+        "quantity": 11.37,
+        "pips": -1.1
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 40,
+        "net": 1946.57,
+        "gross": 2069.67,
+        "entryTime": 1682085600000,
+        "closeTime": 1682087100000,
+        "entryPrice": 1.09557,
+        "closePrice": 1.09789,
+        "commissions": -123.1,
+        "swaps": 0,
+        "volume": 1030000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 24193.13,
+        "quantity": 10.3,
+        "pips": 23.2
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 42,
+        "net": 1605.03,
+        "gross": 1738.29,
+        "entryTime": 1683026100000,
+        "closeTime": 1683032400000,
+        "entryPrice": 1.09733,
+        "closePrice": 1.09553,
+        "commissions": -133.26,
+        "swaps": 0,
+        "volume": 1115000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 25798.16,
+        "quantity": 11.15,
+        "pips": 18
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 44,
+        "net": 287.55,
+        "gross": 423.45,
+        "entryTime": 1686006000000,
+        "closeTime": 1686006900000,
+        "entryPrice": 1.07136,
+        "closePrice": 1.07093,
+        "commissions": -135.9,
+        "swaps": 0,
+        "volume": 1137000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 26085.71,
+        "quantity": 11.37,
+        "pips": 4.3
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 46,
+        "net": 250.59,
+        "gross": 365.09,
+        "entryTime": 1689025500000,
+        "closeTime": 1689030900000,
+        "entryPrice": 1.09986,
+        "closePrice": 1.1003,
+        "commissions": -114.5,
+        "swaps": 0,
+        "volume": 958000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 26336.3,
+        "quantity": 9.58,
+        "pips": 4.4
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 48,
+        "net": -44.08,
+        "gross": 186.12,
+        "entryTime": 1689354900000,
+        "closeTime": 1689542100000,
+        "entryPrice": 1.12292,
+        "closePrice": 1.12311,
+        "commissions": -135.18,
+        "swaps": -95.02,
+        "volume": 1131000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 26292.22,
+        "quantity": 11.31,
+        "pips": 1.9
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 50,
+        "net": -2251.41,
+        "gross": -2121.85,
+        "entryTime": 1694783700000,
+        "closeTime": 1694786820000,
+        "entryPrice": 1.06644,
+        "closePrice": 1.0687,
+        "commissions": -129.56,
+        "swaps": 0,
+        "volume": 1084000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 24040.81,
+        "quantity": 10.84,
+        "pips": -22.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 52,
+        "net": 179.68,
+        "gross": 182.72,
+        "entryTime": 1695840300000,
+        "closeTime": 1695867300000,
+        "entryPrice": 1.05088,
+        "closePrice": 1.0507,
+        "commissions": -140.08,
+        "swaps": 137.04,
+        "volume": 1172000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 24220.49,
+        "quantity": 11.72,
+        "pips": 1.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 54,
+        "net": 651.66,
+        "gross": 789.6,
+        "entryTime": 1698365700000,
+        "closeTime": 1698374700000,
+        "entryPrice": 1.05575,
+        "closePrice": 1.05654,
+        "commissions": -137.94,
+        "swaps": 0,
+        "volume": 1154000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 24872.15,
+        "quantity": 11.54,
+        "pips": 7.9
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 56,
+        "net": 141.18,
+        "gross": 278.4,
+        "entryTime": 1698387300000,
+        "closeTime": 1698397200000,
+        "entryPrice": 1.05592,
+        "closePrice": 1.0562,
+        "commissions": -137.22,
+        "swaps": 0,
+        "volume": 1148000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 25013.33,
+        "quantity": 11.48,
+        "pips": 2.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 58,
+        "net": 2140.91,
+        "gross": 2278.85,
+        "entryTime": 1701348300000,
+        "closeTime": 1701352860000,
+        "entryPrice": 1.09305,
+        "closePrice": 1.09077,
+        "commissions": -137.94,
+        "swaps": 0,
+        "volume": 1154000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27154.24,
+        "quantity": 11.54,
+        "pips": 22.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 60,
+        "net": 109.71,
+        "gross": 244.89,
+        "entryTime": 1704759300000,
+        "closeTime": 1704774600000,
+        "entryPrice": 1.09564,
+        "closePrice": 1.09539,
+        "commissions": -135.18,
+        "swaps": 0,
+        "volume": 1131000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27263.95,
+        "quantity": 11.31,
+        "pips": 2.5
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 62,
+        "net": 204.16,
+        "gross": 289.02,
+        "entryTime": 1704980700000,
+        "closeTime": 1704996900000,
+        "entryPrice": 1.09527,
+        "closePrice": 1.09574,
+        "commissions": -84.86,
+        "swaps": 0,
+        "volume": 710000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27468.11,
+        "quantity": 7.1,
+        "pips": 4.7
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 64,
+        "net": -83.07,
+        "gross": 23.07,
+        "entryTime": 1707831900000,
+        "closeTime": 1707846300000,
+        "entryPrice": 1.07177,
+        "closePrice": 1.0718,
+        "commissions": -106.14,
+        "swaps": 0,
+        "volume": 888000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27385.04,
+        "quantity": 8.88,
+        "pips": 0.3
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 66,
+        "net": 911.52,
+        "gross": 1042.28,
+        "entryTime": 1709277300000,
+        "closeTime": 1709288100000,
+        "entryPrice": 1.08158,
+        "closePrice": 1.08048,
+        "commissions": -130.76,
+        "swaps": 0,
+        "volume": 1094000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 28296.56,
+        "quantity": 10.94,
+        "pips": 11
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 68,
+        "net": -163.25,
+        "gross": -90.11,
+        "entryTime": 1710248400000,
+        "closeTime": 1710260100000,
+        "entryPrice": 1.09202,
+        "closePrice": 1.09185,
+        "commissions": -73.14,
+        "swaps": 0,
+        "volume": 612000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 28133.31,
+        "quantity": 6.12,
+        "pips": -1.7
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 70,
+        "net": -367.64,
+        "gross": -236.88,
+        "entryTime": 1712622600000,
+        "closeTime": 1712637900000,
+        "entryPrice": 1.08597,
+        "closePrice": 1.08572,
+        "commissions": -130.76,
+        "swaps": 0,
+        "volume": 1094000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27765.67,
+        "quantity": 10.94,
+        "pips": -2.5
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 72,
+        "net": 422.63,
+        "gross": 554.59,
+        "entryTime": 1714545000000,
+        "closeTime": 1714546800000,
+        "entryPrice": 1.06574,
+        "closePrice": 1.06516,
+        "commissions": -131.96,
+        "swaps": 0,
+        "volume": 1104000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 28188.3,
+        "quantity": 11.04,
+        "pips": 5.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 74,
+        "net": -155.56,
+        "gross": -27.78,
+        "entryTime": 1715613300000,
+        "closeTime": 1715625900000,
+        "entryPrice": 1.07926,
+        "closePrice": 1.07923,
+        "commissions": -127.78,
+        "swaps": 0,
+        "volume": 1069000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 28032.74,
+        "quantity": 10.69,
+        "pips": -0.3
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 76,
+        "net": -842,
+        "gross": -708.14,
+        "entryTime": 1716188400000,
+        "closeTime": 1716200100000,
+        "entryPrice": 1.08783,
+        "closePrice": 1.0871,
+        "commissions": -133.86,
+        "swaps": 0,
+        "volume": 1120000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27190.74,
+        "quantity": 11.2,
+        "pips": -7.3
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 78,
+        "net": -75.66,
+        "gross": 58.2,
+        "entryTime": 1716872400000,
+        "closeTime": 1716890400000,
+        "entryPrice": 1.08763,
+        "closePrice": 1.08769,
+        "commissions": -133.86,
+        "swaps": 0,
+        "volume": 1120000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27115.08,
+        "quantity": 11.2,
+        "pips": 0.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 80,
+        "net": -2174.93,
+        "gross": -2051.83,
+        "entryTime": 1718714700000,
+        "closeTime": 1718720400000,
+        "entryPrice": 1.07317,
+        "closePrice": 1.07547,
+        "commissions": -123.1,
+        "swaps": 0,
+        "volume": 1030000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 24940.15,
+        "quantity": 10.3,
+        "pips": -23
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 82,
+        "net": 863.99,
+        "gross": 999.17,
+        "entryTime": 1721044800000,
+        "closeTime": 1721050200000,
+        "entryPrice": 1.09056,
+        "closePrice": 1.09158,
+        "commissions": -135.18,
+        "swaps": 0,
+        "volume": 1131000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 25804.14,
+        "quantity": 11.31,
+        "pips": 10.2
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 84,
+        "net": 1999.27,
+        "gross": 2066.21,
+        "entryTime": 1725626700000,
+        "closeTime": 1725629220000,
+        "entryPrice": 1.11342,
+        "closePrice": 1.10916,
+        "commissions": -66.94,
+        "swaps": 0,
+        "volume": 560000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 27803.41,
+        "quantity": 5.6,
+        "pips": 42.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 86,
+        "net": 1207.43,
+        "gross": 1336.39,
+        "entryTime": 1725948900000,
+        "closeTime": 1725951600000,
+        "entryPrice": 1.10351,
+        "closePrice": 1.10494,
+        "commissions": -128.96,
+        "swaps": 0,
+        "volume": 1079000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 29010.84,
+        "quantity": 10.79,
+        "pips": 14.3
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 88,
+        "net": 1197.04,
+        "gross": 1332.22,
+        "entryTime": 1726124400000,
+        "closeTime": 1726138800000,
+        "entryPrice": 1.10082,
+        "closePrice": 1.10218,
+        "commissions": -135.18,
+        "swaps": 0,
+        "volume": 1131000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 30207.88,
+        "quantity": 11.31,
+        "pips": 13.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 90,
+        "net": 1902.72,
+        "gross": 2039.34,
+        "entryTime": 1727158500000,
+        "closeTime": 1727163960000,
+        "entryPrice": 1.11093,
+        "closePrice": 1.11299,
+        "commissions": -136.62,
+        "swaps": 0,
+        "volume": 1143000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 32110.6,
+        "quantity": 11.43,
+        "pips": 20.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 92,
+        "net": 1920.43,
+        "gross": 2044.73,
+        "entryTime": 1732516200000,
+        "closeTime": 1732520160000,
+        "entryPrice": 1.04871,
+        "closePrice": 1.04644,
+        "commissions": -124.3,
+        "swaps": 0,
+        "volume": 1040000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 34031.03,
+        "quantity": 10.4,
+        "pips": 22.7
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 94,
+        "net": 714.09,
+        "gross": 833.97,
+        "entryTime": 1736824500000,
+        "closeTime": 1736832600000,
+        "entryPrice": 1.02522,
+        "closePrice": 1.02426,
+        "commissions": -119.88,
+        "swaps": 0,
+        "volume": 1003000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 34745.12,
+        "quantity": 10.03,
+        "pips": 9.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 96,
+        "net": 704.31,
+        "gross": 971.47,
+        "entryTime": 1738178100000,
+        "closeTime": 1738188000000,
+        "entryPrice": 1.04051,
+        "closePrice": 1.04207,
+        "commissions": -85.94,
+        "swaps": -181.22,
+        "volume": 719000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 35449.43,
+        "quantity": 7.19,
+        "pips": 15.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 98,
+        "net": 1972.76,
+        "gross": 2105.44,
+        "entryTime": 1738824300000,
+        "closeTime": 1738829700000,
+        "entryPrice": 1.03918,
+        "closePrice": 1.03699,
+        "commissions": -132.68,
+        "swaps": 0,
+        "volume": 1110000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 37422.19,
+        "quantity": 11.1,
+        "pips": 21.9
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 100,
+        "net": 1007.34,
+        "gross": 1103.08,
+        "entryTime": 1742572800000,
+        "closeTime": 1742579100000,
+        "entryPrice": 1.08062,
+        "closePrice": 1.08221,
+        "commissions": -95.74,
+        "swaps": 0,
+        "volume": 801000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 38429.53,
+        "quantity": 8.01,
+        "pips": 15.9
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 102,
+        "net": -467.55,
+        "gross": -337.99,
+        "entryTime": 1742911200000,
+        "closeTime": 1742922900000,
+        "entryPrice": 1.08154,
+        "closePrice": 1.08118,
+        "commissions": -129.56,
+        "swaps": 0,
+        "volume": 1084000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 37961.98,
+        "quantity": 10.84,
+        "pips": -3.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 104,
+        "net": 2020.41,
+        "gross": 2157.63,
+        "entryTime": 1743762600000,
+        "closeTime": 1743764040000,
+        "entryPrice": 1.10448,
+        "closePrice": 1.10231,
+        "commissions": -137.22,
+        "swaps": 0,
+        "volume": 1148000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 39982.39,
+        "quantity": 11.48,
+        "pips": 21.7
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 106,
+        "net": 1860.22,
+        "gross": 1999.58,
+        "entryTime": 1744265700000,
+        "closeTime": 1744269420000,
+        "entryPrice": 1.09696,
+        "closePrice": 1.09894,
+        "commissions": -139.36,
+        "swaps": 0,
+        "volume": 1166000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 41842.61,
+        "quantity": 11.66,
+        "pips": 19.8
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 108,
+        "net": -2104.01,
+        "gross": -2006.83,
+        "entryTime": 1749040200000,
+        "closeTime": 1749046200000,
+        "entryPrice": 1.14017,
+        "closePrice": 1.14302,
+        "commissions": -97.18,
+        "swaps": 0,
+        "volume": 813000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 39738.6,
+        "quantity": 8.13,
+        "pips": -28.5
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "sell",
+        "id": 110,
+        "net": -501.24,
+        "gross": -94.75,
+        "entryTime": 1749666600000,
+        "closeTime": 1749677400000,
+        "entryPrice": 1.14869,
+        "closePrice": 1.14859,
+        "commissions": -130.76,
+        "swaps": -275.73,
+        "volume": 1094000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 39237.36,
+        "quantity": 10.94,
+        "pips": -1
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 112,
+        "net": -495.17,
+        "gross": -357.95,
+        "entryTime": 1751522400000,
+        "closeTime": 1751531400000,
+        "entryPrice": 1.1796,
+        "closePrice": 1.17996,
+        "commissions": -137.22,
+        "swaps": 0,
+        "volume": 1148000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 38742.19,
+        "quantity": 11.48,
+        "pips": -3.6
+      },
+      {
+        "symbol": "EURUSD",
+        "direction": "buy",
+        "id": 114,
+        "net": 1123.49,
+        "gross": 1258.07,
+        "entryTime": 1751847300000,
+        "closeTime": 1751850900000,
+        "entryPrice": 1.17884,
+        "closePrice": 1.17755,
+        "commissions": -134.58,
+        "swaps": 0,
+        "volume": 1126000,
+        "label": "ZMR",
+        "comment": null,
+        "balance": 39865.68,
+        "quantity": 11.26,
+        "pips": 12.9
+      }
+    ]
+  }
+}</script>
+        <!-- endBacktestingReport -->
+    </head>
+    <body>
+        <div class="spinner-a spinner-b spinner-c spinner-d spinner-e spinner-f spinner-g spinner-h spinner-i spinner-j spinner-k spinner-l spinner-m spinner-n spinner-o spinner-p spinner-q spinner-r spinner-s spinner-t spinner-u spinner-v spinner-w spinner-x spinner-y spinner-z spinner-ab spinner-ac spinner-ae spinner-af spinner-ag spinner-ah spinner-ai spinner-aj spinner-ak spinner-al spinner-am spinner-an spinner-ao spinner-ap spinner-aq spinner-ar spinner-as spinner-at spinner-au spinner-av spinner-aw spinner-ax spinner-ay spinner-az spinner-ba spinner-bb spinner-bc spinner-bd spinner-be spinner-bf spinner-bg waitingIndicator" data-test-id="loader"></div>
+        <div id="root"></div>
+
+            <script id="init" defer src="https://backtesting.ctrader.com/v5.0.0/bundle/index-31bd62a5e13b796fd66a.js"></script>
+
+        <script type="text/javascript" id="app-init">
+            var script = document.getElementById('init');
+            script.onload = () => {
+                initApp('root');
+
+                script.remove();
+                document.getElementById('app-init').remove();
+            }
+        </script>
+    </body>
+</html>
