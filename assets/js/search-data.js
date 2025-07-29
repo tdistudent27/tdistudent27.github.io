@@ -11,7 +11,7 @@ ninja.data = [{
     },
   },{id: "nav-projects",
           title: "Projects",
-          description: "A growing collection of your cool projects.",
+          description: "The following projects highlight the key steps of the procedure and, in some cases, include portions of the code. Feel free to contact me via email for questions, requests, or access to the full code.",
           section: "Navigation",
           handler: () => {
             window.location.href = "/projects/";
@@ -449,7 +449,7 @@ ninja.data = [{
               window.location.href = "/projects/9_project/";
             },},{id: "projects-factor-models",
           title: 'Factor Models',
-          description: "Using Factor Models to Predict Macroeconomic Variables",
+          description: "Using Factor Models to Predict Macro Variables",
           section: "Projects",handler: () => {
               window.location.href = "/projects/FactorModels/";
             },},{

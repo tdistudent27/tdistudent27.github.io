@@ -1,5 +1,648 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Factor Models | Tommaso de Martino </title> <meta name="author" content="Tommaso de Martino"> <meta name="description" content="Using Factor Models to Predict Macroeconomic Variables"> <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website"> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%9A%9B%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://tdistudent27.github.io/projects/FactorModels/"> <script src="/assets/js/theme.js?a81d82887dd692e91686b43de4542f18"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> Factor Models | Tommaso de Martino </title> <meta name="author" content="Tommaso de Martino"> <meta name="description" content="Using Factor Models to Predict Macro Variables"> <meta name="keywords" content="jekyll, jekyll-theme, academic-website, portfolio-website"> <link rel="stylesheet" href="/assets/css/bootstrap.min.css?a4b3f509e79c54a512b890d73235ef04"> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/css/mdb.min.css" integrity="sha256-jpjYvU3G3N6nrrBwXJoVEYI/0zw8htfFnhT9ljN3JJw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="/assets/css/academicons.min.css?f0b7046b84e425c55f3463ac249818f5"> <link defer rel="stylesheet" href="/assets/css/scholar-icons.css?62b2ac103a88034e6882a5be5f3e2772"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%E2%9A%9B%EF%B8%8F&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/assets/css/main.css?d41d8cd98f00b204e9800998ecf8427e"> <link rel="canonical" href="https://tdistudent27.github.io/projects/FactorModels/"> <script src="/assets/js/theme.js?a81d82887dd692e91686b43de4542f18"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
     initTheme();
-  </script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> Tommaso de Martino </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item active"> <a class="nav-link" href="/projects/">Projects <span class="sr-only">(current)</span> </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">CV </a> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="ti ti-sun-moon" id="light-toggle-system"></i> <i class="ti ti-moon-filled" id="light-toggle-dark"></i> <i class="ti ti-sun-filled" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">Factor Models</h1> <p class="post-description">Using Factor Models to Predict Macroeconomic Variables</p> </header> <article> <iframe src="/assets/proj/FactorModels.html" width="100%" height="800px" style="border:none;"> </iframe> </article> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2025 Tommaso de Martino. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?a0db7e5d5c70cc3252b3138b0c91dcaf" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/js/zoom.js?85ddb88934d28b74e78031fd54cf8308"></script> <script src="/assets/js/no_defer.js?2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?e0514a05c5c95ac1a93a8dfd5249b92e"></script> <script defer src="/assets/js/copy_code.js?c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?a5bb4e6a542c546dd929b24b8b236dfd"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script defer src="/assets/js/progress-bar.js?2f30e0e6801ea8f5036fa66e1ab0a71a" type="text/javascript"></script> <script src="/assets/js/vanilla-back-to-top.min.js?f40d453793ff4f64e238e420181a1d17"></script> <script>
+  </script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> Tommaso de Martino </a> <button class="navbar-toggler collapsed ml-auto" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse text-right" id="navbarNav"> <ul class="navbar-nav ml-auto flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item active"> <a class="nav-link" href="/projects/">Projects <span class="sr-only">(current)</span> </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">CV </a> </li> <li class="toggle-container"> <button id="light-toggle" title="Change theme"> <i class="ti ti-sun-moon" id="light-toggle-system"></i> <i class="ti ti-moon-filled" id="light-toggle-dark"></i> <i class="ti ti-sun-filled" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">Factor Models</h1> <p class="post-description">Using Factor Models to Predict Macro Variables</p> </header> <article> <h2 id="factor-models-to-predict-macroeconomics-variables"><strong>Factor Models to Predict Macroeconomics Variables</strong></h2> <p><strong>Replication of “FRED-MD: A Monthly Database for Macroeconomic Research”</strong><br> <strong>Academic Year 2024/2025</strong><br> <strong>Tommaso de Martino</strong></p> <h2 id="libraries">Libraries</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="n">requests</span>
+<span class="kn">import</span> <span class="n">io</span>
+<span class="kn">import</span> <span class="n">certifi</span>
+<span class="kn">from</span> <span class="n">scipy</span> <span class="kn">import</span> <span class="n">linalg</span>
+<span class="kn">from</span> <span class="n">numpy.linalg</span> <span class="kn">import</span> <span class="n">svd</span>
+<span class="kn">import</span> <span class="n">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="n">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="n">re</span>
+<span class="kn">import</span> <span class="n">statsmodels.api</span> <span class="k">as</span> <span class="n">sm</span>
+<span class="kn">from</span> <span class="n">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="n">time</span>
+</code></pre></div></div> <h2 id="data">Data</h2> <p>The dataset used in this project was originally downloaded from the <strong>FRED-MD Monthly Databases for Macroeconomic Research</strong>, available on the Federal Reserve Bank of St. Louis website <a href="https://www.stlouisfed.org/research/economists/mccracken/fred-databases" rel="external nofollow noopener" target="_blank">here</a>.</p> <p>To ensure reproducibility and consistent access to the data, a copy of the CSV file has been uploaded to a public GitHub <a href="https://github.com/tdistudent27/fred-md-data" rel="external nofollow noopener" target="_blank">repository</a>.</p> <p>The corresponding file on the FRED-MD website is named <strong>2025-05</strong>, reflecting the dataset version used in this project.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        sasdate        RPI  W875RX1  DPCERA3M086SBEA     CMRMTSPLx  \
+0    Transform:      5.000      5.0            5.000  5.000000e+00   
+1      1/1/1959   2583.560   2426.0           15.188  2.766768e+05   
+2      2/1/1959   2593.596   2434.8           15.346  2.787140e+05   
+3      3/1/1959   2610.396   2452.7           15.491  2.777753e+05   
+4      4/1/1959   2627.446   2470.0           15.435  2.833627e+05   
+..          ...        ...      ...              ...           ...   
+791   11/1/2024  20091.169  16376.8          122.396  1.545040e+06   
+792   12/1/2024  20101.629  16387.7          123.077  1.558008e+06   
+793    1/1/2025  20148.969  16391.2          122.614  1.543178e+06   
+794    2/1/2025  20209.351  16389.5          122.742  1.556553e+06   
+795    3/1/2025  20311.260  16500.4          123.601           NaN   
+
+          RETAILx    INDPRO   IPFPNSS   IPFINAL   IPCONGD  ...  \
+0         5.00000    5.0000    5.0000    5.0000    5.0000  ...   
+1     17689.23968   21.9616   23.3868   22.2620   31.6664  ...   
+2     17819.01912   22.3917   23.7024   22.4549   31.8987  ...   
+3     17967.91336   22.7142   23.8459   22.5651   31.8987  ...   
+4     17978.97983   23.1981   24.1903   22.8957   32.4019  ...   
+..            ...       ...       ...       ...       ...  ...   
+791  712145.00000  101.9619   99.3808   98.8609  100.8691  ...   
+792  717662.00000  103.1177  100.4976   99.9719  101.6868  ...   
+793  711461.00000  103.3418  101.0766  100.6319  102.1879  ...   
+794  711680.00000  104.2202  101.8233  101.4377  102.7245  ...   
+795  722025.00000  103.8892  101.6665  101.1465  101.7332  ...   
+
+     DNDGRG3M086SBEA  DSERRG3M086SBEA  CES0600000008  CES2000000008  \
+0              6.000            6.000           6.00           6.00   
+1             18.294           10.152           2.13           2.45   
+2             18.302           10.167           2.14           2.46   
+3             18.289           10.185           2.15           2.45   
+4             18.300           10.221           2.16           2.47   
+..               ...              ...            ...            ...   
+791          119.230          129.380          31.59          36.26   
+792          119.746          129.875          31.72          36.43   
+793          120.457          130.281          31.91          36.56   
+794          120.615          130.990          32.00          36.66   
+795          119.760          131.192          32.21          36.79   
+
+     CES3000000008  UMCSENTx  DTCOLNVHFNM   DTCTHFNM     INVEST  VIXCLSx  
+0             6.00       2.0         6.00       6.00     6.0000   1.0000  
+1             2.04       NaN      6476.00   12298.00    84.2043      NaN  
+2             2.05       NaN      6476.00   12298.00    83.5280      NaN  
+3             2.07       NaN      6508.00   12349.00    81.6405      NaN  
+4             2.08       NaN      6620.00   12484.00    81.8099      NaN  
+..             ...       ...          ...        ...        ...      ...  
+791          28.22      71.8    556011.41  938335.20  5381.4576  15.9822  
+792          28.33      74.0    559364.75  943484.76  5366.6686  15.6997  
+793          28.58      71.7    559087.09  944167.06  5350.2541  16.8122  
+794          28.68      64.7    556142.06  941199.49  5367.9408  17.0705  
+795          28.92      57.0          NaN        NaN  5406.5887  21.6579  
+
+[796 rows x 127 columns]
+</code></pre></div></div> <h3 id="extracting-tcode-variables">Extracting <code class="language-plaintext highlighter-rouge">TCODE</code> variables</h3> <p>I extract the transformation codes from the first row of the dataset, since they show how each variable must be pre-processed. I drop the date column because it’s not a real variable. In the end, I get a one-row table with the transformation code for each variable.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">tcode_df</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       RPI  W875RX1  DPCERA3M086SBEA  CMRMTSPLx  RETAILx  INDPRO  IPFPNSS  \
+TCODE  5.0      5.0              5.0        5.0      5.0     5.0      5.0   
+
+       IPFINAL  IPCONGD  IPDCONGD  ...  DNDGRG3M086SBEA  DSERRG3M086SBEA  \
+TCODE      5.0      5.0       5.0  ...              6.0              6.0   
+
+       CES0600000008  CES2000000008  CES3000000008  UMCSENTx  DTCOLNVHFNM  \
+TCODE            6.0            6.0            6.0       2.0          6.0   
+
+       DTCTHFNM  INVEST  VIXCLSx  
+TCODE       6.0     6.0      1.0  
+
+[1 rows x 126 columns]
+</code></pre></div></div> <h3 id="adjusting-the-dataset">Adjusting the dataset</h3> <p>I remove the first row, since it only contains transformation codes. Then, I rename the date column to “Date” and convert it to proper datetime format. Finally, I make sure all other columns contain numeric values so they’re ready for analysis.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Check
+</span><span class="nf">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>          Date        RPI  W875RX1  DPCERA3M086SBEA     CMRMTSPLx  \
+0   1959-01-01   2583.560   2426.0           15.188  2.766768e+05   
+1   1959-02-01   2593.596   2434.8           15.346  2.787140e+05   
+2   1959-03-01   2610.396   2452.7           15.491  2.777753e+05   
+3   1959-04-01   2627.446   2470.0           15.435  2.833627e+05   
+4   1959-05-01   2642.720   2486.4           15.622  2.853072e+05   
+..         ...        ...      ...              ...           ...   
+790 2024-11-01  20091.169  16376.8          122.396  1.545040e+06   
+791 2024-12-01  20101.629  16387.7          123.077  1.558008e+06   
+792 2025-01-01  20148.969  16391.2          122.614  1.543178e+06   
+793 2025-02-01  20209.351  16389.5          122.742  1.556553e+06   
+794 2025-03-01  20311.260  16500.4          123.601           NaN   
+
+          RETAILx    INDPRO   IPFPNSS   IPFINAL   IPCONGD  ...  \
+0     17689.23968   21.9616   23.3868   22.2620   31.6664  ...   
+1     17819.01912   22.3917   23.7024   22.4549   31.8987  ...   
+2     17967.91336   22.7142   23.8459   22.5651   31.8987  ...   
+3     17978.97983   23.1981   24.1903   22.8957   32.4019  ...   
+4     18119.82573   23.5476   24.3911   23.1161   32.5567  ...   
+..            ...       ...       ...       ...       ...  ...   
+790  712145.00000  101.9619   99.3808   98.8609  100.8691  ...   
+791  717662.00000  103.1177  100.4976   99.9719  101.6868  ...   
+792  711461.00000  103.3418  101.0766  100.6319  102.1879  ...   
+793  711680.00000  104.2202  101.8233  101.4377  102.7245  ...   
+794  722025.00000  103.8892  101.6665  101.1465  101.7332  ...   
+
+     DNDGRG3M086SBEA  DSERRG3M086SBEA  CES0600000008  CES2000000008  \
+0             18.294           10.152           2.13           2.45   
+1             18.302           10.167           2.14           2.46   
+2             18.289           10.185           2.15           2.45   
+3             18.300           10.221           2.16           2.47   
+4             18.280           10.238           2.17           2.48   
+..               ...              ...            ...            ...   
+790          119.230          129.380          31.59          36.26   
+791          119.746          129.875          31.72          36.43   
+792          120.457          130.281          31.91          36.56   
+793          120.615          130.990          32.00          36.66   
+794          119.760          131.192          32.21          36.79   
+
+     CES3000000008  UMCSENTx  DTCOLNVHFNM   DTCTHFNM     INVEST  VIXCLSx  
+0             2.04       NaN      6476.00   12298.00    84.2043      NaN  
+1             2.05       NaN      6476.00   12298.00    83.5280      NaN  
+2             2.07       NaN      6508.00   12349.00    81.6405      NaN  
+3             2.08       NaN      6620.00   12484.00    81.8099      NaN  
+4             2.08      95.3      6753.00   12646.00    80.7315      NaN  
+..             ...       ...          ...        ...        ...      ...  
+790          28.22      71.8    556011.41  938335.20  5381.4576  15.9822  
+791          28.33      74.0    559364.75  943484.76  5366.6686  15.6997  
+792          28.58      71.7    559087.09  944167.06  5350.2541  16.8122  
+793          28.68      64.7    556142.06  941199.49  5367.9408  17.0705  
+794          28.92      57.0          NaN        NaN  5406.5887  21.6579  
+
+[795 rows x 127 columns]
+</code></pre></div></div> <h3 id="applying-the-correct-tcode-to-each-variable">Applying the correct <code class="language-plaintext highlighter-rouge">TCODE</code> to each variable</h3> <p>To apply the appropriate transformation to each variable, I built a function that reads the transformation code (TCODE) associated with each series and applies the corresponding operation.</p> <p>These codes are provided in the first row of the original dataset and were stored separately for clarity.</p> <p>The function loops through all columns (except the Date), looks up the TCODE for each one, and applies the correct transformation using a dictionary that maps each code to a specific operation. This approach ensures that each variable is treated consistently and according to the definitions used in the FRED-MD dataset.</p> <p>The column <code class="language-plaintext highlighter-rouge">TCODE</code> denotes the following data transformation for a series $x$:</p> <ol> <li> <p>$\text{no transformation}$;</p> </li> <li> <p>$\Delta x_t$;</p> </li> <li> <p>$\Delta^2 x_t$;</p> </li> <li> <p>$log(x_t)$;</p> </li> <li> <p>$\Delta log(x_t)$;</p> </li> <li> <p>$\Delta^2 log(x_t)$;</p> </li> <li> <p>$\Delta(x_t / x_{t-1} - 1.0)$.</p> </li> </ol> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tcode_functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span>                               <span class="c1"># (1) Level
+</span>    <span class="mi">2</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">.</span><span class="nf">diff</span><span class="p">(),</span>                        <span class="c1"># (2) Δx
+</span>    <span class="mi">3</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">.</span><span class="nf">diff</span><span class="p">().</span><span class="nf">diff</span><span class="p">(),</span>                 <span class="c1"># (3) Δ²x
+</span>    <span class="mi">4</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>                       <span class="c1"># (4) log(x)
+</span>    <span class="mi">5</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">x</span><span class="p">).</span><span class="nf">diff</span><span class="p">(),</span>                <span class="c1"># (5) Δlog(x)
+</span>    <span class="mi">6</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">x</span><span class="p">).</span><span class="nf">diff</span><span class="p">().</span><span class="nf">diff</span><span class="p">(),</span>         <span class="c1"># (6) Δ²log(x)
+</span>    <span class="mi">7</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">x</span><span class="p">.</span><span class="nf">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nf">diff</span><span class="p">()</span>          <span class="c1"># (7) Δ(x/x₋₁ - 1)
+</span><span class="p">}</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">apply_transformations</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">tcode_df</span><span class="p">):</span>
+    <span class="n">df_transformed</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="p">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="o">==</span> <span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">tcode</span> <span class="o">=</span> <span class="nf">int</span><span class="p">(</span><span class="n">tcode_df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">tcode_functions</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="n">tcode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">func</span><span class="p">:</span>
+            <span class="n">df_transformed</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="nf">func</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Warning: No transformation defined for TCODE </span><span class="si">{</span><span class="n">tcode</span><span class="si">}</span><span class="s"> in column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_transformed</span>
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Apply the transformations
+</span><span class="n">df_transformed</span> <span class="o">=</span> <span class="nf">apply_transformations</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">tcode_df</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="sh">'</span><span class="s">TCODE</span><span class="sh">'</span><span class="p">])</span>
+<span class="c1"># Now remove the first 2 rows
+</span><span class="n">df_transformed</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">2</span><span class="p">:].</span><span class="nf">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div> <p>Another important thing to do is check the <code class="language-plaintext highlighter-rouge">-inf</code> with <code class="language-plaintext highlighter-rouge">NaN</code>, since they may be the result of <code class="language-plaintext highlighter-rouge">log(0)</code>.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Count +inf values per column
+</span><span class="n">pos_inf_count</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">==</span> <span class="n">np</span><span class="p">.</span><span class="n">inf</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>
+
+<span class="c1"># Count -inf values per column
+</span><span class="n">neg_inf_count</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">==</span> <span class="o">-</span><span class="n">np</span><span class="p">.</span><span class="n">inf</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>
+
+<span class="c1"># Display only columns where +inf or -inf values are present
+</span><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Columns with +inf values:</span><span class="se">\n</span><span class="sh">"</span><span class="p">,</span> <span class="n">pos_inf_count</span><span class="p">[</span><span class="n">pos_inf_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="se">\n</span><span class="s">Columns with -inf values:</span><span class="se">\n</span><span class="sh">"</span><span class="p">,</span> <span class="n">neg_inf_count</span><span class="p">[</span><span class="n">neg_inf_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Columns with +inf values:
+ Series([], dtype: int64)
+
+Columns with -inf values:
+ Series([], dtype: int64)
+</code></pre></div></div> <p>So there are no <code class="language-plaintext highlighter-rouge">inf</code> values</p> <h3 id="outliers">Outliers</h3> <p>Now let’s replace the outliers with <code class="language-plaintext highlighter-rouge">NaN</code></p> <p><strong>An outlier is defined as an observation that deviates from the sample median by more than ten interquartile ranges.</strong></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">Outliers found and set NaN:</span><span class="se">\n</span><span class="si">{</span><span class="n">tot_outliers</span><span class="si">}</span><span class="sh">'</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Outliers found and set NaN:
+159
+</code></pre></div></div> <h2 id="iterative-expectation-maximization-algorithm">Iterative Expectation-Maximization algorithm</h2> <p>Estimation of the static factors by PCA adapted to allow for missing values. This is essentially the EM algorithm given in Stock and Watson (2002).</p> <p>Observations that are missing are initialized to the unconditional mean based on the non-missing values (which is zero since the data are demeaned and standardized) so that the panel is re-balanced</p> <p>Now let’s check for <code class="language-plaintext highlighter-rouge">NaN</code> values</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nan_count</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">sum</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">NaN values per column:</span><span class="se">\n</span><span class="sh">"</span><span class="p">,</span> <span class="n">nan_count</span><span class="p">[</span><span class="n">nan_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NaN values per column:
+ RPI                  7
+W875RX1              2
+DPCERA3M086SBEA      3
+CMRMTSPLx            2
+RETAILx              2
+                  ... 
+CUSR0000SAS          1
+UMCSENTx           227
+DTCOLNVHFNM          9
+DTCTHFNM             7
+VIXCLSx             40
+Length: 72, dtype: int64
+</code></pre></div></div> <p>In this section, I estimate the latent static factors from the transformed FRED-MD dataset using an Expectation-Maximization Principal Component Analysis (EM-PCA) procedure. This method follows the approach described in McCracken and Ng (2015).</p> <p>The estimation technique is based on the algorithm proposed by Stock and Watson (2002), which allows principal component analysis to be performed in the presence of <code class="language-plaintext highlighter-rouge">NaN</code> data by iteratively imputing missing values and re-estimating factors until convergence.</p> <h3 id="computing-the-mean-for-each-variable">Computing the mean for each variable</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Now let's compute the unconditional mean for each variable excluding the NaN values
+</span><span class="n">nan_mean</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">skipna</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div> <h3 id="filling-the-nan-with-the-mean">Filling the <code class="language-plaintext highlighter-rouge">NaN</code> with the mean</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_nan</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+
+<span class="c1"># Let's substitute the NaN with the mean of the variable
+</span><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">nan_mean</span><span class="p">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">df_nan</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_nan</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="nf">fillna</span><span class="p">(</span><span class="n">nan_mean</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+
+</code></pre></div></div> <h3 id="standardizing-the-data">Standardizing the Data</h3> <ul> <li> <p>Standardize each variable using:</p> \[z_{it} = \frac{x_{it} - \mu_i}{\sigma_i}\] </li> <li> <p>This ensures that each variable has mean 0 and standard deviation 1.</p> </li> </ul> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Now compute standard deviation and the mean on the filled version
+</span><span class="n">std</span> <span class="o">=</span> <span class="n">df_nan</span><span class="p">.</span><span class="nf">std</span><span class="p">()</span>
+<span class="n">mean</span> <span class="o">=</span> <span class="n">df_nan</span><span class="p">.</span><span class="nf">mean</span><span class="p">()</span>
+
+<span class="c1"># Create a new standardized DataFrame
+</span><span class="n">df_standardized</span> <span class="o">=</span> <span class="n">df_nan</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+
+<span class="c1"># Standardize each column (subtract mean and divide by std)
+</span><span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">mean</span><span class="p">.</span><span class="n">index</span><span class="p">:</span>
+    <span class="n">df_standardized</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_nan</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean</span><span class="p">[</span><span class="n">col</span><span class="p">])</span> <span class="o">/</span> <span class="n">std</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nan_count_standardized</span> <span class="o">=</span> <span class="n">df_standardized</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">sum</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">NaN values per column:</span><span class="se">\n</span><span class="sh">"</span><span class="p">,</span> <span class="n">nan_count_standardized</span><span class="p">[</span><span class="n">nan_count_standardized</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NaN values per column:
+ Series([], dtype: int64)
+</code></pre></div></div> <h3 id="factors">Factors</h3> <p>Starting from the data panel (with missing values initialized to zero), I estimate:</p> <ul> <li> <p>A matrix of factors:<br> \(F = (f_1, \dots, f_T)' \in \mathbb{R}^{T \times r}\)</p> </li> <li> <p>A matrix of loadings:<br> \(\lambda = (\lambda_1, \dots, \lambda_N)' \in \mathbb{R}^{N \times r}\)</p> </li> </ul> <p>These are estimated using the normalization: \(\lambda' \lambda / N = I_r\)</p> <p>Where:</p> <ul> <li>$T$ = number of time periods (rows),</li> <li>$N$ = number of series (columns),</li> <li>$r$ = number of factors.</li> </ul> <p>The missing value for series i at time t is updated from zero to $\lambda’_i f_t$.</p> <p>This is multiplied by the standard deviation of the series and the mean is re-added.</p> <p>The resulting value is treated as an observation for series i at time t, and the mean and variance of the complete sample are re-calculated. The data are demeaned and standardized again, and the factors and loadings are re-estimated from the updated panel. The iteration stops when the factor estimates do not change.</p> <p>$PC_p$ criteria developed in Bai and Ng (2002) is used, which is a generalization of Mallow’s $C_p$ criteria for large dimensional panels.</p> <p>The penalty used is:</p> \[(N+T)/N T \log(\text{min}(N,T))\] <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. PCA with normalization λ'λ / N = I_r
+</span>
+<span class="k">def</span> <span class="nf">pca_stock_watson</span><span class="p">(</span><span class="n">X_std</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">
+    Parameters
+    ----------
+    X_std : ndarray (T × N) – columns already demeaned and standardized
+    r     : number of factors
+
+    Returns
+    -------
+    F_hat      : (T × r)     – estimated factors
+    Lambda_hat : (N × r)     – estimated loadings
+    X_hat      : reconstruction F̂ Λ̂</span><span class="sh">'</span><span class="s"> (T × N)
+    sing_vals  : singular values of X</span><span class="sh">'</span><span class="s">X
+    </span><span class="sh">"""</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">X_std</span><span class="p">.</span><span class="n">shape</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nf">svd</span><span class="p">(</span><span class="n">X_std</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X_std</span><span class="p">,</span> <span class="n">full_matrices</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">Lambda_hat</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">U</span><span class="p">[:,</span> <span class="p">:</span><span class="n">r</span><span class="p">]</span>
+    <span class="n">F_hat</span>      <span class="o">=</span> <span class="p">(</span><span class="n">X_std</span> <span class="o">@</span> <span class="n">Lambda_hat</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+    <span class="n">X_hat</span>      <span class="o">=</span> <span class="n">F_hat</span> <span class="o">@</span> <span class="n">Lambda_hat</span><span class="p">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">F_hat</span><span class="p">,</span> <span class="n">Lambda_hat</span><span class="p">,</span> <span class="n">X_hat</span><span class="p">,</span> <span class="n">s</span>
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 2. Bai &amp; Ng 2002 Criterion 
+</span>
+<span class="k">def</span> <span class="nf">pc_p2_criterion</span><span class="p">(</span><span class="n">X_std</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">kmax</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="sh">"""</span><span class="s">
+    Returns r* ∈ {0, …, kmax} that minimizes the PC_p2 criterion.
+    </span><span class="sh">"""</span>
+    <span class="n">T</span><span class="p">,</span> <span class="n">N</span>  <span class="o">=</span> <span class="n">X_std</span><span class="p">.</span><span class="n">shape</span>
+    <span class="n">NT</span><span class="p">,</span> <span class="n">NT1</span> <span class="o">=</span> <span class="n">T</span> <span class="o">*</span> <span class="n">N</span><span class="p">,</span> <span class="n">N</span> <span class="o">+</span> <span class="n">T</span>
+    <span class="n">log_pen</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">T</span><span class="p">))</span>
+
+    <span class="n">crit</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">empty</span><span class="p">(</span><span class="n">kmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">kmax</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">X_hat</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros_like</span><span class="p">(</span><span class="n">X_std</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_hat</span> <span class="o">=</span> <span class="nf">pca_stock_watson</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span> <span class="n">r</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">sigma2</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">((</span><span class="n">X_std</span> <span class="o">-</span> <span class="n">X_hat</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">NT</span>
+        <span class="n">pen</span>    <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">r</span> <span class="o">==</span> <span class="mi">0</span> <span class="nf">else </span><span class="p">(</span><span class="n">NT1</span> <span class="o">/</span> <span class="n">NT</span><span class="p">)</span> <span class="o">*</span> <span class="n">log_pen</span> <span class="o">*</span> <span class="n">r</span>
+        <span class="n">crit</span><span class="p">[</span><span class="n">r</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="n">sigma2</span><span class="p">)</span> <span class="o">+</span> <span class="n">pen</span>
+
+    <span class="k">return</span> <span class="nf">int</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">argmin</span><span class="p">(</span><span class="n">crit</span><span class="p">))</span>
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 3. EM algorithm 
+</span>
+<span class="k">def</span> <span class="nf">em_factors</span><span class="p">(</span>
+    <span class="n">df_transformed</span><span class="p">:</span>   <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span>   <span class="c1"># original NaNs
+</span>    <span class="n">df_missing</span><span class="p">:</span>       <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span>   <span class="c1"># NaNs → unconditional mean (not standardized)
+</span>    <span class="n">df_standardized</span><span class="p">:</span>  <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span>   <span class="c1"># z-score (demeaned + std), no NaNs
+</span>    <span class="o">*</span><span class="p">,</span>
+    <span class="n">kmax</span><span class="p">:</span>         <span class="nb">int</span>   <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span>          <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span>     <span class="nb">int</span>   <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">print_every</span><span class="p">:</span>  <span class="nb">int</span>   <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sh">"""</span><span class="s">
+    Python port of the MATLAB function `factors_em` (only DEMEAN=2).
+    Returns:
+        factors_df, loadings_df, r_star,
+        X_filled_unstd_df, X_filled_std_df, X_hat_df
+    </span><span class="sh">"""</span>
+
+    <span class="c1"># setup 
+</span>    <span class="n">idx</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">columns</span>
+    <span class="n">mask_nan</span>  <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">to_numpy</span><span class="p">()</span>          <span class="c1"># True on original NaNs
+</span>
+    <span class="n">X_std</span>      <span class="o">=</span> <span class="n">df_standardized</span><span class="p">.</span><span class="nf">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>          <span class="c1"># (T × N)
+</span>    <span class="n">X_hat_prev</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros_like</span><span class="p">(</span><span class="n">X_std</span><span class="p">)</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">it</span>    <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="c1">#  EM loop 
+</span>    <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span> <span class="ow">and</span> <span class="n">it</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># 1. select r* with PC_p2
+</span>        <span class="n">r_star</span> <span class="o">=</span> <span class="nf">pc_p2_criterion</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span> <span class="n">kmax</span><span class="p">)</span>
+
+        <span class="c1"># 2. Stock-Watson PCA
+</span>        <span class="n">F_hat</span><span class="p">,</span> <span class="n">Lambda_hat</span><span class="p">,</span> <span class="n">X_hat</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nf">pca_stock_watson</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span> <span class="n">r_star</span><span class="p">)</span>
+
+        <span class="c1"># 3. convergence criterion
+</span>        <span class="k">if</span> <span class="n">it</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">((</span><span class="n">X_hat</span> <span class="o">-</span> <span class="n">X_hat_prev</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">X_hat_prev</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">X_hat_prev</span> <span class="o">=</span> <span class="n">X_hat</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">it</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">%</span> <span class="n">print_every</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Iter </span><span class="si">{</span><span class="n">it</span><span class="si">:</span><span class="mi">3</span><span class="n">d</span><span class="si">}</span><span class="s"> | r*=</span><span class="si">{</span><span class="n">r_star</span><span class="si">:</span><span class="mi">2</span><span class="n">d</span><span class="si">}</span><span class="s"> | err=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="mf">9.2</span><span class="n">e</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+        <span class="c1"># 4. BACK-TRANSFORM with CURRENT mean/std 
+</span>        <span class="n">mean_curr</span> <span class="o">=</span> <span class="n">X_std</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">std_curr</span>  <span class="o">=</span> <span class="n">X_std</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">std_curr</span><span class="p">[</span><span class="n">std_curr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+        <span class="n">X_unstd</span> <span class="o">=</span> <span class="n">X_std</span> <span class="o">*</span> <span class="n">std_curr</span> <span class="o">+</span> <span class="n">mean_curr</span>          <span class="c1"># original scale
+</span>        <span class="n">updates</span> <span class="o">=</span> <span class="n">X_hat</span> <span class="o">*</span> <span class="n">std_curr</span> <span class="o">+</span> <span class="n">mean_curr</span>          <span class="c1"># predictions in original scale
+</span>        <span class="n">X_unstd</span><span class="p">[</span><span class="n">mask_nan</span><span class="p">]</span> <span class="o">=</span> <span class="n">updates</span><span class="p">[</span><span class="n">mask_nan</span><span class="p">]</span>           <span class="c1"># replace only NaNs
+</span>
+        <span class="c1"># 5. re-standardize for next iteration 
+</span>        <span class="n">mean_next</span> <span class="o">=</span> <span class="n">X_unstd</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">std_next</span>  <span class="o">=</span> <span class="n">X_unstd</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">std_next</span><span class="p">[</span><span class="n">std_next</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">X_std</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_unstd</span> <span class="o">-</span> <span class="n">mean_next</span><span class="p">)</span> <span class="o">/</span> <span class="n">std_next</span>
+
+    <span class="c1">#  output 
+</span>    <span class="n">factors_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span>
+        <span class="n">F_hat</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="sh">"</span><span class="s">F</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="sh">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">r_star</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">loadings_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span>
+        <span class="n">Lambda_hat</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">cols</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="sh">"</span><span class="s">F</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="sh">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">r_star</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">X_filled_unstd_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">X_unstd</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+    <span class="n">X_filled_std_df</span>   <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span>   <span class="n">index</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+    <span class="n">X_hat_df</span>          <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">X_hat</span><span class="p">,</span>   <span class="n">index</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">it</span> <span class="o">==</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s"> EM: maximum number of iterations reached (</span><span class="si">{</span><span class="n">max_iter</span><span class="si">}</span><span class="s">), err = </span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">e</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Converged in </span><span class="si">{</span><span class="n">it</span><span class="si">}</span><span class="s"> iterations (err = </span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">e</span><span class="si">}</span><span class="s">)</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="nf">return </span><span class="p">(</span>
+        <span class="n">factors_df</span><span class="p">,</span>
+        <span class="n">loadings_df</span><span class="p">,</span>
+        <span class="n">r_star</span><span class="p">,</span>
+        <span class="n">X_filled_unstd_df</span><span class="p">,</span>
+        <span class="n">X_filled_std_df</span><span class="p">,</span>
+        <span class="n">X_hat_df</span><span class="p">,</span>
+    <span class="p">)</span>
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">factors</span><span class="p">,</span> <span class="n">loadings</span><span class="p">,</span> <span class="n">r_opt</span><span class="p">,</span> <span class="n">X_f</span><span class="p">,</span> <span class="n">X_f_std</span><span class="p">,</span> <span class="n">xhat</span> <span class="o">=</span> <span class="nf">em_factors</span><span class="p">(</span>
+    <span class="n">df_transformed</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">,</span>   <span class="c1"># original NaNs
+</span>    <span class="n">df_missing</span>     <span class="o">=</span> <span class="n">df_nan</span><span class="p">,</span>           <span class="c1"># NaNs → unconditional mean
+</span>    <span class="n">df_standardized</span><span class="o">=</span> <span class="n">df_standardized</span><span class="p">,</span>  <span class="c1"># z-score
+</span>    <span class="n">kmax</span>           <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>               <span class="c1"># same as in the MATLAB script
+</span>    <span class="n">tol</span>            <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">max_iter</span>       <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">print_every</span>    <span class="o">=</span> <span class="mi">10</span>                <span class="c1"># log every 10 iterations
+</span><span class="p">)</span>
+
+</code></pre></div></div> <p>The optimal number of factors is 7</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Optimal number of factors (r*) =</span><span class="sh">"</span><span class="p">,</span> <span class="n">r_opt</span><span class="p">,</span> <span class="sh">"</span><span class="se">\n</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Optimal number of factors (r*) = 7 
+</code></pre></div></div> <p><img src="/assets/proj/FactorModels_files/factors.png" alt="Factors Plot" style="max-width: 100%; height: auto;"></p> <h3 id="nan-have-been-filled"> <code class="language-plaintext highlighter-rouge">NaN</code> have been filled</h3> <p>Also <code class="language-plaintext highlighter-rouge">NaN</code> values, now, have been filled thanks to this process</p> <p>Now let’s check if the procedure has succeed, running the line below should show <code class="language-plaintext highlighter-rouge">False</code></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X_f</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">any</span><span class="p">().</span><span class="nf">any</span><span class="p">()</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>False
+</code></pre></div></div> <p>And we also have its standardized version <code class="language-plaintext highlighter-rouge">X_std</code></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X_f_std</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">any</span><span class="p">().</span><span class="nf">any</span><span class="p">()</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>False
+</code></pre></div></div> <h2 id="regression-r2-and-mr2">Regression, $R^2$, and $mR^2$</h2> <p><strong>Cumulative regression for each series</strong></p> <p>For each series $x_i$ (i.e., each column of the dataset, such as inflation, employment, etc.), do the following:</p> <ol> <li><strong>Regression on $F1$</strong></li> </ol> \[x_{t,i} = \alpha_i + \beta_{i,1} F_{1,t} + \varepsilon_{i,t}\] <p>→ Let’s save $R_i(1)^{2}$</p> <ol> <li><strong>Regression on $F1 + F2$</strong></li> </ol> \[x_{t,i} = \alpha_i + \beta_{i,1} F_{1,t} + \beta_{i,2} F_{2,t} + \varepsilon_{i,t}\] <p>→ Let’s save $R_i(2)^{2}$</p> <ol> <li><strong>Regression on $F1 + F2 + F3$</strong></li> </ol> \[x_{t,i} = \alpha_i + \beta_{i,1} F_{1,t} + \beta_{i,2} F_{2,t} + \beta_{i,t} F_{3,t} + \varepsilon_{i,t}\] <p>→ Let’s save $R_i(3)^{2}$</p> <ol> <li>we continue up to $r$, the <strong>optimal number of factors</strong> </li> </ol> <blockquote> <p>NOTE:</p> <p><code class="language-plaintext highlighter-rouge">lstsq</code> solves the least squares problem but it is numerically stable and optimized and handles multiple dependent variables in a single call.</p> <p>It avoids manual matrix inversion.</p> </blockquote> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">T</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">X_f_std</span><span class="p">.</span><span class="n">shape</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">factors</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">X_np_std</span> <span class="o">=</span> <span class="n">X_f_std</span><span class="p">.</span><span class="nf">to_numpy</span><span class="p">()</span>
+<span class="n">F_np</span> <span class="o">=</span> <span class="n">factors</span><span class="p">.</span><span class="nf">to_numpy</span><span class="p">()</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="n">X_f_std</span><span class="p">.</span><span class="n">columns</span>
+
+<span class="n">y_mean</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">X_np_std</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">SST</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">((</span><span class="n">X_np_std</span> <span class="o">-</span> <span class="n">y_mean</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Initialize DataFrame with index = variable names
+</span><span class="n">R2_matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>
+
+<span class="c1"># Loop over k factors
+</span><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">F_k</span> <span class="o">=</span> <span class="n">F_np</span><span class="p">[:,</span> <span class="p">:</span><span class="n">k</span><span class="p">]</span>  <span class="c1"># first k factors
+</span>    <span class="n">beta_hat</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="nf">lstsq</span><span class="p">(</span><span class="n">F_k</span><span class="p">,</span> <span class="n">X_np_std</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+    <span class="n">y_hat</span> <span class="o">=</span> <span class="n">F_k</span> <span class="o">@</span> <span class="n">beta_hat</span>
+    <span class="n">SSR</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sum</span><span class="p">((</span><span class="n">y_hat</span> <span class="o">-</span> <span class="n">y_mean</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">R2</span> <span class="o">=</span> <span class="n">SSR</span> <span class="o">/</span> <span class="n">SST</span>
+
+    <span class="c1"># Add column for cumulative R² with k factors
+</span>    <span class="n">R2_matrix</span><span class="p">[</span><span class="sa">f</span><span class="sh">'</span><span class="s">R2_F</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">R2</span>
+
+</code></pre></div></div> <p>Now we have a matrix <code class="language-plaintext highlighter-rouge">R2_matrix</code> containing the $R^2$ (computed as stated before) on the columns and the variables on the rows</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">R2_matrix</span><span class="p">.</span><span class="nf">head</span><span class="p">())</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                    R2_F1     R2_F2     R2_F3     R2_F4     R2_F5     R2_F6  \
+RPI              0.110971  0.131306  0.155288  0.165859  0.170515  0.170852   
+W875RX1          0.299966  0.321856  0.367886  0.382022  0.389687  0.390745   
+DPCERA3M086SBEA  0.297816  0.308254  0.343691  0.368542  0.375204  0.448385   
+CMRMTSPLx        0.470080  0.475465  0.526062  0.539802  0.554758  0.577185   
+RETAILx          0.319538  0.365299  0.367627  0.379809  0.400234  0.452580   
+
+                    R2_F7  
+RPI              0.171356  
+W875RX1          0.393956  
+DPCERA3M086SBEA  0.454303  
+CMRMTSPLx        0.578868  
+RETAILx          0.463431  
+</code></pre></div></div> <p><strong>Compute marginals for each series</strong></p> <p>After obtaining all $R_i(k)^{2}$, compute for each $k$ and each series:</p> <ul> <li>$mR_i(1)^{2} = R_i(1)^{2}$</li> <li>$mR_i(2)^{2} = R_i(2)^{2} - R_i(1)^{2}$</li> <li>$mR_i(3)^{2} = R_i(3)^{2} - R_i(2)^{2}$</li> <li>… up to $mR_i(r)^{2}$</li> </ul> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mR2_matrix</span> <span class="o">=</span> <span class="n">R2_matrix</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
+
+<span class="c1"># Marginals R²
+</span><span class="n">mR2_matrix</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">R2_matrix</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:].</span><span class="n">values</span> <span class="o">-</span> <span class="n">R2_matrix</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">values</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">mR2_matrix</span><span class="p">.</span><span class="nf">head</span><span class="p">())</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                    R2_F1     R2_F2     R2_F3     R2_F4     R2_F5     R2_F6  \
+RPI              0.110971  0.020335  0.023983  0.010571  0.004656  0.000337   
+W875RX1          0.299966  0.021890  0.046030  0.014137  0.007664  0.001058   
+DPCERA3M086SBEA  0.297816  0.010438  0.035437  0.024850  0.006662  0.073181   
+CMRMTSPLx        0.470080  0.005385  0.050597  0.013741  0.014956  0.022427   
+RETAILx          0.319538  0.045761  0.002328  0.012182  0.020425  0.052346   
+
+                    R2_F7  
+RPI              0.000504  
+W875RX1          0.003211  
+DPCERA3M086SBEA  0.005918  
+CMRMTSPLx        0.001684  
+RETAILx          0.010851  
+</code></pre></div></div> <p><strong>Average per factor</strong></p> <p>Finally, for each factor $k$, compute:</p> \[mR(k)^{2} = \frac{1}{N} \sum_{i=1}^{N} mR_i(k)^{2}\] <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Mean for each factor (i.e., by column)
+</span><span class="n">mR2_average</span> <span class="o">=</span> <span class="n">mR2_matrix</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">mR2_average</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="sh">'</span><span class="s">mean_mR2</span><span class="sh">'</span>
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">mR2_average</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>R2_F1    0.171063
+R2_F2    0.074508
+R2_F3    0.067727
+R2_F4    0.053311
+R2_F5    0.047765
+R2_F6    0.032216
+R2_F7    0.027055
+Name: mean_mR2, dtype: float64
+</code></pre></div></div> <p><strong>Series that “load the most” on each factor</strong></p> <p>For each factor $k$:</p> <ul> <li>sort the series by $mR_i(k)^{2}$</li> <li>take the top 10</li> </ul> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">top10_by_factor</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">mR2_matrix</span><span class="p">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">top10_series</span> <span class="o">=</span> <span class="n">mR2_matrix</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="nf">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="nf">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">top10_by_factor</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">top10_series</span>
+
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Top 10 series for F1:</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">top10_by_factor</span><span class="p">[</span><span class="sh">'</span><span class="s">R2_F1</span><span class="sh">'</span><span class="p">])</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Top 10 series for F1:
+IPMANSICS    0.802027
+PAYEMS       0.783759
+INDPRO       0.761174
+IPFPNSS      0.756845
+CUMFNS       0.749975
+USGOOD       0.742252
+MANEMP       0.690483
+IPFINAL      0.688075
+DMANEMP      0.645203
+IPDMAT       0.625748
+Name: R2_F1, dtype: float64
+</code></pre></div></div> <p>Total Variation Explained by the factors</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">xhat_np</span> <span class="o">=</span> <span class="n">xhat</span><span class="p">.</span><span class="nf">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>      
+
+<span class="c1"># Total Variation Explained
+</span><span class="n">SSE</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">square</span><span class="p">(</span><span class="n">X_np_std</span> <span class="o">-</span> <span class="n">xhat_np</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>   <span class="c1"># Resigual sum of squares
+</span><span class="n">SST</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">square</span><span class="p">(</span><span class="n">X_np_std</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>             <span class="c1"># Total square sum
+</span>
+<span class="n">TVE</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">SSE</span> <span class="o">/</span> <span class="n">SST</span>
+</code></pre></div></div> <p><img src="/assets/proj/FactorModels_files/Table_ADV_ECON.png" alt="Table1" style="max-width: 100%; height: auto;"></p> <h3 id="r72-ordered-by-groups">$R(7)^2$ ordered by groups</h3> <p>The figure shows the explanatory power of the seven factors in all the series organized into eight groups as given in the original paper. Group 1 is output and income, Group 2 is labor market, Group 3 is consumption and housing, Group 4 is orders and inventories, Group 5 is money and credit, Group 6 is interest rate and exchange rates, Group 7 is price, and Group 8 is stock market.</p> <p><img src="/assets/proj/FactorModels_files/r2_by_groups.png" alt="r2bygroup" style="max-width: 100%; height: auto;"></p> <h2 id="forecast">Forecast</h2> <h3 id="1-six---month-forecast">1. Six - Month Forecast</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">NaN in CPIAUCSL:</span><span class="sh">"</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="sh">"</span><span class="s">CPIAUCSL</span><span class="sh">"</span><span class="p">].</span><span class="nf">isna</span><span class="p">().</span><span class="nf">sum</span><span class="p">())</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">NaN in INDPRO:</span><span class="sh">"</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="sh">"</span><span class="s">INDPRO</span><span class="sh">"</span><span class="p">].</span><span class="nf">isna</span><span class="p">().</span><span class="nf">sum</span><span class="p">())</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NaN in CPIAUCSL: 0
+NaN in INDPRO: 0
+</code></pre></div></div> <p>Since the original series don’t have <code class="language-plaintext highlighter-rouge">NaN</code> we can avoid re-contructing the series. We can use the original ones</p> <p>Then, I compute the first difference fo <code class="language-plaintext highlighter-rouge">CPIAUCSL</code> and remove also first row</p> <p>As in the paper I use the <code class="language-plaintext highlighter-rouge">BIC</code> to choose best lag both for dependent variable <code class="language-plaintext highlighter-rouge">Y</code> and independent variables <code class="language-plaintext highlighter-rouge">X's</code></p> <h3 id="indpro"><code class="language-plaintext highlighter-rouge">INDPRO</code></h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Best Models according to BIC</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Best Models according to BIC
+ lag_Y  lag_F         BIC       R2
+     3      1 2375.467375 0.998480
+     6      1 2375.729966 0.998489
+     1      1 2378.052052 0.998467
+     4      1 2378.771488 0.998477
+     2      1 2379.500400 0.998468
+</code></pre></div></div> <h3 id="diff_cpiaucsl"><code class="language-plaintext highlighter-rouge">diff_CPIAUCSL</code></h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bic_6m_CPI</span> <span class="o">=</span> <span class="n">results_CPI</span><span class="p">.</span><span class="nf">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="sh">'</span><span class="s">BIC</span><span class="sh">'</span><span class="p">).</span><span class="nf">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Best Models according to BIC</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">bic_6m_CPI</span><span class="p">[[</span><span class="sh">'</span><span class="s">lag_Y</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">lag_F</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">BIC</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">R2</span><span class="sh">'</span><span class="p">]].</span><span class="nf">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Best Models according to BIC
+ lag_Y  lag_F         BIC       R2
+     6      1 1083.646067 0.178863
+     5      1 1097.017813 0.158363
+     4      1 1098.018519 0.150947
+     3      1 1099.174212 0.143283
+     1      1 1112.052241 0.115923
+</code></pre></div></div> <blockquote> <h3 id="assumption-persistence-of-factors">Assumption: Persistence of Factors</h3> <p>I assume that the values of the factors remain constant over the forecast horizon.<br> In other words, the lagged values of $F1–F7$ at time <strong>$T$</strong> are reused for all future periods <strong>$T+1$ to $T+6$</strong>.</p> <ul> <li>Fast and simple: no need to estimate additional models.</li> <li>Not professional for extremely accuracy forecast</li> </ul> </blockquote> <h2 id="forecast-indpro">Forecast <code class="language-plaintext highlighter-rouge">INDPRO</code> </h2> <p>The <strong>optimal lags</strong> are used as independent variables for an OLS regression. After estimating the model, the coefficients will be applied to the most recent available data to generate the forecast.</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="se">\n</span><span class="s">INDPRO forecasts for the next 6 months:</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">forecast_6m_IND</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INDPRO forecasts for the next 6 months:
+2025-04-01    104.136
+2025-05-01    103.669
+2025-06-01    104.109
+2025-07-01    103.536
+2025-08-01    104.109
+2025-09-01    103.371
+Name: INDPRO_forecast, dtype: float64
+</code></pre></div></div> <p><img src="/assets/proj/FactorModels_files/indpro_for.png" alt="indpro_forecast" style="max-width: 100%; height: auto;"></p> <h2 id="forecast-cpi">Forecast <code class="language-plaintext highlighter-rouge">CPI</code> </h2> <p>The same procedure is applied to CPI</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="se">\n</span><span class="s">CPI forecasts for the next 6 months:</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">forecast_6m_CPI</span><span class="p">.</span><span class="nf">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CPI forecasts for the next 6 months:
+2025-04-01    0.539
+2025-05-01    0.285
+2025-06-01    0.593
+2025-07-01    0.309
+2025-08-01    0.457
+2025-09-01    0.294
+Name: diff_CPIAUCSL_forecast, dtype: float64
+</code></pre></div></div> <p><img src="/assets/proj/FactorModels_files/cpi_for.png" alt="cpi_forecast" style="max-width: 100%; height: auto;"></p> <h2 id="2-real-time-evaluation">2. Real Time Evaluation</h2> <p>The dataset is split into 80% as <code class="language-plaintext highlighter-rouge">train data</code> and 20% as <code class="language-plaintext highlighter-rouge">test data</code></p> <p>I act as if I knew data up to <code class="language-plaintext highlighter-rouge">t</code>, I estimate the factors and use their lags, in this way I simulate the reality.</p> <p>E.G. Today we can use just the data we know $\rightarrow$ no future informations</p> <p>So each ‘month’ I estimate the model and then make a forecast about next month. When the real info is available I include it in my data and estimate the model again to predict next month observation and so on.</p> <blockquote> <p>NOTE:</p> <p>For this <code class="language-plaintext highlighter-rouge">real time evaluation</code> I’m going to skip the <strong>outliers</strong> procedure</p> <p>The model will be re-estimated each month, i.e. each observation</p> </blockquote> <h3 id="loop-for-real-time-evaluation">Loop for Real Time Evaluation</h3> <p>Let’s create a silent version of the <code class="language-plaintext highlighter-rouge">em_factors</code> function such that I’m not gonna have a confusing output</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">em_factors_silent</span><span class="p">(</span>
+    <span class="n">df_transformed</span><span class="p">:</span>   <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span>      <span class="c1"># NaN “veri”
+</span>    <span class="n">df_missing</span><span class="p">:</span>       <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span>      <span class="c1"># NaN → μ
+</span>    <span class="n">df_standardized</span><span class="p">:</span>  <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">,</span>      <span class="c1"># z-score
+</span>    <span class="o">*</span><span class="p">,</span>
+    <span class="n">kmax</span><span class="p">:</span>  <span class="nb">int</span> <span class="o">=</span> <span class="mi">15</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span>   <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">print_every</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="bp">None</span> <span class="o">=</span> <span class="mi">0</span>          <span class="c1"># 0/None → no log
+</span><span class="p">):</span>
+    <span class="n">idx</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">columns</span>
+    <span class="n">mask_nan</span>  <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="nf">isna</span><span class="p">().</span><span class="nf">to_numpy</span><span class="p">()</span>
+
+    <span class="n">X_std</span>      <span class="o">=</span> <span class="n">df_standardized</span><span class="p">.</span><span class="nf">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">X_hat_prev</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros_like</span><span class="p">(</span><span class="n">X_std</span><span class="p">)</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">it</span>    <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span>
+
+    <span class="k">while</span> <span class="n">err</span> <span class="o">&gt;</span> <span class="n">tol</span> <span class="ow">and</span> <span class="n">it</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span>
+        <span class="n">it</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">r_star</span> <span class="o">=</span> <span class="nf">pc_p2_criterion</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span> <span class="n">kmax</span><span class="p">)</span>
+        <span class="n">F_hat</span><span class="p">,</span> <span class="n">Λ_hat</span><span class="p">,</span> <span class="n">X_hat</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nf">pca_stock_watson</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span> <span class="n">r_star</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">it</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">err</span> <span class="o">=</span> <span class="p">((</span><span class="n">X_hat</span> <span class="o">-</span> <span class="n">X_hat_prev</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">X_hat_prev</span><span class="o">**</span><span class="mi">2</span><span class="p">).</span><span class="nf">sum</span><span class="p">()</span>
+        <span class="n">X_hat_prev</span> <span class="o">=</span> <span class="n">X_hat</span>
+
+        <span class="k">if</span> <span class="n">print_every</span> <span class="ow">and</span> <span class="p">(</span><span class="n">it</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">it</span> <span class="o">%</span> <span class="n">print_every</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Iter </span><span class="si">{</span><span class="n">it</span><span class="si">:</span><span class="mi">3</span><span class="n">d</span><span class="si">}</span><span class="s"> | r*=</span><span class="si">{</span><span class="n">r_star</span><span class="si">:</span><span class="mi">2</span><span class="n">d</span><span class="si">}</span><span class="s"> | err=</span><span class="si">{</span><span class="n">err</span><span class="si">:</span><span class="mf">9.2</span><span class="n">e</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+        <span class="n">μ</span><span class="p">,</span> <span class="n">σ</span> <span class="o">=</span> <span class="n">X_std</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">X_std</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">σ</span><span class="p">[</span><span class="n">σ</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">X_unstd</span> <span class="o">=</span> <span class="n">X_std</span><span class="o">*</span><span class="n">σ</span> <span class="o">+</span> <span class="n">μ</span>
+        <span class="n">X_unstd</span><span class="p">[</span><span class="n">mask_nan</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_hat</span><span class="o">*</span><span class="n">σ</span> <span class="o">+</span> <span class="n">μ</span><span class="p">)[</span><span class="n">mask_nan</span><span class="p">]</span>
+
+        <span class="n">μn</span><span class="p">,</span> <span class="n">σn</span> <span class="o">=</span> <span class="n">X_unstd</span><span class="p">.</span><span class="nf">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">X_unstd</span><span class="p">.</span><span class="nf">std</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">σn</span><span class="p">[</span><span class="n">σn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">X_std</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_unstd</span> <span class="o">-</span> <span class="n">μn</span><span class="p">)</span> <span class="o">/</span> <span class="n">σn</span>
+
+    <span class="nf">return </span><span class="p">(</span><span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">F_hat</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="sh">"</span><span class="s">F</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="sh">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">r_star</span><span class="p">)]),</span>
+            <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">Λ_hat</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="p">[</span><span class="sa">f</span><span class="sh">"</span><span class="s">F</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="sh">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">r_star</span><span class="p">)]),</span>
+            <span class="n">r_star</span><span class="p">,</span>
+            <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">X_unstd</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span>
+            <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">X_std</span><span class="p">,</span>    <span class="n">idx</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span>
+            <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">X_hat</span><span class="p">,</span>    <span class="n">idx</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+</code></pre></div></div> <h3 id="indpro-level"> <code class="language-plaintext highlighter-rouge">INDPRO</code> (Level)</h3> <ul> <li> <p>Lags of <code class="language-plaintext highlighter-rouge">INDPRO</code> = $3$</p> </li> <li> <p>Lags of <code class="language-plaintext highlighter-rouge">factors</code> = $1$</p> </li> </ul> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1"># PARAMETERS (same as your original block)
+</span><span class="n">p_IND</span>        <span class="o">=</span> <span class="mi">3</span>          <span class="c1"># lags of INDPRO
+</span><span class="n">m_IND</span>        <span class="o">=</span> <span class="mi">1</span>          <span class="c1"># lags of factors (can be 1, 2, 3, ...)
+</span><span class="n">kmax_em</span>      <span class="o">=</span> <span class="mi">15</span>
+<span class="n">tol_em</span>       <span class="o">=</span> <span class="mf">1e-6</span>
+<span class="n">maxiter_em</span>   <span class="o">=</span> <span class="mi">200</span>
+<span class="n">progress_mod</span> <span class="o">=</span> <span class="mi">16</span>         <span class="c1"># print ETA every 16 iterations
+</span>
+<span class="c1"># DATA SPLIT
+</span><span class="n">df_train</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">loc</span><span class="p">[:</span><span class="sh">'</span><span class="s">2011-11-01</span><span class="sh">'</span><span class="p">].</span><span class="nf">copy</span><span class="p">()</span>
+<span class="n">df_test</span>  <span class="o">=</span> <span class="n">df_transformed</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="sh">'</span><span class="s">2011-12-01</span><span class="sh">'</span><span class="p">:].</span><span class="nf">copy</span><span class="p">()</span>
+
+<span class="n">fcst_dates</span><span class="p">,</span> <span class="n">fcst_values</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="n">tic</span><span class="p">,</span> <span class="n">steps_total</span><span class="p">,</span> <span class="n">step_count</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">(),</span> <span class="nf">len</span><span class="p">(</span><span class="n">df_test</span><span class="p">),</span> <span class="mi">0</span>
+
+<span class="c1"># ROLLING-WINDOW LOOP
+</span><span class="k">while</span> <span class="ow">not</span> <span class="n">df_test</span><span class="p">.</span><span class="n">empty</span><span class="p">:</span>
+
+    <span class="c1"># 1) fill NaNs + standardize
+</span>    <span class="n">df_nan</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">.</span><span class="nf">fillna</span><span class="p">(</span><span class="n">df_train</span><span class="p">.</span><span class="nf">mean</span><span class="p">())</span>
+    <span class="n">df_std</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_nan</span> <span class="o">-</span> <span class="n">df_nan</span><span class="p">.</span><span class="nf">mean</span><span class="p">())</span> <span class="o">/</span> <span class="n">df_nan</span><span class="p">.</span><span class="nf">std</span><span class="p">()</span>
+
+    <span class="c1"># 2) extract factors via EM (silent)
+</span>    <span class="n">factors_train</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r_opt</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span> <span class="o">=</span> <span class="nf">em_factors_silent</span><span class="p">(</span>
+        <span class="n">df_transformed</span>  <span class="o">=</span> <span class="n">df_train</span><span class="p">,</span>
+        <span class="n">df_missing</span>      <span class="o">=</span> <span class="n">df_nan</span><span class="p">,</span>
+        <span class="n">df_standardized</span> <span class="o">=</span> <span class="n">df_std</span><span class="p">,</span>
+        <span class="n">kmax</span>            <span class="o">=</span> <span class="n">kmax_em</span><span class="p">,</span>
+        <span class="n">tol</span>             <span class="o">=</span> <span class="n">tol_em</span><span class="p">,</span>
+        <span class="n">max_iter</span>        <span class="o">=</span> <span class="n">maxiter_em</span><span class="p">,</span>
+        <span class="n">print_every</span>     <span class="o">=</span> <span class="mi">0</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 3) regressors = lags 1…m_IND of factors + lags 1…p_IND of INDPRO
+</span>    <span class="n">lag_F</span> <span class="o">=</span> <span class="p">[</span><span class="n">factors_train</span><span class="p">.</span><span class="nf">shift</span><span class="p">(</span><span class="n">l</span><span class="p">).</span><span class="nf">add_suffix</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">_lag</span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">m_IND</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">lag_Y</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="sh">"</span><span class="s">INDPRO</span><span class="sh">"</span><span class="p">].</span><span class="nf">shift</span><span class="p">(</span><span class="n">l</span><span class="p">).</span><span class="nf">to_frame</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">INDPRO_lag</span><span class="si">{</span><span class="n">l</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+             <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p_IND</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="n">X_train</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">concat</span><span class="p">(</span><span class="n">lag_F</span> <span class="o">+</span> <span class="n">lag_Y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">).</span><span class="nf">dropna</span><span class="p">()</span>
+
+    <span class="c1"># 4) target Y
+</span>    <span class="n">Y_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">X_train</span><span class="p">.</span><span class="n">index</span><span class="p">,</span> <span class="sh">"</span><span class="s">INDPRO</span><span class="sh">"</span><span class="p">]</span>
+
+    <span class="c1"># 5) OLS
+</span>    <span class="n">Xc</span>   <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="nf">ones</span><span class="p">((</span><span class="nf">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">),</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">X_train</span><span class="p">.</span><span class="n">values</span><span class="p">])</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="nf">inv</span><span class="p">(</span><span class="n">Xc</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Xc</span><span class="p">)</span> <span class="o">@</span> <span class="p">(</span><span class="n">Xc</span><span class="p">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">Y_train</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="nf">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># 6) regressor vector for t+1
+</span>    <span class="c1">#    • factor blocks: F(t), F(t-1)…F(t-(m_IND-1))
+</span>    <span class="n">F_blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">factors_train</span><span class="p">.</span><span class="nf">shift</span><span class="p">(</span><span class="n">l</span><span class="p">).</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">values</span>
+                <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">m_IND</span><span class="p">)]</span>          <span class="c1"># 0 = current
+</span>    <span class="c1">#    • INDPRO scalars: lag 1…p_IND
+</span>    <span class="n">Y_scalars</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_train</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">l</span><span class="p">],</span> <span class="sh">"</span><span class="s">INDPRO</span><span class="sh">"</span><span class="p">]</span>
+                 <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">p_IND</span><span class="p">)]</span>
+
+    <span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">hstack</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">*</span><span class="n">F_blocks</span><span class="p">,</span> <span class="o">*</span><span class="n">Y_scalars</span><span class="p">])</span>
+    <span class="n">y_hat</span> <span class="o">=</span> <span class="nf">float</span><span class="p">((</span><span class="n">x_new</span> <span class="o">@</span> <span class="n">beta</span><span class="p">).</span><span class="nf">squeeze</span><span class="p">())</span>        <span class="c1"># no warnings
+</span>
+    <span class="c1"># 7) save forecast
+</span>    <span class="n">next_date</span> <span class="o">=</span> <span class="n">df_test</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">fcst_dates</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">next_date</span><span class="p">)</span>
+    <span class="n">fcst_values</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">y_hat</span><span class="p">)</span>
+
+    <span class="c1"># 8) roll-forward
+</span>    <span class="n">df_train</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nf">concat</span><span class="p">([</span><span class="n">df_train</span><span class="p">,</span> <span class="n">df_test</span><span class="p">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">0</span><span class="p">]]])</span>
+    <span class="n">df_test</span>  <span class="o">=</span> <span class="n">df_test</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+    <span class="c1"># 9) progress bar
+</span>    <span class="n">step_count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">step_count</span> <span class="o">%</span> <span class="n">progress_mod</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">step_count</span> <span class="o">==</span> <span class="n">steps_total</span><span class="p">:</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span>
+        <span class="n">eta_sec</span> <span class="o">=</span> <span class="p">(</span><span class="n">elapsed</span> <span class="o">/</span> <span class="n">step_count</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">steps_total</span> <span class="o">-</span> <span class="n">step_count</span><span class="p">)</span>
+        <span class="n">eta_str</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="nf">strftime</span><span class="p">(</span><span class="sh">'</span><span class="s">%H:%M:%S</span><span class="sh">'</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="nf">gmtime</span><span class="p">(</span><span class="n">eta_sec</span><span class="p">))</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">[</span><span class="si">{</span><span class="n">step_count</span><span class="si">:</span><span class="o">&gt;</span><span class="mi">3</span><span class="si">}</span><span class="s">/</span><span class="si">{</span><span class="n">steps_total</span><span class="si">}</span><span class="s">]  r*=</span><span class="si">{</span><span class="n">r_opt</span><span class="si">:</span><span class="mi">2</span><span class="n">d</span><span class="si">}</span><span class="s">  ETA ≈ </span><span class="si">{</span><span class="n">eta_str</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="c1"># OUT-OF-SAMPLE FORECAST SERIES
+</span><span class="n">forecast_INDPRO_oos</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Series</span><span class="p">(</span><span class="n">fcst_values</span><span class="p">,</span>
+                                <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="p">.</span><span class="nf">to_datetime</span><span class="p">(</span><span class="n">fcst_dates</span><span class="p">),</span>
+                                <span class="n">name</span><span class="o">=</span><span class="sh">"</span><span class="s">INDPRO_forecast</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 1. Extract the actual INDPRO series corresponding to the OOS forecast dates
+</span><span class="n">y_true</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">forecast_INDPRO_oos</span><span class="p">.</span><span class="n">index</span><span class="p">,</span> <span class="sh">"</span><span class="s">INDPRO</span><span class="sh">"</span><span class="p">].</span><span class="nf">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="c1"># 2. Forecast series (already in correct order and with same index)
+</span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">forecast_INDPRO_oos</span><span class="p">.</span><span class="nf">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+
+<span class="c1"># 3. MSE and RMSE
+</span><span class="n">mse</span>  <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">mean</span><span class="p">((</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">rmse</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">MSE  : </span><span class="si">{</span><span class="n">mse</span><span class="si">:</span><span class="p">.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">RMSE : </span><span class="si">{</span><span class="n">rmse</span><span class="si">:</span><span class="p">.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MSE  : 1.8641
+RMSE : 1.3653
+</code></pre></div></div> <p><img src="/assets/proj/FactorModels_files/indpro_osa.png" alt="indpro_osa" style="max-width: 100%; height: auto;"></p> <h3 id="cpiauscl-first-difference"> <code class="language-plaintext highlighter-rouge">CPIAUSCL</code> (First Difference)</h3> <p><strong>The same procedure is applied to CPI</strong></p> <ul> <li> <p>Lags of <code class="language-plaintext highlighter-rouge">CPIAUSCL</code> = $6$</p> </li> <li> <p>Lags of <code class="language-plaintext highlighter-rouge">factors</code> = $1$</p> <p>MSE (CPI) : 0.360018 RMSE (CPI) : 0.600015</p> </li> </ul> <p><img src="/assets/proj/FactorModels_files/cpi_osa.png" alt="cpi_osa" style="max-width: 100%; height: auto;"></p> </article> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2025 Tommaso de Martino. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> <script src="/assets/js/bootstrap.bundle.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/mdbootstrap@4.20.0/js/mdb.min.js" integrity="sha256-NdbiivsvWt7VYCt6hYNT3h/th9vSTL4EDWeGs5SN3DA=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?a0db7e5d5c70cc3252b3138b0c91dcaf" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/js/zoom.js?85ddb88934d28b74e78031fd54cf8308"></script> <script src="/assets/js/no_defer.js?2781658a0a2b13ed609542042a859126"></script> <script defer src="/assets/js/common.js?e0514a05c5c95ac1a93a8dfd5249b92e"></script> <script defer src="/assets/js/copy_code.js?c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?d9f17b6adc2311cbabd747f4538bb15f"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/js/mathjax-setup.js?a5bb4e6a542c546dd929b24b8b236dfd"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script defer src="/assets/js/progress-bar.js?2f30e0e6801ea8f5036fa66e1ab0a71a" type="text/javascript"></script> <script src="/assets/js/vanilla-back-to-top.min.js?f40d453793ff4f64e238e420181a1d17"></script> <script>
     addBackToTop();
   </script> </body> </html>
