@@ -447,6 +447,11 @@ ninja.data = [{
           description: "another project with an image 🎉",
           section: "Projects",handler: () => {
               window.location.href = "/projects/9_project/";
+            },},{id: "projects-factor-models",
+          title: 'Factor Models',
+          description: "Using Factor Models to Predict Macroeconomic Variables",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/FactorModels/";
             },},{
         id: 'social-email',
         title: 'email',
