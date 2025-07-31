@@ -662,7 +662,6 @@ for possible_ret_fs in frontier_y_fs:
 
 <img src="/assets/proj/Portfolio_construction_files/fs_2.png" alt="fs2" style="max-width: 100%; height: auto;">       
 
-
 # 7. Energy Sector by **Alberto Pio Stigliani**
 
 > NOTE:
