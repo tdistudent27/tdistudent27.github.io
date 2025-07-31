@@ -452,6 +452,11 @@ ninja.data = [{
           description: "Using Factor Models to Predict Macro Variables",
           section: "Projects",handler: () => {
               window.location.href = "/projects/FactorModels/";
+            },},{id: "projects-portfolio-construction",
+          title: 'Portfolio Construction',
+          description: "Markowitz Approach to Portfolio Construction",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/Portfolio_Construction/";
             },},{id: "projects-volatility-forecasting",
           title: 'Volatility Forecasting',
           description: "A comparative analysis of volatility forecasting models applied to the Euro Stoxx 50",
