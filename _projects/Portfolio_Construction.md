@@ -493,7 +493,7 @@ for target_return_fs in target_returns_fs:
 
 
     
-<img src="/assets/proj/Portfolio_construction_files/fs_1.png" alt="fs1" style="max-width: 100%; height: auto;">    
+<img src="/assets/proj/Portfolio_Construction_files/fs_1.png" alt="fs1" style="max-width: 100%; height: auto;">    
 
 
 ## Approach 2 - Optimization Problem
@@ -660,7 +660,7 @@ for possible_ret_fs in frontier_y_fs:
     frontier_vol_fs.append(result_fs['fun'])
 ```
 
-<img src="/assets/proj/Portfolio_construction_files/fs_2.png" alt="fs2" style="max-width: 100%; height: auto;">       
+<img src="/assets/proj/Portfolio_Construction_files/fs_2.png" alt="fs2" style="max-width: 100%; height: auto;">       
 
 # 7. Energy Sector by **Alberto Pio Stigliani**
 
@@ -744,7 +744,7 @@ ticker_name_es = {
 
 ### Efficient Frontier
     
-<img src="/assets/proj/Portfolio_construction_files/es_2.png" alt="es2" style="max-width: 100%; height: auto;">       
+<img src="/assets/proj/Portfolio_Construction_files/es_2.png" alt="es2" style="max-width: 100%; height: auto;">       
 
 
 # 8. Technology Sector by [**Robert Roman**](https://www.linkedin.com/in/robert-roman-998b99213/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app)
@@ -830,7 +830,7 @@ ticker_name_ts = {
 
 ### Efficient Frontier
 
-<img src="/assets/proj/Portfolio_construction_files/ts_2.png" alt="ts2" style="max-width: 100%; height: auto;">      
+<img src="/assets/proj/Portfolio_Construction_files/ts_2.png" alt="ts2" style="max-width: 100%; height: auto;">      
 
 
 # 9. Health Sector by [**Sahar Shirazi**](https://www.linkedin.com/in/sahar-shirazi-906b3a167/)
@@ -917,7 +917,7 @@ ticker_name_hs = {
 ### Efficient Frontier
 
     
-<img src="/assets/proj/Portfolio_construction_files/hs_2.png" alt="hs2" style="max-width: 100%; height: auto;">      
+<img src="/assets/proj/Portfolio_Construction_files/hs_2.png" alt="hs2" style="max-width: 100%; height: auto;">      
 
 
 # 10. General Portfolio
@@ -1011,7 +1011,7 @@ ticker_name_gp = {
 ### Efficient Frontier
 
     
-<img src="/assets/proj/Portfolio_construction_files/gp_2.png" alt="gp" style="max-width: 100%; height: auto;">      
+<img src="/assets/proj/Portfolio_Construction_files/gp_2.png" alt="gp" style="max-width: 100%; height: auto;">      
 
 
 ### Piechart
@@ -1081,7 +1081,7 @@ plt.show()
 
 
     
-<img src="/assets/proj/Portfolio_construction_files/weights.png" alt="weights" style="max-width: 100%; height: auto;">      
+<img src="/assets/proj/Portfolio_Construction_files/weights.png" alt="weights" style="max-width: 100%; height: auto;">      
 
 
 # References
