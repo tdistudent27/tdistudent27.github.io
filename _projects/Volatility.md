@@ -9,7 +9,7 @@ nav: false
 
 ## Introduction
 
-This project was carried out by Valentina Sanna (Sapienza University of Rome), Tommaso de Martino (Sapienza University of Rome), and Omar Tronelli (Sapienza University of Rome).
+This project was carried out by **Valentina Sanna** (Sapienza University of Rome), **Tommaso de Martino** (Sapienza University of Rome), and [**Omar Tronelli**](https://github.com/ThePowerSet) (Sapienza University of Rome).
 Each of us focused on a specific Machine Learning model:
 
 - Long Short-Term Memory (LSTM)
