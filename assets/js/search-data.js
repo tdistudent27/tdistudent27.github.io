@@ -472,6 +472,11 @@ ninja.data = [{
           description: "cTrader backtest interactive report",
           section: "Projects",handler: () => {
               window.location.href = "/projects/z-score-mean-rev-v2/";
+            },},{id: "projects-trading-strategy-optimization",
+          title: 'Trading Strategy Optimization',
+          description: "This is the procedure I adopt to optimize a strategy and avoid Overfitting",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/strategy_opt/";
             },},{
         id: 'social-email',
         title: 'email',
