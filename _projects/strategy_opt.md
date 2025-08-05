@@ -1,0 +1,1288 @@
+---
+layout: page
+title: "Trading Strategy Optimization"
+description: This is the procedure I adopt to optimize a strategy and avoid Overfitting
+category: Personal
+importance: 3
+nav: false
+---
+
+
+
+
+## Libraries
+
+
+```python
+import pandas as pd
+import vectorbt as vbt
+import ta
+from ta.trend import SMAIndicator, ADXIndicator
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import timedelta
+from itertools import product
+import time  
+
+```
+## Data
+To **backtest a strategy in python** I use 2 version of the same dataset.
+
+1) The `timerframe` the strategy is based on
+2) A lower `timeframe` to have a more precise indications of the development of the candle
+
+> Example:
+> In this case the strategy is based on H4 candles. Using this timeframe I will compute the signals. Suppose a position is taken at `9 am` and a **Take Profit (TP)** and a **Stop Loss (SL)** are put a some levels. The next candle reaches **both the TP and the SL**, so is it a loss or a profit?
+> I will need the lower timeframe (1 minute candles) to understand if the Take Proftit or the Stop Loss came first. 
+> This is the the nearest thing to a real word environment to backtest a strategy.
+> Obviously, the lower the `timeframe`, the more precision I will have
+
+```python
+print(f'H4 dataset:\n {df_4h}\n 1m dataset\n{df_1m}')
+```
+
+    H4 dataset:
+                             open     high      low    close  tickvol
+    datetime                                                        
+    2017-07-21 16:00:00  1.16400  1.16702  1.16358  1.16660    31730
+    2017-07-21 20:00:00  1.16662  1.16827  1.16612  1.16634    20497
+    2017-07-24 00:00:00  1.16599  1.16842  1.16599  1.16709    12678
+    2017-07-24 04:00:00  1.16708  1.16753  1.16631  1.16708     9686
+    2017-07-24 08:00:00  1.16709  1.16751  1.16302  1.16529    35881
+    ...                      ...      ...      ...      ...      ...
+    2025-07-08 08:00:00  1.17416  1.17653  1.17319  1.17490    15925
+    2025-07-08 12:00:00  1.17489  1.17506  1.17140  1.17211    15208
+    2025-07-08 16:00:00  1.17210  1.17222  1.16827  1.17088    23138
+    2025-07-08 20:00:00  1.17088  1.17298  1.17075  1.17244    11899
+    2025-07-09 00:00:00  1.17199  1.17293  1.17142  1.17246     5627
+    
+    [12382 rows x 5 columns]
+     1m dataset
+                            open     high      low    close  tickvol
+    datetime                                                        
+    2017-07-21 12:45:00  1.16470  1.16480  1.16460  1.16476      146
+    2017-07-21 12:46:00  1.16475  1.16480  1.16469  1.16472      162
+    2017-07-21 12:47:00  1.16472  1.16486  1.16468  1.16485      150
+    2017-07-21 12:48:00  1.16484  1.16484  1.16469  1.16479      174
+    2017-07-21 12:49:00  1.16480  1.16481  1.16456  1.16463      208
+    ...                      ...      ...      ...      ...      ...
+    2025-07-08 23:55:00  1.17253  1.17257  1.17251  1.17257       19
+    2025-07-08 23:56:00  1.17257  1.17268  1.17253  1.17267       28
+    2025-07-08 23:57:00  1.17267  1.17267  1.17254  1.17257       23
+    2025-07-08 23:58:00  1.17257  1.17257  1.17243  1.17245       22
+    2025-07-08 23:59:00  1.17245  1.17247  1.17239  1.17244       20
+    
+    [2966785 rows x 5 columns]
+
+
+# Parameters
+
+
+```python
+# Parametri personalizzabili
+sma1_window = 15
+sma2_window = 10
+adx_window = 55
+
+# Calcolo SMA
+df_4h['sma1'] = SMAIndicator(close=df_4h['close'], window=sma1_window).sma_indicator()
+df_4h['sma2'] = SMAIndicator(close=df_4h['close'], window=sma2_window).sma_indicator()
+
+# Calcolo ADX
+adx = ADXIndicator(
+    high=df_4h['high'],
+    low=df_4h['low'],
+    close=df_4h['close'],
+    window=adx_window
+).adx()
+
+# Sostituisci i primi `adx_window` valori == 0 con NaN
+adx.iloc[:adx_window] = pd.NA
+df_4h['adx'] = adx
+
+df_4h = df_4h.dropna()
+```
+
+## Time filtering
+
+
+```python
+df_4h = df_4h[df_4h.index >= '2022-05-19 00:00:00']
+df_1m = df_1m[df_1m.index >= '2022-05-19 00:00:00']
+
+```
+
+
+```python
+print(df_4h)
+```
+
+                            open     high      low    close  tickvol      sma1  \
+    datetime                                                                     
+    2022-05-19 00:00:00  1.04683  1.05006  1.04612  1.04884    11808  1.049522   
+    2022-05-19 04:00:00  1.04884  1.05068  1.04789  1.04963    16846  1.049998   
+    2022-05-19 08:00:00  1.04963  1.05090  1.04649  1.04964    28109  1.050408   
+    2022-05-19 12:00:00  1.04964  1.05451  1.04872  1.05377    36015  1.051011   
+    2022-05-19 16:00:00  1.05377  1.05986  1.05366  1.05934    56746  1.052029   
+    ...                      ...      ...      ...      ...      ...       ...   
+    2025-07-08 08:00:00  1.17416  1.17653  1.17319  1.17490    15925  1.175075   
+    2025-07-08 12:00:00  1.17489  1.17506  1.17140  1.17211    15208  1.174769   
+    2025-07-08 16:00:00  1.17210  1.17222  1.16827  1.17088    23138  1.174295   
+    2025-07-08 20:00:00  1.17088  1.17298  1.17075  1.17244    11899  1.173959   
+    2025-07-09 00:00:00  1.17199  1.17293  1.17142  1.17246     5627  1.173679   
+    
+                             sma2        adx  
+    datetime                                  
+    2022-05-19 00:00:00  1.051903  13.630782  
+    2022-05-19 04:00:00  1.051437  13.577530  
+    2022-05-19 08:00:00  1.050971  13.551828  
+    2022-05-19 12:00:00  1.050879  13.442523  
+    2022-05-19 16:00:00  1.051263  13.220664  
+    ...                       ...        ...  
+    2025-07-08 08:00:00  1.173984  19.680101  
+    2025-07-08 12:00:00  1.173503  19.458087  
+    2025-07-08 16:00:00  1.172791  19.161909  
+    2025-07-08 20:00:00  1.172373  18.888370  
+    2025-07-09 00:00:00  1.172375  18.619805  
+    
+    [4880 rows x 8 columns]
+
+
+
+```python
+# Filtra df_1m per tenere solo righe a partire da quel timestamp (incluso)
+df_1m = df_1m[df_1m.index >= df_4h.index[0]]
+
+```
+
+
+```python
+print("Inizio H4:", df_4h.index[0])
+print("Inizio 1m:", df_1m.index[0])
+
+```
+
+    Inizio H4: 2022-05-19 00:00:00
+    Inizio 1m: 2022-05-19 00:00:00
+
+
+# Signals
+
+
+```python
+import numpy as np
+
+adx_max = 13.5          # soglia ADX oltre la quale non si opera
+
+df = df_4h.copy()
+
+# ── filtro orario: consentito solo a mezzanotte esatta o dalle 08:00 in poi (UTC)
+time_ok = (df.index.hour > 7) | ((df.index.hour == 0) & (df.index.minute == 0))
+
+# barre t-1 e t-2
+prev1, prev2 = df.shift(1), df.shift(2)
+
+# BUY: pattern t-2 / t-1 + SMA + ADX(t-1)
+long_sig = (
+    (prev1['sma1'] > prev1['sma2']) &           # SMA1(t-1) > SMA2(t-1)
+    (prev2['close'] < prev2['open']) &          # close(t-2) < open(t-2)
+    (prev1['close'] > prev1['open']) &          # close(t-1) > open(t-1)
+    (prev1['adx']  < adx_max) &                 # ADX(t-1) sotto soglia
+    time_ok                                     
+)
+
+# SELL: pattern t-2 / t-1 + SMA + ADX(t-1)
+short_sig = (
+    (prev1['sma1'] < prev1['sma2']) &           # SMA1(t-1) < SMA2(t-1)
+    (prev2['close'] > prev2['open']) &          # close(t-2) > open(t-2)
+    (prev1['close'] < prev1['open']) &          # close(t-1) < open(t-1)
+    (prev1['adx']  < adx_max) &                 # ADX(t-1) sotto soglia
+    time_ok
+)
+
+# segnale: +1 BUY, –1 SELL, 0 nessuno
+df['signal'] = np.where(long_sig, 1,
+                        np.where(short_sig, -1, 0))
+
+```
+
+
+```python
+print(df)
+```
+
+                            open     high      low    close  tickvol      sma1  \
+    datetime                                                                     
+    2022-05-19 00:00:00  1.04683  1.05006  1.04612  1.04884    11808  1.049522   
+    2022-05-19 04:00:00  1.04884  1.05068  1.04789  1.04963    16846  1.049998   
+    2022-05-19 08:00:00  1.04963  1.05090  1.04649  1.04964    28109  1.050408   
+    2022-05-19 12:00:00  1.04964  1.05451  1.04872  1.05377    36015  1.051011   
+    2022-05-19 16:00:00  1.05377  1.05986  1.05366  1.05934    56746  1.052029   
+    ...                      ...      ...      ...      ...      ...       ...   
+    2025-07-08 08:00:00  1.17416  1.17653  1.17319  1.17490    15925  1.175075   
+    2025-07-08 12:00:00  1.17489  1.17506  1.17140  1.17211    15208  1.174769   
+    2025-07-08 16:00:00  1.17210  1.17222  1.16827  1.17088    23138  1.174295   
+    2025-07-08 20:00:00  1.17088  1.17298  1.17075  1.17244    11899  1.173959   
+    2025-07-09 00:00:00  1.17199  1.17293  1.17142  1.17246     5627  1.173679   
+    
+                             sma2        adx  signal  
+    datetime                                          
+    2022-05-19 00:00:00  1.051903  13.630782       0  
+    2022-05-19 04:00:00  1.051437  13.577530       0  
+    2022-05-19 08:00:00  1.050971  13.551828       0  
+    2022-05-19 12:00:00  1.050879  13.442523       0  
+    2022-05-19 16:00:00  1.051263  13.220664       0  
+    ...                       ...        ...     ...  
+    2025-07-08 08:00:00  1.173984  19.680101       0  
+    2025-07-08 12:00:00  1.173503  19.458087       0  
+    2025-07-08 16:00:00  1.172791  19.161909       0  
+    2025-07-08 20:00:00  1.172373  18.888370       0  
+    2025-07-09 00:00:00  1.172375  18.619805       0  
+    
+    [4880 rows x 9 columns]
+
+
+# Backtest
+
+
+```python
+# ── PARAMETRI BASE ─────────────────────────────────────────────────────────
+risk_pct        = 15
+extra_pips      = 4
+tp_multiplier   = 1.3
+pip_size        = 0.0001
+pip_value       = 10                      # € per pip per 1 lotto (100k)
+min_lot         = 0.01
+max_lot         = 50.0                   # tetto massimo assoluto
+leverage        = 500                   # cambia qui a piacere (1, 30, 500 …)
+init_equity     = 100                    # equity di partenza
+
+commission_per_lot = 6.0                # € round-trip per 1 lotto
+swap_long_eur      = -9.71              # € / lotto / notte (BUY)
+swap_short_eur     =  4.50              # € / lotto / notte (SELL)
+
+# ── DATA ───────────────────────────────────────────────────────────────────
+h4 = df.copy()           # contiene già colonna 'signal' (+1 / –1 / 0)
+m1 = df_1m.copy()
+
+# ── STATO RUN-TIME ─────────────────────────────────────────────────────────
+equity            = init_equity
+open_trade        = None
+blocked_until     = pd.Timestamp.min
+trades, curve     = [], []
+
+def round_lot(x):
+    return max(min_lot, np.floor(x / min_lot) * min_lot)
+
+def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
+    """Swap notturno complessivo (€) fra entry e exit."""
+    first_night = entry_ts.normalize() + pd.Timedelta(days=1)
+    last_night  = exit_ts.normalize()
+    if exit_ts.time() == pd.Timestamp.min.time():
+        last_night -= pd.Timedelta(days=1)
+    if first_night > last_night:
+        return 0.0
+
+    nights = pd.date_range(first_night, last_night,
+                           freq='D', inclusive='left')
+    if nights.empty:
+        return 0.0
+
+    nightly_eur = swap_long_eur if dir_ == 1 else swap_short_eur
+    total = 0.0
+    for d in nights:
+        total += nightly_eur
+        if d.dayofweek == 2:            # mercoledì ⇒ +2 notti extra
+            total += 2 * nightly_eur
+    return total * lots
+
+# ── LOOP 4-H ───────────────────────────────────────────────────────────────
+for i in range(2, len(h4)):
+    row, prev1, prev2 = h4.iloc[i], h4.iloc[i-1], h4.iloc[i-2]
+    if (row.name < blocked_until) or (open_trade is not None) or (row['signal'] == 0):
+        continue
+
+    dir_     = int(row['signal'])        # +1 BUY, –1 SELL
+    entry_ts = row.name
+    entry_px = row['open']
+
+    sl_px = (min(prev1['low'], prev2['low']) - extra_pips * pip_size
+             if dir_ == 1 else
+             max(prev1['high'], prev2['high']) + extra_pips * pip_size)
+    sl_pips = abs(entry_px - sl_px) / pip_size
+    if sl_pips == 0:
+        continue
+
+    # —— dimensionamento LOTTI adattivo (rischio + margine) ————————
+    # lotto desiderato dal risk management
+    lots_risk = round_lot((equity * risk_pct / 100) / (sl_pips * pip_value))
+
+    # lotto massimo finanziabile con il margine disponibile
+    lots_max_margin = round_lot((equity * leverage) / (entry_px * 100_000))
+
+    lots = min(lots_risk, lots_max_margin, max_lot)
+    if lots < min_lot:
+        continue            # nessuna size possibile → salta trade
+
+    tp_px = entry_px + dir_ * sl_pips * pip_size * tp_multiplier
+    open_trade = dict(lots=lots, dir=dir_,
+                      entry_ts=entry_ts, entry=entry_px,
+                      sl_px=sl_px, tp_px=tp_px)
+
+    # —— scan minuti finché TP o SL ————————————————————————————————
+    for ts, bar in m1.loc[entry_ts:].iloc[1:].iterrows():
+        hit_tp = (dir_ == 1 and bar['high'] >= tp_px) or \
+                 (dir_ ==-1 and bar['low']  <= tp_px)
+        hit_sl = (dir_ == 1 and bar['low']  <= sl_px) or \
+                 (dir_ ==-1 and bar['high'] >= sl_px)
+        if not (hit_tp or hit_sl):
+            continue
+
+        exit_px  = tp_px if hit_tp else sl_px
+        pips     = (exit_px - entry_px) / pip_size * dir_
+        gross_pl = pips * lots * pip_value
+
+        commission = lots * commission_per_lot
+        swap_cash  = nightly_swap_cash(entry_ts, ts, lots, dir_)
+
+        pl_cash = gross_pl - commission + swap_cash
+        equity += pl_cash
+
+        trades.append({**open_trade,
+                       'exit_ts': ts, 'exit': exit_px,
+                       'pips': pips, 'pl': pl_cash,
+                       'equity_after': equity})
+        curve.append((ts, equity))
+
+        open_trade    = None
+        blocked_until = ts               # non aprire finché la candela non chiude
+        break
+
+    if equity <= 0:
+        print("Equity azzerata – stop back-test")
+        break
+
+# ── RISULTATI ——————————————————————————————————————————————
+trades_df = pd.DataFrame(trades)
+equity_curve = (pd.DataFrame(curve, columns=['ts', 'equity'])
+                .set_index('ts')
+                .sort_index())
+
+print(trades_df.tail())
+print("Equity finale:", equity)
+
+```
+
+         lots  dir            entry_ts    entry    sl_px     tp_px  \
+    325  50.0   -1 2025-06-06 00:00:00  1.14429  1.14991  1.136984   
+    326  50.0   -1 2025-06-12 00:00:00  1.14825  1.15035  1.145520   
+    327  50.0   -1 2025-06-12 08:00:00  1.15151  1.15332  1.149157   
+    328  50.0   -1 2025-06-12 20:00:00  1.15761  1.16356  1.149875   
+    329  50.0   -1 2025-06-13 16:00:00  1.15162  1.15646  1.145328   
+    
+                    exit_ts      exit   pips       pl  equity_after  
+    325 2025-06-11 21:02:00  1.149910 -56.20 -27500.0   698672.6221  
+    326 2025-06-12 01:57:00  1.150350 -21.00 -10800.0   687872.6221  
+    327 2025-06-12 11:15:00  1.153320 -18.10  -9350.0   678522.6221  
+    328 2025-06-13 13:47:00  1.149875  77.35  38600.0   717122.6221  
+    329 2025-06-13 18:31:00  1.156460 -48.40 -24500.0   692622.6221  
+    Equity finale: 692622.6220999856
+
+
+
+```python
+plt.figure(figsize=(12, 5), dpi=200)
+plt.plot(equity_curve, label='Equity', linewidth=1.5)
+plt.title('Equity Curve')
+plt.xlabel('Time')
+plt.ylabel('Equity (€)')
+plt.grid(False)
+plt.legend()
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](opt_2_files/opt_2_18_0.png)
+    
+
+
+# Stats
+
+
+```python
+
+
+# ────────────────────── draw-down book-style ──────────────────────
+def _max_drawdown(equity_ser: pd.Series):
+    """
+    Restituisce (draw-down assoluto in €, draw-down % positivo).
+    Calcolo identico a quello usato nel libro/cTrader:
+        DD% = equity / max(equity_to_date) - 1
+    """
+    running_max = equity_ser.cummax()
+    dd_pct_series = equity_ser / running_max - 1.0      # negativo o zero
+    dd_abs_series = running_max - equity_ser            # €
+    dd_abs = round(dd_abs_series.max(), 2)
+    dd_pct = round(-dd_pct_series.min()*100, 2)
+    return dd_abs, dd_pct
+
+# ───────────────────────── helper ──────────────────────────
+def _stats(trades, label, commission_per_lot, swap_long, swap_short):
+    if trades.empty:
+        return {'label': label, 'Trades': 0}
+
+    # commissioni (se mancanti)
+    if 'commission' not in trades.columns:
+        trades = trades.assign(commission=trades.lots * commission_per_lot)
+
+    # swap (se mancante → ricalcolo rapido senza loop 1-m)
+    if 'swap' not in trades.columns:
+        pt = np.where(trades.dir == 1, swap_long, swap_short)  # €/lotto/notte
+        swap_cash = (
+            ((trades.exit_ts.dt.normalize()            # ultimo giorno incluso?
+              - (trades.entry_ts.dt.normalize() + pd.Timedelta(days=1)))
+             .dt.days.clip(lower=0))                   # notti piene
+            .add(                                       # triplo mercoledì
+                ((trades.exit_ts.dt.dayofweek == 2)   # exit di mercoledì?
+                 & (trades.exit_ts.dt.normalize()
+                    > trades.entry_ts.dt.normalize()+pd.Timedelta(days=1))
+                 ).astype(int)*2)
+            * pt * trades.lots
+        )
+        trades = trades.assign(swap=swap_cash)
+
+    gross_prof = trades.pl[trades.pl > 0].sum()
+    gross_loss = trades.pl[trades.pl < 0].sum()
+    pf = np.inf if gross_loss == 0 else gross_prof / abs(gross_loss)
+
+    wins   = trades.pl.gt(0).sum()
+    losses = trades.pl.lt(0).sum()
+    avg_tr = trades.pl.mean()
+
+    consec_w = trades.pl.gt(0).astype(int).groupby(
+               (trades.pl.gt(0) != trades.pl.gt(0).shift()).cumsum()).cumsum()
+    consec_l = trades.pl.lt(0).astype(int).groupby(
+               (trades.pl.lt(0) != trades.pl.lt(0).shift()).cumsum()).cumsum()
+
+    return {
+        'label'           : label,
+        'Trades'          : len(trades),
+        'Net profit €'    : round(trades.pl.sum(), 2),
+        'Profit factor'   : round(pf, 2),
+        'Commission €'    : round(trades['commission'].sum(), 2),
+        'Swap €'          : round(trades['swap'].sum(), 2),
+        'Winners'         : wins,
+        'Losers'          : losses,
+        'Max consec win'  : int(consec_w.max()),
+        'Max consec loss' : int(consec_l.max()),
+        'Largest win €'   : round(trades.pl.max(), 2),
+        'Largest loss €'  : round(trades.pl.min(), 2),
+        'Avg trade €'     : round(avg_tr, 2)
+    }
+
+# ───────────────────── funzione principale ────────────────────────
+def full_stats(trades_df, equity_curve,
+               commission_per_lot=6.0,
+               swap_long_eur=-9.71,
+               swap_short_eur=4.50):
+
+    long_tr  = trades_df[trades_df.dir == 1]
+    short_tr = trades_df[trades_df.dir == -1]
+
+    rows = [
+        _stats(long_tr,  'Long',  commission_per_lot, swap_long_eur, swap_short_eur),
+        _stats(short_tr, 'Short', commission_per_lot, swap_long_eur, swap_short_eur),
+        _stats(trades_df,'Total', commission_per_lot, swap_long_eur, swap_short_eur)
+    ]
+
+    # draw-down complessivo
+    dd_abs, dd_pct = _max_drawdown(equity_curve['equity'])
+    print(f"\nMax draw-down assoluto : {dd_abs:,.2f} €")
+    print(f"Max draw-down percent.  : {dd_pct:.2f} %")
+
+    cols_order = ['Trades','Net profit €','Profit factor',
+                  'Commission €','Swap €',
+                  'Winners','Losers',
+                  'Max consec win','Max consec loss',
+                  'Largest win €','Largest loss €','Avg trade €']
+
+    return (pd.DataFrame(rows)
+              .set_index('label')
+              [cols_order])
+
+# --------------------------- USO ----------------------------------
+stats_df = full_stats(trades_df, equity_curve,
+                      commission_per_lot=6.0,
+                      swap_long_eur=-9.71,
+                      swap_short_eur=4.50)
+
+print(stats_df)
+
+```
+
+    
+    Max draw-down assoluto : 126,557.00 €
+    Max draw-down percent.  : 68.53 %
+           Trades  Net profit €  Profit factor  Commission €    Swap €  Winners  \
+    label                                                                         
+    Long      145     421206.77           2.43      18090.36 -17320.21       91   
+    Short     185     271315.85           1.43      24816.24  14836.95      103   
+    Total     330     692522.62           1.75      42906.60  -2483.26      194   
+    
+           Losers  Max consec win  Max consec loss  Largest win €  Largest loss €  \
+    label                                                                           
+    Long       54               5                4        54992.5        -34692.0   
+    Short      82               8                7        73175.0        -38775.0   
+    Total     136               7                7        73175.0        -38775.0   
+    
+           Avg trade €  
+    label               
+    Long       2904.87  
+    Short      1466.57  
+    Total      2098.55  
+
+
+# Portfolio
+
+
+```python
+daily_eq = (equity_curve['equity']   # serie: indice-datetime, valore = equity netta
+            .resample('B')           # 1) crea un indice a frequenza Business-day
+            .last()                  # 2) per ogni giorno prende l’ultimo valore disponibile
+            .ffill())                # 3) se quel giorno non c’era alcun trade, riempie
+                                     #    con il valore del giorno precedente (forward-fill)
+
+```
+
+
+```python
+portfolio = daily_eq.to_frame(name='equity')
+
+# Inseriamo la prima riga manualmente con equity iniziale e data da h4
+first_date = h4.index[0]
+portfolio.loc[first_date] = init_equity
+portfolio = portfolio.sort_index()
+
+# Calcola i ritorni percentuali semplici
+portfolio['returns'] = portfolio['equity'].pct_change()
+portfolio = portfolio.dropna()
+portfolio = portfolio.drop(columns='equity')
+
+print(portfolio)
+
+```
+
+                 returns
+    ts                  
+    2022-05-23 -0.117600
+    2022-05-24  0.000000
+    2022-05-25  0.000000
+    2022-05-26 -0.129646
+    2022-05-27  0.000000
+    ...              ...
+    2025-06-09  0.000000
+    2025-06-10  0.000000
+    2025-06-11 -0.037870
+    2025-06-12 -0.028840
+    2025-06-13  0.020780
+    
+    [800 rows x 1 columns]
+
+
+
+```python
+plt.figure(figsize=(12, 6), dpi=200)
+plt.plot(portfolio.index, portfolio['returns'].cumsum(), label='Cumulative Returns')
+plt.title('Cumulative Returns')
+plt.xlabel('Date')
+plt.ylabel('Cumulative Return')
+plt.grid(False)
+plt.legend()
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](opt_2_files/opt_2_24_0.png)
+    
+
+
+
+```python
+# ─────────────────── FUNZIONI ─────────────────────────────
+
+def sharpe_function(returns, timeframe=252):
+    mean = returns.mean() * timeframe
+    std = returns.std() * np.sqrt(timeframe)
+    return mean / std
+
+def sortino_function(returns, timeframe=252):
+    downside = returns[returns < 0]
+    mean = returns.mean() * timeframe
+    std = downside.std() * np.sqrt(timeframe)
+    return mean / std
+
+def drawdown_function(returns):
+    cum_rets = (returns + 1).cumprod()
+    running_max = np.maximum.accumulate(cum_rets.dropna())
+    running_max[running_max < 1] = 1
+    drawdown = (cum_rets / running_max) - 1
+    return drawdown
+
+def VaR_function(theta, mu, sigma):
+    n = 100000
+    t = int(n * theta)
+    sims = pd.DataFrame(np.random.normal(mu, sigma, size=n), columns=["Simulations"])
+    return sims.sort_values(by="Simulations").iloc[t].values[0]
+
+def cVaR_function(theta, mu, sigma):
+    n = 100000
+    t = int(n * theta)
+    sims = pd.DataFrame(np.random.normal(mu, sigma, size=n), columns=["Simulations"])
+    return sims.sort_values(by="Simulations").iloc[:t].mean().values[0]
+
+# ─────────────── CALCOLO METRICHE ─────────────────────────
+
+returns = portfolio['returns']
+mu = returns.mean()
+sigma = returns.std()
+
+```
+
+
+```python
+print(f"Sharpe Ratio : {sharpe_function(returns):.4f}")
+print(f"Sortino Ratio: {sortino_function(returns):.4f}")
+```
+
+    Sharpe Ratio : 2.6897
+    Sortino Ratio: 3.4151
+
+
+
+```python
+# ─────────────── DRAWDOWN CHART ───────────────────────────
+
+drawdown = drawdown_function(returns)
+drawdown_pct = drawdown * 100
+plt.figure(figsize=(12, 6), dpi=200)
+plt.fill_between(drawdown_pct.index, drawdown_pct, color="red", alpha=0.5)
+plt.title("Drawdown (%)", fontsize=14, weight='bold')
+plt.xlabel("Date", fontsize=12)
+plt.ylabel("Drawdown (%)", fontsize=12)
+plt.grid(False)
+plt.tight_layout()
+plt.show()
+```
+
+
+    
+![png](opt_2_files/opt_2_27_0.png)
+    
+
+
+
+```python
+# ─────────────── VAR E CVAR ───────────────────────────────
+
+print(f"Daily VaR 5%: {VaR_function(0.05, mu, sigma) * 100:.2f}%")
+print(f"Monthly VaR 5%: {VaR_function(0.05, mu*20, sigma*np.sqrt(20)) * 100:.2f}%")
+print(f"Annual VaR 5%: {VaR_function(0.05, mu*252, sigma*np.sqrt(252)) * 100:.2f}%")
+
+print(f"Daily CVaR 5%: {cVaR_function(0.05, mu, sigma) * 100:.2f}%")
+print(f"Monthly CVaR 5%: {cVaR_function(0.05, mu*20, sigma*np.sqrt(20)) * 100:.2f}%")
+print(f"Annual CVaR 5%: {cVaR_function(0.05, mu*252, sigma*np.sqrt(252)) * 100:.2f}%")
+```
+
+    Daily VaR 5%: -12.86%
+    Monthly VaR 5%: -34.28%
+    Annual VaR 5%: 143.55%
+    Daily CVaR 5%: -16.39%
+    Monthly CVaR 5%: -50.91%
+    Annual CVaR 5%: 85.91%
+
+
+# Permutation Test
+
+
+```python
+# ════════════════════════════════════════════════════════════════════════════
+#  1.  DEFINISCI LO SPAZIO DEI PARAMETRI  (modifica a piacere)
+# ════════════════════════════════════════════════════════════════════════════
+param_grid = {
+    'sma1_window'   : [15, 30, 60],          # 3 valori (include 15)
+    'sma2_window'   : [10, 20, 40],          # 3 valori (include 10)
+    'adx_window'    : [15, 35, 55],          # 3 valori (include 55)
+    'adx_max'       : [5, 13.5, 30],        # 3 valori (include 13.5)
+    'risk_pct'      : [5, 10, 15],           # 3 valori (include 15)
+    'extra_pips'    : [4],               # 2 valori (include 4)
+    'tp_multiplier' : [1.3, 2, 5, 10]        # 4 valori (include 1.3)
+}
+```
+
+
+```python
+# 1) GENERA TUTTE LE COMBINAZIONI
+param_combos = list(product(*param_grid.values()))
+TOTAL_COMBOS = len(param_combos)
+print(f"Totale combinazioni da testare: {TOTAL_COMBOS:,}")
+
+```
+
+    Totale combinazioni da testare: 972
+
+
+To use this type of test we must create a function that will backtest only on the H4 timeframe. The results will be slightly different but this is not so important since we just wanna know if our strategy is due to noise
+
+
+```python
+# Backtest with only h4
+
+# ── PARAMETRI BASE ─────────────────────────────────────────────────────────
+risk_pct        = 15
+extra_pips      = 4
+tp_multiplier   = 1.3
+pip_size        = 0.0001
+pip_value       = 10
+min_lot         = 0.01
+max_lot         = 50.0
+leverage        = 500
+init_equity     = 100
+
+commission_per_lot = 6.0
+swap_long_eur      = -9.71
+swap_short_eur     =  4.50
+
+# ── DATI ───────────────────────────────────────────────────────────────────
+df = df_4h.copy()  # contiene già 'sma1', 'sma2', 'adx'
+
+# ── Segnali ───────────────────────────────────────────────────────────────
+time_ok = (df.index.hour > 7) | ((df.index.hour == 0) & (df.index.minute == 0))
+prev1, prev2 = df.shift(1), df.shift(2)
+
+long_sig = (
+    (prev1['sma1'] > prev1['sma2']) &
+    (prev2['close'] < prev2['open']) &
+    (prev1['close'] > prev1['open']) &
+    (prev1['adx']  < 13.5) &
+    time_ok
+)
+short_sig = (
+    (prev1['sma1'] < prev1['sma2']) &
+    (prev2['close'] > prev2['open']) &
+    (prev1['close'] < prev1['open']) &
+    (prev1['adx']  < 13.5) &
+    time_ok
+)
+
+df['signal'] = np.where(long_sig, 1, np.where(short_sig, -1, 0))
+
+# ── FUNZIONI UTILI ─────────────────────────────────────────────────────────
+def round_lot(x):
+    return max(min_lot, np.floor(x / min_lot) * min_lot)
+
+def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
+    """Swap notturno complessivo (€) fra entry e exit (solo H4)."""
+    first_night = entry_ts.normalize() + pd.Timedelta(days=1)
+    last_night  = exit_ts.normalize()
+    if exit_ts.time() == pd.Timestamp.min.time():
+        last_night -= pd.Timedelta(days=1)
+    if first_night > last_night:
+        return 0.0
+
+    nights = pd.date_range(first_night, last_night,
+                           freq='D', inclusive='left')
+    if nights.empty:
+        return 0.0
+
+    nightly_eur = swap_long_eur if dir_ == 1 else swap_short_eur
+    total = 0.0
+    for d in nights:
+        total += nightly_eur
+        if d.dayofweek == 2:  # mercoledì ⇒ +2 notti extra
+            total += 2 * nightly_eur
+    return total * lots
+
+# ── LOOP SOLO H4 ───────────────────────────────────────────────────────────
+equity            = init_equity
+open_trade        = None
+blocked_until     = pd.Timestamp.min
+trades, curve     = [], []
+
+for i in range(2, len(df)):
+    row, prev1, prev2 = df.iloc[i], df.iloc[i-1], df.iloc[i-2]
+    if (row.name < blocked_until) or (open_trade is not None) or (row['signal'] == 0):
+        continue
+
+    dir_     = int(row['signal'])
+    entry_ts = row.name
+    entry_px = row['open']
+
+    # SL basato su 2 barre precedenti
+    sl_px = (min(prev1['low'], prev2['low']) - extra_pips * pip_size
+             if dir_ == 1 else
+             max(prev1['high'], prev2['high']) + extra_pips * pip_size)
+    sl_pips = abs(entry_px - sl_px) / pip_size
+    if sl_pips == 0:
+        continue
+
+    # Calcolo lotti
+    lots_risk = round_lot((equity * risk_pct / 100) / (sl_pips * pip_value))
+    lots_max_margin = round_lot((equity * leverage) / (entry_px * 100_000))
+    lots = min(lots_risk, lots_max_margin, max_lot)
+    if lots < min_lot:
+        continue
+
+    tp_px = entry_px + dir_ * sl_pips * pip_size * tp_multiplier
+    open_trade = dict(lots=lots, dir=dir_,
+                      entry_ts=entry_ts, entry=entry_px,
+                      sl_px=sl_px, tp_px=tp_px)
+
+    # Controllo TP/SL sulle barre H4 successive
+    for j in range(i+1, len(df)):
+        bar = df.iloc[j]
+        ts = bar.name
+        hit_tp = (dir_ == 1 and bar['high'] >= tp_px) or (dir_ ==-1 and bar['low'] <= tp_px)
+        hit_sl = (dir_ == 1 and bar['low'] <= sl_px) or (dir_ ==-1 and bar['high'] >= sl_px)
+        if not (hit_tp or hit_sl):
+            continue
+
+        exit_px  = tp_px if hit_tp else sl_px
+        pips     = (exit_px - entry_px) / pip_size * dir_
+        gross_pl = pips * lots * pip_value
+
+        commission = lots * commission_per_lot
+        swap_cash  = nightly_swap_cash(entry_ts, ts, lots, dir_)
+
+        pl_cash = gross_pl - commission + swap_cash
+        equity += pl_cash
+
+        trades.append({**open_trade,
+                       'exit_ts': ts, 'exit': exit_px,
+                       'pips': pips, 'pl': pl_cash,
+                       'equity_after': equity})
+        curve.append((ts, equity))
+
+        open_trade    = None
+        blocked_until = ts
+        break
+
+    if equity <= 0:
+        print("Equity azzerata – stop back-test")
+        break
+
+# ── RISULTATI ──────────────────────────────────────────────────────────────
+trades_df = pd.DataFrame(trades)
+equity_curve = (pd.DataFrame(curve, columns=['ts', 'equity'])
+                .set_index('ts')
+                .sort_index())
+
+print(trades_df.tail())
+print("Equity finale:", equity)
+
+```
+
+         lots  dir            entry_ts    entry    sl_px     tp_px  \
+    351  50.0   -1 2025-06-06 00:00:00  1.14429  1.14991  1.136984   
+    352  50.0   -1 2025-06-12 00:00:00  1.14825  1.15035  1.145520   
+    353  50.0   -1 2025-06-12 08:00:00  1.15151  1.15332  1.149157   
+    354  50.0   -1 2025-06-12 20:00:00  1.15761  1.16356  1.149875   
+    355  50.0   -1 2025-06-13 16:00:00  1.15162  1.15646  1.145328   
+    
+                    exit_ts      exit   pips       pl  equity_after  
+    351 2025-06-11 20:00:00  1.149910 -56.20 -27500.0   781837.4761  
+    352 2025-06-12 04:00:00  1.150350 -21.00 -10800.0   771037.4761  
+    353 2025-06-12 12:00:00  1.153320 -18.10  -9350.0   761687.4761  
+    354 2025-06-13 12:00:00  1.149875  77.35  38600.0   800287.4761  
+    355 2025-06-16 08:00:00  1.156460 -48.40 -24050.0   776237.4761  
+    Equity finale: 776237.4760999826
+
+
+
+```python
+# ── PLOT EQUITY ─────────────────────────────────────────────────────────────
+plt.figure(figsize=(12, 5), dpi =500)
+plt.plot(equity_curve.index, equity_curve['equity'], label='Equity H4')
+plt.title('Equity Curve (Backtest Only H4)')
+plt.xlabel('Date')
+plt.ylabel('Equity (€)')
+plt.grid(False)
+plt.legend()
+plt.show()
+```
+
+
+    
+![png](opt_2_files/opt_2_34_0.png)
+    
+
+
+
+```python
+import numpy as np, pandas as pd, matplotlib.pyplot as plt, time
+from itertools  import product
+from joblib     import Parallel, delayed, cpu_count, parallel
+from tqdm       import tqdm
+from contextlib import contextmanager
+
+# ════════════════════════  CONFIG  ═══════════════════════════
+N_PERMUTATIONS   = 1_000        # numero di permutazioni
+MAX_PLOT_CURVES  = 1_000          # quante curve-equity mostrare
+BATCH_SIZE_PAR   = 5            # batch_size per joblib
+
+pip_size, pip_value       = 0.0001, 10
+min_lot, max_lot          = 0.01, 50.0
+leverage, init_equity     = 500, 100
+commission_per_lot        = 6.0
+swap_long_eur, swap_short_eur = -9.71, 4.50   # BUY / SELL
+
+# griglia di ottimizzazione (ogni permutazione la userà)
+param_grid = {
+    "sma1_window"  : [15, 30, 60],
+    "sma2_window"  : [10, 20, 40],
+    "adx_window"   : [15, 35, 55],
+    "adx_max"      : [5, 13.5, 30],
+    "risk_pct"     : [5, 10, 15],
+    "extra_pips"   : [4],
+    "tp_multiplier": [1.3, 2, 5, 10],
+}
+param_combos = list(product(*param_grid.values()))
+print(f"Combinazioni per permutazione: {len(param_combos)}")
+
+# ════════════════════════  FUNZIONI  ═════════════════════════
+def round_lot(x):  # arrotondamento lotti
+    return max(min_lot, np.floor(x / min_lot) * min_lot)
+
+def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
+    entry_ts, exit_ts = map(pd.Timestamp, (entry_ts, exit_ts))
+    fst = entry_ts.normalize() + pd.Timedelta(days=1)
+    lst = exit_ts.normalize() - (pd.Timedelta(days=1)
+                                 if exit_ts.time()==pd.Timestamp.min.time() else pd.Timedelta(0))
+    if fst > lst: return 0.0
+    nights = pd.date_range(fst, lst, freq="D", inclusive="left")
+    nightly = swap_long_eur if dir_==1 else swap_short_eur
+    extra   = (nights.dayofweek == 2).sum() * nightly * 2     # mer → +2
+    return (nights.size * nightly + extra) * lots
+
+# back-test (con opzione curva)
+def backtest_h4_numpy(df, sma1_w, sma2_w, adx_w,
+                      adx_max, risk_pct, extra_pips, tp_mult,
+                      return_curve=False):
+
+    open_, high_, low_, close_, adx_ = [df[c].values for c in
+                                        ("open","high","low","close","adx")]
+    n = len(df)
+    sma1 = pd.Series(close_).rolling(sma1_w).mean().to_numpy()
+    sma2 = pd.Series(close_).rolling(sma2_w).mean().to_numpy()
+    adx  = pd.Series(adx_ ).rolling(adx_w ).mean().to_numpy()
+
+    p1 = np.maximum(np.arange(n)-1, 0)
+    p2 = np.maximum(np.arange(n)-2, 0)
+
+    ok_time = (df.index.hour > 7) | ((df.index.hour==0)&(df.index.minute==0))
+    long_sig  = ((sma1[p1] > sma2[p1]) & (close_[p2]<open_[p2]) &
+                 (close_[p1]>open_[p1]) & (adx[p1]<adx_max) & ok_time)
+    short_sig = ((sma1[p1] < sma2[p1]) & (close_[p2]>open_[p2]) &
+                 (close_[p1]<open_[p1]) & (adx[p1]<adx_max) & ok_time)
+    signal = np.where(long_sig,1,np.where(short_sig,-1,0))
+
+    equity, block = init_equity, pd.Timestamp.min
+    if return_curve:
+        curve_idx, curve_val = [df.index[0]], [equity]
+
+    for i in range(2, n):
+        ts = df.index[i]
+        if ts < block or signal[i]==0: continue
+        dir_ = int(signal[i]); ent_px=open_[i]
+        sl_px = (min(low_[p1[i]],low_[p2[i]]) - extra_pips*pip_size
+                 if dir_==1 else
+                 max(high_[p1[i]],high_[p2[i]]) + extra_pips*pip_size)
+        sl_pips = abs(ent_px-sl_px)/pip_size
+        if sl_pips==0: continue
+        lots = min(round_lot((equity*risk_pct/100)/(sl_pips*pip_value)),
+                   round_lot((equity*leverage)/(ent_px*100_000)),
+                   max_lot)
+        if lots<min_lot: continue
+        tp_px = ent_px + dir_*sl_pips*pip_size*tp_mult
+
+        for j in range(i+1, n):
+            hit_tp = ((dir_==1 and high_[j]>=tp_px) or
+                      (dir_==-1 and low_[j] <=tp_px))
+            hit_sl = ((dir_==1 and low_[j] <=sl_px) or
+                      (dir_==-1 and high_[j]>=sl_px))
+            if not (hit_tp or hit_sl): continue
+            exit_px = tp_px if hit_tp else sl_px
+            pips    = (exit_px-ent_px)/pip_size*dir_
+            equity += (pips*lots*pip_value -
+                       lots*commission_per_lot +
+                       nightly_swap_cash(ts, df.index[j], lots, dir_))
+            block = df.index[j]
+            if return_curve:
+                curve_idx.append(block); curve_val.append(equity)
+            break
+        if equity<=0: break
+
+    if return_curve:
+        return equity, pd.Series(curve_val, index=curve_idx)
+    return equity
+
+# genera una permutazione
+def get_permutation(df, seed=None):
+    np.random.seed(seed)
+    n=len(df); log=np.log(df[["open","high","low","close"]])
+    r_o=(log["open"]-log["close"].shift()).to_numpy()
+    r_h=(log["high"]-log["open"]).to_numpy()
+    r_l=(log["low" ]-log["open"]).to_numpy()
+    r_c=(log["close"]-log["open"]).to_numpy()
+    idx=np.arange(1,n); p1,p2=np.random.permutation(idx),np.random.permutation(idx)
+    perm=np.zeros((n,4)); perm[0]=log.iloc[0]
+    for i in range(1,n):
+        perm[i,0]=perm[i-1,3]+r_o[p2[i-1]]
+        perm[i,1]=perm[i,0]+r_h[p1[i-1]]
+        perm[i,2]=perm[i,0]+r_l[p1[i-1]]
+        perm[i,3]=perm[i,0]+r_c[p1[i-1]]
+    out=pd.DataFrame(np.exp(perm), index=df.index,
+                     columns=["open","high","low","close"])
+    out["adx"]=df["adx"].values
+    return out
+
+# bridge tqdm ↔ joblib
+@contextmanager
+def tqdm_joblib(tqdm_obj):
+    class _Batch(parallel.BatchCompletionCallBack):
+        def __call__(self,*a,**k):
+            tqdm_obj.update(n=self.batch_size)
+            return super().__call__(*a,**k)
+    old = parallel.BatchCompletionCallBack
+    parallel.BatchCompletionCallBack = _Batch
+    try:   yield
+    finally: parallel.BatchCompletionCallBack = old; tqdm_obj.close()
+
+# ═════════════════════  TEST PERMUTAZIONE  ══════════════════════
+best_equity_real = equity     # già calcolata fuori da questa cella
+print(f"Equity reale (già calcolata): {best_equity_real:,.2f} €")
+
+def run_perm(seed, save_curve):
+    df_p = get_permutation(df_4h, seed)
+    if save_curve:
+        best_eq, best_curve = -np.inf, None
+        for cmb in param_combos:
+            eq, cv = backtest_h4_numpy(df_p, *cmb, return_curve=True)
+            if eq > best_eq:
+                best_eq, best_curve = eq, cv
+        return best_eq, best_curve
+    else:
+        return max(backtest_h4_numpy(df_p,*cmb) for cmb in param_combos)
+
+perm_equities, perm_curves = [], []
+with tqdm_joblib(tqdm(total=N_PERMUTATIONS,
+                      desc="Permutazioni", ncols=110)) as _:
+    results = Parallel(n_jobs=max(cpu_count()-1,1),
+                       backend="loky",
+                       batch_size=BATCH_SIZE_PAR)(
+        delayed(run_perm)(s, len(perm_curves)<MAX_PLOT_CURVES)
+        for s in range(1, N_PERMUTATIONS+1)
+    )
+
+for r in results:
+    if isinstance(r, tuple):
+        eq, cv = r
+        perm_curves.append(cv)
+    else:
+        eq = r
+    perm_equities.append(eq)
+
+p_value = np.mean([eq >= best_equity_real for eq in perm_equities])
+print(f"P-value ≈ {p_value*100:.3f}%")
+
+```
+
+    Combinazioni per permutazione: 972
+    Equity reale (già calcolata): 776,237.48 €
+
+
+    Permutazioni: 100%|█████████████████████████████████████████████████████| 1000/1000 [1:00:29<00:00,  3.63s/it]
+
+    P-value ≈ 1.100%
+
+
+    
+
+
+
+```python
+# ------------------------------------------------------------------
+#  Retrieve the real-strategy equity curve you already calculated
+# ------------------------------------------------------------------
+real_curve       = equity_curve["equity"]      # Series: index=datetime, values=equity
+best_equity_real = real_curve.iloc[-1]         # final equity value
+
+# ------------------------------------------------------------------
+#  PLOT 1 – Equity curves over time
+#          grey = each permuted optimisation
+#          red  = your real strategy
+# ------------------------------------------------------------------
+plt.figure(figsize=(11, 6), dpi=400)
+
+for cv in perm_curves:                         # collected inside the loop
+    plt.plot(cv.index, cv.values,
+             color="grey", alpha=1, linewidth=0.7)
+
+plt.plot(real_curve.index, real_curve.values,
+         color="red", linewidth=2, label="Real equity")
+
+plt.title("Equity curves – permutations (grey) vs real (red)")
+plt.xlabel("Date"); plt.ylabel("Equity (€)")
+plt.legend(); plt.tight_layout(); plt.show()
+
+# ------------------------------------------------------------------
+#  PLOT 2 – Histogram of final equities
+# ------------------------------------------------------------------
+plt.figure(figsize=(9, 4), dpi=400)
+plt.hist(perm_equities, bins=30, alpha=1, color="grey")
+plt.axvline(best_equity_real, color="red", ls="--", label="Real equity")
+
+plt.title("Distribution of best equities on permutations")
+plt.xlabel("Final equity (€)"); plt.ylabel("Frequency")
+plt.legend(); plt.tight_layout(); plt.show()
+
+```
+
+
+    
+![png](opt_2_files/opt_2_36_0.png)
+    
+
+
+
+    
+![png](opt_2_files/opt_2_36_1.png)
+    
+
+
+
+```python
+# ──────────────────────────────────────────────────────────────────
+# Helper: rebuild returns from an equity Series  ➜  cumulative paths
+# ------------------------------------------------------------------
+def build_return_paths(equity_series, init_equity):
+    """
+    Parameters
+    ----------
+    equity_series : pd.Series
+        Equity indexed by date (e.g. real_curve or a permuted curve).
+    init_equity   : float
+        Starting capital that the back-test used.
+
+    Returns
+    -------
+    daily_ret     : pd.Series  (simple % returns)
+    cum_ret       : pd.Series  (cumulative returns, base 0)
+    log_cum_ret   : pd.Series  (log-cumulative returns, base 0)
+    """
+    # Insert the explicit initial balance on the very first bar
+    first_idx = equity_series.index[0]
+    equity_df = equity_series.to_frame(name="equity")
+    equity_df.loc[first_idx] = init_equity          # overwrite / ensure
+    equity_df = equity_df.sort_index()
+
+    # Simple % daily returns
+    daily_ret = equity_df['equity'].pct_change().dropna()
+
+    # Cumulative paths
+    cum_ret     = (1 + daily_ret).cumprod() - 1
+    log_cum_ret = np.log1p(cum_ret)                 # ln(1 + cumulative)
+
+    return daily_ret, cum_ret, log_cum_ret
+
+```
+
+
+```python
+# Build paths for the real strategy
+_, real_cum, real_log_cum = build_return_paths(real_curve, init_equity)
+
+# Build paths for every permuted optimisation
+perm_cum_paths, perm_log_paths = [], []
+for cv in perm_curves:
+    _, c_ret, log_c_ret = build_return_paths(cv, init_equity)
+    perm_cum_paths.append(c_ret)
+    perm_log_paths.append(log_c_ret)
+
+```
+
+
+```python
+plt.figure(figsize=(11, 6), dpi=400)
+for c_ret in perm_cum_paths:
+    plt.plot(c_ret.index, c_ret.values,
+             color="grey", alpha=1, linewidth=0.7)
+
+plt.plot(real_cum.index, real_cum.values,
+         color="red", linewidth=2, label="Real strategy")
+
+plt.title("Cumulative returns – permutations (grey) vs real (red)")
+plt.xlabel("Date"); plt.ylabel("Cumulative return")
+plt.axhline(0, color="black", linewidth=0.6)
+plt.legend(); plt.tight_layout(); plt.show()
+
+```
+
+
+    
+![png](opt_2_files/opt_2_39_0.png)
+    
+
+
+
+```python
+plt.figure(figsize=(11, 6), dpi=400)
+for log_c_ret in perm_log_paths:
+    plt.plot(log_c_ret.index, log_c_ret.values,
+             color="grey", alpha=1, linewidth=0.7)
+
+plt.plot(real_log_cum.index, real_log_cum.values,
+         color="red", linewidth=2, label="Real strategy")
+
+plt.title("Log-cumulative returns – permutations (grey) vs real (red)")
+plt.xlabel("Date"); plt.ylabel("Log cumulative return")
+plt.axhline(0, color="black", linewidth=0.6)
+plt.legend(); plt.tight_layout(); plt.show()
+
+```
+
+
+    
+![png](opt_2_files/opt_2_40_0.png)
+    
+
+
+
+```python
+# ------------------------------------------------------------------
+#  PLOT 1 – LOG Equity curves over time
+#          grey = each permuted optimisation
+#          red  = your real strategy
+# ------------------------------------------------------------------
+plt.figure(figsize=(11, 6), dpi=400)
+
+for cv in perm_curves:                         # collected inside the loop
+    plt.plot(cv.index, np.log(cv.values),
+             color="grey", alpha=1, linewidth=0.7)
+
+plt.plot(real_curve.index, np.log(real_curve.values),
+         color="red", linewidth=2, label="Real equity")
+
+plt.title("Log - Equity curves – permutations (grey) vs real (red)")
+plt.xlabel("Date"); plt.ylabel("Equity (€)")
+plt.legend(); plt.tight_layout(); plt.show()
+```
+
+
+    
+![png](opt_2_files/opt_2_41_0.png)
+    
+
