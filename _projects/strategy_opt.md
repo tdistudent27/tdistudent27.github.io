@@ -539,87 +539,58 @@ print(f"Annual CVaR 5%: {cVaR_function(0.05, mu*252, sigma*np.sqrt(252)) * 100:.
 The results appear to be extremely good — could this indicate potential overfitting? To verify, we can perform a permutation test.
 
 
-# Permutation Test
+## Permutation Test
+
+When a trading strategy achieves **exceptionally high returns** on historical data, it is important to determine whether the result is **genuine** or simply a consequence of **overfitting** or **data-mining bias**.  
+One robust method for this validation is the **Permutation Test**.
+
+#### 1. What is a Permutation Test?
+
+A permutation test evaluates the **statistical significance** of a strategy’s performance by comparing it against results obtained on **randomized market data**.  
+The procedure is:
+
+1. **Compute the real performance** of the strategy (e.g., final equity after parameter optimization).
+2. **Generate thousands of synthetic price series** by randomly **shuffling historical returns**, which destroys any true temporal patterns but preserves the statistical distribution of the returns.
+3. **Run the same optimization on each permuted series**, recording the **best equity** obtained in each case.
+4. **Build a distribution of “best equity by chance”**, representing what could be achieved without any real market edge.
 
 
-```python
-# ════════════════════════════════════════════════════════════════════════════
-#  1.  DEFINISCI LO SPAZIO DEI PARAMETRI  (modifica a piacere)
-# ════════════════════════════════════════════════════════════════════════════
-param_grid = {
-    'sma1_window'   : [15, 30, 60],          # 3 valori (include 15)
-    'sma2_window'   : [10, 20, 40],          # 3 valori (include 10)
-    'adx_window'    : [15, 35, 55],          # 3 valori (include 55)
-    'adx_max'       : [5, 13.5, 30],        # 3 valori (include 13.5)
-    'risk_pct'      : [5, 10, 15],           # 3 valori (include 15)
-    'extra_pips'    : [4],               # 2 valori (include 4)
-    'tp_multiplier' : [1.3, 2, 5, 10]        # 4 valori (include 1.3)
-}
-```
+#### 2. What is the p-value?
+
+After generating all the permutations:
+
+$$
+p\text{-value} =
+\frac{\text{\# permutations with equity ≥ real equity}}
+     {\text{total permutations}}
+$$
 
 
-```python
-# 1) GENERA TUTTE LE COMBINAZIONI
-param_combos = list(product(*param_grid.values()))
-TOTAL_COMBOS = len(param_combos)
-print(f"Totale combinazioni da testare: {TOTAL_COMBOS:,}")
-
-```
-
-    Totale combinazioni da testare: 972
+- A **low p-value** (e.g., < 5%) indicates that the strategy’s performance is **unlikely to occur by chance**, suggesting a **robust edge**.
+- A **high p-value** implies that similar or better results can often be obtained on **randomized data**, pointing to **overfitting** or **lack of true predictive power**.
 
 
-To use this type of test we must create a function that will backtest only on the H4 timeframe. The results will be slightly different but this is not so important since we just wanna know if our strategy is due to noise
+#### 3. Why It Matters
+
+- Protects against **over-optimistic results** caused by backtest overfitting.
+- Quantifies the **probability that the performance is due to luck**.
+- Complements **walk-forward testing** and **out-of-sample validation** for a rigorous strategy evaluation.
+
+
+By combining **Permutation Tests** with **risk-adjusted metrics**, traders can better assess the **credibility and robustness** of their algorithmic strategies.
+
+
+To use this type of test we must create a function that will backtest only on the H4 timeframe. The results will be slightly different but this is not so important since we just wanna know if our strategy is due to **noise optimization**
 
 
 ```python
 # Backtest with only h4
-
-# ── PARAMETRI BASE ─────────────────────────────────────────────────────────
-risk_pct        = 15
-extra_pips      = 4
-tp_multiplier   = 1.3
-pip_size        = 0.0001
-pip_value       = 10
-min_lot         = 0.01
-max_lot         = 50.0
-leverage        = 500
-init_equity     = 100
-
-commission_per_lot = 6.0
-swap_long_eur      = -9.71
-swap_short_eur     =  4.50
-
-# ── DATI ───────────────────────────────────────────────────────────────────
-df = df_4h.copy()  # contiene già 'sma1', 'sma2', 'adx'
-
-# ── Segnali ───────────────────────────────────────────────────────────────
-time_ok = (df.index.hour > 7) | ((df.index.hour == 0) & (df.index.minute == 0))
-prev1, prev2 = df.shift(1), df.shift(2)
-
-long_sig = (
-    (prev1['sma1'] > prev1['sma2']) &
-    (prev2['close'] < prev2['open']) &
-    (prev1['close'] > prev1['open']) &
-    (prev1['adx']  < 13.5) &
-    time_ok
-)
-short_sig = (
-    (prev1['sma1'] < prev1['sma2']) &
-    (prev2['close'] > prev2['open']) &
-    (prev1['close'] < prev1['open']) &
-    (prev1['adx']  < 13.5) &
-    time_ok
-)
-
-df['signal'] = np.where(long_sig, 1, np.where(short_sig, -1, 0))
-
-# ── FUNZIONI UTILI ─────────────────────────────────────────────────────────
 def round_lot(x):
+    """Round the lot size down to the nearest allowed lot size."""
     return max(min_lot, np.floor(x / min_lot) * min_lot)
 
 def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
-    """Swap notturno complessivo (€) fra entry e exit (solo H4)."""
+    """Total overnight swap (€) between entry and exit (H4 only)."""
     first_night = entry_ts.normalize() + pd.Timedelta(days=1)
     last_night  = exit_ts.normalize()
     if exit_ts.time() == pd.Timestamp.min.time():
@@ -627,6 +598,7 @@ def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
     if first_night > last_night:
         return 0.0
 
+    # Generate all the intermediate nights
     nights = pd.date_range(first_night, last_night,
                            freq='D', inclusive='left')
     if nights.empty:
@@ -636,11 +608,11 @@ def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
     total = 0.0
     for d in nights:
         total += nightly_eur
-        if d.dayofweek == 2:  # mercoledì ⇒ +2 notti extra
+        if d.dayofweek == 2:  # Wednesday ⇒ +2 extra nights
             total += 2 * nightly_eur
     return total * lots
 
-# ── LOOP SOLO H4 ───────────────────────────────────────────────────────────
+# ── MAIN LOOP (H4 only) ──────────────────────────────────────────────
 equity            = init_equity
 open_trade        = None
 blocked_until     = pd.Timestamp.min
@@ -648,14 +620,15 @@ trades, curve     = [], []
 
 for i in range(2, len(df)):
     row, prev1, prev2 = df.iloc[i], df.iloc[i-1], df.iloc[i-2]
+    # Skip if trade is blocked, one is already open, or no signal
     if (row.name < blocked_until) or (open_trade is not None) or (row['signal'] == 0):
         continue
 
-    dir_     = int(row['signal'])
+    dir_     = int(row['signal'])  # +1 long, -1 short
     entry_ts = row.name
     entry_px = row['open']
 
-    # SL basato su 2 barre precedenti
+    # SL based on previous 2 bars
     sl_px = (min(prev1['low'], prev2['low']) - extra_pips * pip_size
              if dir_ == 1 else
              max(prev1['high'], prev2['high']) + extra_pips * pip_size)
@@ -663,24 +636,24 @@ for i in range(2, len(df)):
     if sl_pips == 0:
         continue
 
-    # Calcolo lotti
+    # Lot size calculation (risk-based and margin-limited)
     lots_risk = round_lot((equity * risk_pct / 100) / (sl_pips * pip_value))
     lots_max_margin = round_lot((equity * leverage) / (entry_px * 100_000))
     lots = min(lots_risk, lots_max_margin, max_lot)
     if lots < min_lot:
-        continue
+        continue  # No trade possible → skip
 
     tp_px = entry_px + dir_ * sl_pips * pip_size * tp_multiplier
     open_trade = dict(lots=lots, dir=dir_,
                       entry_ts=entry_ts, entry=entry_px,
                       sl_px=sl_px, tp_px=tp_px)
 
-    # Controllo TP/SL sulle barre H4 successive
+    # Scan future H4 bars to check TP/SL
     for j in range(i+1, len(df)):
         bar = df.iloc[j]
         ts = bar.name
-        hit_tp = (dir_ == 1 and bar['high'] >= tp_px) or (dir_ ==-1 and bar['low'] <= tp_px)
-        hit_sl = (dir_ == 1 and bar['low'] <= sl_px) or (dir_ ==-1 and bar['high'] >= sl_px)
+        hit_tp = (dir_ == 1 and bar['high'] >= tp_px) or (dir_ == -1 and bar['low'] <= tp_px)
+        hit_sl = (dir_ == 1 and bar['low'] <= sl_px) or (dir_ == -1 and bar['high'] >= sl_px)
         if not (hit_tp or hit_sl):
             continue
 
@@ -701,57 +674,28 @@ for i in range(2, len(df)):
         curve.append((ts, equity))
 
         open_trade    = None
-        blocked_until = ts
+        blocked_until = ts  # Prevent opening a new trade until this bar closes
         break
 
     if equity <= 0:
-        print("Equity azzerata – stop back-test")
+        print("Equity depleted – stop back-test")
         break
 
-# ── RISULTATI ──────────────────────────────────────────────────────────────
+# ── RESULTS ─────────────────────────────────────────────────────────
 trades_df = pd.DataFrame(trades)
 equity_curve = (pd.DataFrame(curve, columns=['ts', 'equity'])
                 .set_index('ts')
                 .sort_index())
 
-print(trades_df.tail())
-print("Equity finale:", equity)
+print("Final equity:", equity)
+
 
 ```
-
-         lots  dir            entry_ts    entry    sl_px     tp_px  \
-    351  50.0   -1 2025-06-06 00:00:00  1.14429  1.14991  1.136984   
-    352  50.0   -1 2025-06-12 00:00:00  1.14825  1.15035  1.145520   
-    353  50.0   -1 2025-06-12 08:00:00  1.15151  1.15332  1.149157   
-    354  50.0   -1 2025-06-12 20:00:00  1.15761  1.16356  1.149875   
-    355  50.0   -1 2025-06-13 16:00:00  1.15162  1.15646  1.145328   
-    
-                    exit_ts      exit   pips       pl  equity_after  
-    351 2025-06-11 20:00:00  1.149910 -56.20 -27500.0   781837.4761  
-    352 2025-06-12 04:00:00  1.150350 -21.00 -10800.0   771037.4761  
-    353 2025-06-12 12:00:00  1.153320 -18.10  -9350.0   761687.4761  
-    354 2025-06-13 12:00:00  1.149875  77.35  38600.0   800287.4761  
-    355 2025-06-16 08:00:00  1.156460 -48.40 -24050.0   776237.4761  
-    Equity finale: 776237.4760999826
-
-
-
-```python
-# ── PLOT EQUITY ─────────────────────────────────────────────────────────────
-plt.figure(figsize=(12, 5), dpi =500)
-plt.plot(equity_curve.index, equity_curve['equity'], label='Equity H4')
-plt.title('Equity Curve (Backtest Only H4)')
-plt.xlabel('Date')
-plt.ylabel('Equity (€)')
-plt.grid(False)
-plt.legend()
-plt.show()
-```
-
+ 
+    Final equity: 776237.4760999826
 
     
-![png](opt_2_files/opt_2_34_0.png)
-    
+<img src="/assets/proj/strategy_opt_files/equity_h4.png" alt="eq_h4" style="max-width: 100%; height: auto;">     
 
 
 
