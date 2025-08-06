@@ -560,10 +560,12 @@ The procedure is:
 After generating all the permutations:
 
 $$
-p\text{-value} =
-\frac{\text{\# permutations with equity ≥ real equity}}
-     {\text{total permutations}}
+p\text{-value} = \frac{N_{\text{equity} \geq \text{real}}}{N_{\text{total}}}
 $$
+
+Where $N_{\text{equity} \geq \text{real}}$ is the number of permutations whose equity exceeds or matches the real strategy's equity.
+
+
 
 
 - A **low p-value** (e.g., < 5%) indicates that the strategy’s performance is **unlikely to occur by chance**, suggesting a **robust edge**.
@@ -698,6 +700,7 @@ print("Final equity:", equity)
 <img src="/assets/proj/strategy_opt_files/equity_h4.png" alt="eq_h4" style="max-width: 100%; height: auto;">     
 
 
+### Permutation Code
 
 ```python
 import numpy as np, pandas as pd, matplotlib.pyplot as plt, time
@@ -706,18 +709,18 @@ from joblib     import Parallel, delayed, cpu_count, parallel
 from tqdm       import tqdm
 from contextlib import contextmanager
 
-# ════════════════════════  CONFIG  ═══════════════════════════
-N_PERMUTATIONS   = 1_000        # numero di permutazioni
-MAX_PLOT_CURVES  = 1_000          # quante curve-equity mostrare
-BATCH_SIZE_PAR   = 5            # batch_size per joblib
+# ════════════════════════  CONFIGURATION  ═══════════════════════════
+N_PERMUTATIONS   = 1_000        # number of permutations
+MAX_PLOT_CURVES  = 1_000        # how many equity curves to display
+BATCH_SIZE_PAR   = 5            # batch size for joblib
 
 pip_size, pip_value       = 0.0001, 10
 min_lot, max_lot          = 0.01, 50.0
-leverage, init_equity     = 500, 100
+leverage, init_equity     = "your leverage", 100
 commission_per_lot        = 6.0
 swap_long_eur, swap_short_eur = -9.71, 4.50   # BUY / SELL
 
-# griglia di ottimizzazione (ogni permutazione la userà)
+# optimization grid (used by each permutation)
 param_grid = {
     "sma1_window"  : [15, 30, 60],
     "sma2_window"  : [10, 20, 40],
@@ -728,10 +731,10 @@ param_grid = {
     "tp_multiplier": [1.3, 2, 5, 10],
 }
 param_combos = list(product(*param_grid.values()))
-print(f"Combinazioni per permutazione: {len(param_combos)}")
+print(f"Combinations per permutation: {len(param_combos)}")
 
-# ════════════════════════  FUNZIONI  ═════════════════════════
-def round_lot(x):  # arrotondamento lotti
+# ════════════════════════  FUNCTIONS  ═════════════════════════
+def round_lot(x):  # lot rounding
     return max(min_lot, np.floor(x / min_lot) * min_lot)
 
 def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
@@ -742,10 +745,10 @@ def nightly_swap_cash(entry_ts, exit_ts, lots, dir_):
     if fst > lst: return 0.0
     nights = pd.date_range(fst, lst, freq="D", inclusive="left")
     nightly = swap_long_eur if dir_==1 else swap_short_eur
-    extra   = (nights.dayofweek == 2).sum() * nightly * 2     # mer → +2
+    extra   = (nights.dayofweek == 2).sum() * nightly * 2     # Wed → +2 extra nights
     return (nights.size * nightly + extra) * lots
 
-# back-test (con opzione curva)
+# backtest (with optional equity curve)
 def backtest_h4_numpy(df, sma1_w, sma2_w, adx_w,
                       adx_max, risk_pct, extra_pips, tp_mult,
                       return_curve=False):
@@ -761,10 +764,8 @@ def backtest_h4_numpy(df, sma1_w, sma2_w, adx_w,
     p2 = np.maximum(np.arange(n)-2, 0)
 
     ok_time = (df.index.hour > 7) | ((df.index.hour==0)&(df.index.minute==0))
-    long_sig  = ((sma1[p1] > sma2[p1]) & (close_[p2]<open_[p2]) &
-                 (close_[p1]>open_[p1]) & (adx[p1]<adx_max) & ok_time)
-    short_sig = ((sma1[p1] < sma2[p1]) & (close_[p2]>open_[p2]) &
-                 (close_[p1]<open_[p1]) & (adx[p1]<adx_max) & ok_time)
+    long_sig  = generate_your_custom_LONG_signals(df)
+    short_sig = generate_your_custom_SHORT_signals(df)
     signal = np.where(long_sig,1,np.where(short_sig,-1,0))
 
     equity, block = init_equity, pd.Timestamp.min
@@ -807,7 +808,7 @@ def backtest_h4_numpy(df, sma1_w, sma2_w, adx_w,
         return equity, pd.Series(curve_val, index=curve_idx)
     return equity
 
-# genera una permutazione
+# generate a permutation
 def get_permutation(df, seed=None):
     np.random.seed(seed)
     n=len(df); log=np.log(df[["open","high","low","close"]])
@@ -839,9 +840,9 @@ def tqdm_joblib(tqdm_obj):
     try:   yield
     finally: parallel.BatchCompletionCallBack = old; tqdm_obj.close()
 
-# ═════════════════════  TEST PERMUTAZIONE  ══════════════════════
-best_equity_real = equity     # già calcolata fuori da questa cella
-print(f"Equity reale (già calcolata): {best_equity_real:,.2f} €")
+# ═════════════════════  PERMUTATION TEST  ══════════════════════
+best_equity_real = equity     # already computed outside this cell
+print(f"Real equity (already computed): {best_equity_real:,.2f} €")
 
 def run_perm(seed, save_curve):
     df_p = get_permutation(df_4h, seed)
@@ -857,7 +858,7 @@ def run_perm(seed, save_curve):
 
 perm_equities, perm_curves = [], []
 with tqdm_joblib(tqdm(total=N_PERMUTATIONS,
-                      desc="Permutazioni", ncols=110)) as _:
+                      desc="Permutations", ncols=110)) as _:
     results = Parallel(n_jobs=max(cpu_count()-1,1),
                        backend="loky",
                        batch_size=BATCH_SIZE_PAR)(
@@ -878,189 +879,40 @@ print(f"P-value ≈ {p_value*100:.3f}%")
 
 ```
 
-    Combinazioni per permutazione: 972
-    Equity reale (già calcolata): 776,237.48 €
+    Combinations per permutation: 972
+    Real equity (already computed): 776,237.48 €
 
 
-    Permutazioni: 100%|█████████████████████████████████████████████████████| 1000/1000 [1:00:29<00:00,  3.63s/it]
+    Permutations: 100%|█████████████████████████████████████████████████████| 1000/1000 [1:00:29<00:00,  3.63s/it]
 
     P-value ≈ 1.100%
 
 
+#### Equity Cyrves on Permutations
+    
+<img src="/assets/proj/strategy_opt_files/equity_perm.png" alt="eq_perm" style="max-width: 100%; height: auto;">     
     
 
 
-
-```python
-# ------------------------------------------------------------------
-#  Retrieve the real-strategy equity curve you already calculated
-# ------------------------------------------------------------------
-real_curve       = equity_curve["equity"]      # Series: index=datetime, values=equity
-best_equity_real = real_curve.iloc[-1]         # final equity value
-
-# ------------------------------------------------------------------
-#  PLOT 1 – Equity curves over time
-#          grey = each permuted optimisation
-#          red  = your real strategy
-# ------------------------------------------------------------------
-plt.figure(figsize=(11, 6), dpi=400)
-
-for cv in perm_curves:                         # collected inside the loop
-    plt.plot(cv.index, cv.values,
-             color="grey", alpha=1, linewidth=0.7)
-
-plt.plot(real_curve.index, real_curve.values,
-         color="red", linewidth=2, label="Real equity")
-
-plt.title("Equity curves – permutations (grey) vs real (red)")
-plt.xlabel("Date"); plt.ylabel("Equity (€)")
-plt.legend(); plt.tight_layout(); plt.show()
-
-# ------------------------------------------------------------------
-#  PLOT 2 – Histogram of final equities
-# ------------------------------------------------------------------
-plt.figure(figsize=(9, 4), dpi=400)
-plt.hist(perm_equities, bins=30, alpha=1, color="grey")
-plt.axvline(best_equity_real, color="red", ls="--", label="Real equity")
-
-plt.title("Distribution of best equities on permutations")
-plt.xlabel("Final equity (€)"); plt.ylabel("Frequency")
-plt.legend(); plt.tight_layout(); plt.show()
-
-```
-
-
+#### Distribution of Best Equities on Permutations
     
-![png](opt_2_files/opt_2_36_0.png)
+<img src="/assets/proj/strategy_opt_files/distr_eq.png" alt="distr_eq" style="max-width: 100%; height: auto;">     
     
 
-
-
+#### Log of Cumulative Returns on Pemutations
     
-![png](opt_2_files/opt_2_36_1.png)
-    
-
-
-
-```python
-# ──────────────────────────────────────────────────────────────────
-# Helper: rebuild returns from an equity Series  ➜  cumulative paths
-# ------------------------------------------------------------------
-def build_return_paths(equity_series, init_equity):
-    """
-    Parameters
-    ----------
-    equity_series : pd.Series
-        Equity indexed by date (e.g. real_curve or a permuted curve).
-    init_equity   : float
-        Starting capital that the back-test used.
-
-    Returns
-    -------
-    daily_ret     : pd.Series  (simple % returns)
-    cum_ret       : pd.Series  (cumulative returns, base 0)
-    log_cum_ret   : pd.Series  (log-cumulative returns, base 0)
-    """
-    # Insert the explicit initial balance on the very first bar
-    first_idx = equity_series.index[0]
-    equity_df = equity_series.to_frame(name="equity")
-    equity_df.loc[first_idx] = init_equity          # overwrite / ensure
-    equity_df = equity_df.sort_index()
-
-    # Simple % daily returns
-    daily_ret = equity_df['equity'].pct_change().dropna()
-
-    # Cumulative paths
-    cum_ret     = (1 + daily_ret).cumprod() - 1
-    log_cum_ret = np.log1p(cum_ret)                 # ln(1 + cumulative)
-
-    return daily_ret, cum_ret, log_cum_ret
-
-```
-
-
-```python
-# Build paths for the real strategy
-_, real_cum, real_log_cum = build_return_paths(real_curve, init_equity)
-
-# Build paths for every permuted optimisation
-perm_cum_paths, perm_log_paths = [], []
-for cv in perm_curves:
-    _, c_ret, log_c_ret = build_return_paths(cv, init_equity)
-    perm_cum_paths.append(c_ret)
-    perm_log_paths.append(log_c_ret)
-
-```
-
-
-```python
-plt.figure(figsize=(11, 6), dpi=400)
-for c_ret in perm_cum_paths:
-    plt.plot(c_ret.index, c_ret.values,
-             color="grey", alpha=1, linewidth=0.7)
-
-plt.plot(real_cum.index, real_cum.values,
-         color="red", linewidth=2, label="Real strategy")
-
-plt.title("Cumulative returns – permutations (grey) vs real (red)")
-plt.xlabel("Date"); plt.ylabel("Cumulative return")
-plt.axhline(0, color="black", linewidth=0.6)
-plt.legend(); plt.tight_layout(); plt.show()
-
-```
-
-
-    
-![png](opt_2_files/opt_2_39_0.png)
+<img src="/assets/proj/strategy_opt_files/log_cum_re_perm.png" alt="log_cum_re_perm" style="max-width: 100%; height: auto;">     
     
 
+## Conclusion
+The permutation test yielded a p-value of approximately 1.1%, indicating that only about 11 out of 1,000 randomly permuted datasets produced an out-of-sample equity equal to or greater than the one obtained using the original, non-permuted data.
 
+This low p-value suggests that the observed performance is unlikely to be the result of random chance alone. Under the null hypothesis—that the strategy captures no meaningful structure and any apparent performance arises from data mining or noise—such a result would be expected in roughly 1.1% of cases.
 
-```python
-plt.figure(figsize=(11, 6), dpi=400)
-for log_c_ret in perm_log_paths:
-    plt.plot(log_c_ret.index, log_c_ret.values,
-             color="grey", alpha=1, linewidth=0.7)
+> While this does not conclusively prove the presence of a true signal, it provides statistical evidence against the null hypothesis, supporting the idea that the strategy may be exploiting a genuine structure in the data.
 
-plt.plot(real_log_cum.index, real_log_cum.values,
-         color="red", linewidth=2, label="Real strategy")
+Nonetheless, it is important to emphasize that:
 
-plt.title("Log-cumulative returns – permutations (grey) vs real (red)")
-plt.xlabel("Date"); plt.ylabel("Log cumulative return")
-plt.axhline(0, color="black", linewidth=0.6)
-plt.legend(); plt.tight_layout(); plt.show()
+- A low p-value does not guarantee out-of-sample robustness.
 
-```
-
-
-    
-![png](opt_2_files/opt_2_40_0.png)
-    
-
-
-
-```python
-# ------------------------------------------------------------------
-#  PLOT 1 – LOG Equity curves over time
-#          grey = each permuted optimisation
-#          red  = your real strategy
-# ------------------------------------------------------------------
-plt.figure(figsize=(11, 6), dpi=400)
-
-for cv in perm_curves:                         # collected inside the loop
-    plt.plot(cv.index, np.log(cv.values),
-             color="grey", alpha=1, linewidth=0.7)
-
-plt.plot(real_curve.index, np.log(real_curve.values),
-         color="red", linewidth=2, label="Real equity")
-
-plt.title("Log - Equity curves – permutations (grey) vs real (red)")
-plt.xlabel("Date"); plt.ylabel("Equity (€)")
-plt.legend(); plt.tight_layout(); plt.show()
-```
-
-
-    
-![png](opt_2_files/opt_2_41_0.png)
-    
-
+- The results are contingent on the specific optimization procedure and parameter space.
