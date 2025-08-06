@@ -10,7 +10,7 @@
 <span class="kn">from</span> <span class="n">itertools</span> <span class="kn">import</span> <span class="n">product</span>
 <span class="kn">import</span> <span class="n">time</span>  
 
-</code></pre></div></div> <h2 id="data">Data</h2> <p>To <strong>backtest a strategy in python</strong> I use 2 version of the same dataset.</p> <p>1) The <code class="language-plaintext highlighter-rouge">timerframe</code> the strategy is based on 2) A lower <code class="language-plaintext highlighter-rouge">timeframe</code> to have a more precise indications of the development of the candle</p> <blockquote> <p>Example: In this case the strategy is based on H4 candles. Using this timeframe I will compute the signals. Suppose a position is taken at <code class="language-plaintext highlighter-rouge">9 am</code> and a <strong>Take Profit (TP)</strong> and a <strong>Stop Loss (SL)</strong> are put a some levels. The next candle reaches <strong>both the TP and the SL</strong>, so is it a loss or a profit? I will need the lower timeframe (1 minute candles) to understand if the Take Proftit or the Stop Loss came first. This is the the nearest thing to a real word environment to backtest a strategy. Obviously, the lower the <code class="language-plaintext highlighter-rouge">timeframe</code>, the more precision I will have</p> </blockquote> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">H4 dataset:</span><span class="se">\n</span><span class="s"> </span><span class="si">{</span><span class="n">df_4h</span><span class="si">}</span><span class="se">\n</span><span class="s"> 1m dataset</span><span class="se">\n</span><span class="si">{</span><span class="n">df_1m</span><span class="si">}</span><span class="sh">'</span><span class="p">)</span>
+</code></pre></div></div> <h2 id="data">Data</h2> <p>To <strong>backtest a strategy in python</strong> I use 2 version of the same dataset.</p> <ol> <li> <p>The <code class="language-plaintext highlighter-rouge">timerframe</code> the strategy is based on</p> </li> <li> <p>A lower <code class="language-plaintext highlighter-rouge">timeframe</code> to have a more precise indications of the development of the candle</p> </li> </ol> <blockquote> <p>Example:</p> <p>In this case the strategy is based on H4 candles. Using this timeframe I will compute the signals. Suppose a position is taken at <code class="language-plaintext highlighter-rouge">9am</code> and a <strong>Take Profit (TP)</strong> and a <strong>Stop Loss (SL)</strong> are set at some levels. The next candle reaches <strong>both the TP and the SL</strong>, so is it a loss or a profit?</p> <p>I will need the lower timeframe (e.g 1 minute candles in this case) to understand if the Take Proftit or the Stop Loss came first. This is the the closer approach to a real word environment to backtest a strategy.</p> <p>Obviously, the lower the <code class="language-plaintext highlighter-rouge">timeframe</code>, the more precision I will have</p> </blockquote> <p>This is my dataset</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">'</span><span class="s">H4 dataset:</span><span class="se">\n</span><span class="s"> </span><span class="si">{</span><span class="n">df_4h</span><span class="si">}</span><span class="se">\n</span><span class="s"> 1m dataset</span><span class="se">\n</span><span class="si">{</span><span class="n">df_1m</span><span class="si">}</span><span class="sh">'</span><span class="p">)</span>
 </code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>H4 dataset:
                          open     high      low    close  tickvol
 datetime                                                        
@@ -27,7 +27,8 @@ datetime
 2025-07-09 00:00:00  1.17199  1.17293  1.17142  1.17246     5627
 
 [12382 rows x 5 columns]
- 1m dataset
+
+1m dataset
                         open     high      low    close  tickvol
 datetime                                                        
 2017-07-21 12:45:00  1.16470  1.16480  1.16460  1.16476      146
@@ -43,104 +44,7 @@ datetime
 2025-07-08 23:59:00  1.17245  1.17247  1.17239  1.17244       20
 
 [2966785 rows x 5 columns]
-</code></pre></div></div> <h1 id="parameters">Parameters</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Parametri personalizzabili
-</span><span class="n">sma1_window</span> <span class="o">=</span> <span class="mi">15</span>
-<span class="n">sma2_window</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">adx_window</span> <span class="o">=</span> <span class="mi">55</span>
-
-<span class="c1"># Calcolo SMA
-</span><span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">sma1</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="nc">SMAIndicator</span><span class="p">(</span><span class="n">close</span><span class="o">=</span><span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="n">sma1_window</span><span class="p">).</span><span class="nf">sma_indicator</span><span class="p">()</span>
-<span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">sma2</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="nc">SMAIndicator</span><span class="p">(</span><span class="n">close</span><span class="o">=</span><span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="n">sma2_window</span><span class="p">).</span><span class="nf">sma_indicator</span><span class="p">()</span>
-
-<span class="c1"># Calcolo ADX
-</span><span class="n">adx</span> <span class="o">=</span> <span class="nc">ADXIndicator</span><span class="p">(</span>
-    <span class="n">high</span><span class="o">=</span><span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">high</span><span class="sh">'</span><span class="p">],</span>
-    <span class="n">low</span><span class="o">=</span><span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">low</span><span class="sh">'</span><span class="p">],</span>
-    <span class="n">close</span><span class="o">=</span><span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">],</span>
-    <span class="n">window</span><span class="o">=</span><span class="n">adx_window</span>
-<span class="p">).</span><span class="nf">adx</span><span class="p">()</span>
-
-<span class="c1"># Sostituisci i primi `adx_window` valori == 0 con NaN
-</span><span class="n">adx</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">adx_window</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">NA</span>
-<span class="n">df_4h</span><span class="p">[</span><span class="sh">'</span><span class="s">adx</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">adx</span>
-
-<span class="n">df_4h</span> <span class="o">=</span> <span class="n">df_4h</span><span class="p">.</span><span class="nf">dropna</span><span class="p">()</span>
-</code></pre></div></div> <h2 id="time-filtering">Time filtering</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_4h</span> <span class="o">=</span> <span class="n">df_4h</span><span class="p">[</span><span class="n">df_4h</span><span class="p">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="sh">'</span><span class="s">2022-05-19 00:00:00</span><span class="sh">'</span><span class="p">]</span>
-<span class="n">df_1m</span> <span class="o">=</span> <span class="n">df_1m</span><span class="p">[</span><span class="n">df_1m</span><span class="p">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="sh">'</span><span class="s">2022-05-19 00:00:00</span><span class="sh">'</span><span class="p">]</span>
-
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">df_4h</span><span class="p">)</span>
-</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                        open     high      low    close  tickvol      sma1  \
-datetime                                                                     
-2022-05-19 00:00:00  1.04683  1.05006  1.04612  1.04884    11808  1.049522   
-2022-05-19 04:00:00  1.04884  1.05068  1.04789  1.04963    16846  1.049998   
-2022-05-19 08:00:00  1.04963  1.05090  1.04649  1.04964    28109  1.050408   
-2022-05-19 12:00:00  1.04964  1.05451  1.04872  1.05377    36015  1.051011   
-2022-05-19 16:00:00  1.05377  1.05986  1.05366  1.05934    56746  1.052029   
-...                      ...      ...      ...      ...      ...       ...   
-2025-07-08 08:00:00  1.17416  1.17653  1.17319  1.17490    15925  1.175075   
-2025-07-08 12:00:00  1.17489  1.17506  1.17140  1.17211    15208  1.174769   
-2025-07-08 16:00:00  1.17210  1.17222  1.16827  1.17088    23138  1.174295   
-2025-07-08 20:00:00  1.17088  1.17298  1.17075  1.17244    11899  1.173959   
-2025-07-09 00:00:00  1.17199  1.17293  1.17142  1.17246     5627  1.173679   
-
-                         sma2        adx  
-datetime                                  
-2022-05-19 00:00:00  1.051903  13.630782  
-2022-05-19 04:00:00  1.051437  13.577530  
-2022-05-19 08:00:00  1.050971  13.551828  
-2022-05-19 12:00:00  1.050879  13.442523  
-2022-05-19 16:00:00  1.051263  13.220664  
-...                       ...        ...  
-2025-07-08 08:00:00  1.173984  19.680101  
-2025-07-08 12:00:00  1.173503  19.458087  
-2025-07-08 16:00:00  1.172791  19.161909  
-2025-07-08 20:00:00  1.172373  18.888370  
-2025-07-09 00:00:00  1.172375  18.619805  
-
-[4880 rows x 8 columns]
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Filtra df_1m per tenere solo righe a partire da quel timestamp (incluso)
-</span><span class="n">df_1m</span> <span class="o">=</span> <span class="n">df_1m</span><span class="p">[</span><span class="n">df_1m</span><span class="p">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">df_4h</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Inizio H4:</span><span class="sh">"</span><span class="p">,</span> <span class="n">df_4h</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Inizio 1m:</span><span class="sh">"</span><span class="p">,</span> <span class="n">df_1m</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Inizio H4: 2022-05-19 00:00:00
-Inizio 1m: 2022-05-19 00:00:00
-</code></pre></div></div> <h1 id="signals">Signals</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">numpy</span> <span class="k">as</span> <span class="n">np</span>
-
-<span class="n">adx_max</span> <span class="o">=</span> <span class="mf">13.5</span>          <span class="c1"># soglia ADX oltre la quale non si opera
-</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df_4h</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
-
-<span class="c1"># ── filtro orario: consentito solo a mezzanotte esatta o dalle 08:00 in poi (UTC)
-</span><span class="n">time_ok</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">hour</span> <span class="o">&gt;</span> <span class="mi">7</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">hour</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">minute</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span>
-
-<span class="c1"># barre t-1 e t-2
-</span><span class="n">prev1</span><span class="p">,</span> <span class="n">prev2</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="nf">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">df</span><span class="p">.</span><span class="nf">shift</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-<span class="c1"># BUY: pattern t-2 / t-1 + SMA + ADX(t-1)
-</span><span class="n">long_sig</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">sma1</span><span class="sh">'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">sma2</span><span class="sh">'</span><span class="p">])</span> <span class="o">&amp;</span>           <span class="c1"># SMA1(t-1) &gt; SMA2(t-1)
-</span>    <span class="p">(</span><span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">open</span><span class="sh">'</span><span class="p">])</span> <span class="o">&amp;</span>          <span class="c1"># close(t-2) &lt; open(t-2)
-</span>    <span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">open</span><span class="sh">'</span><span class="p">])</span> <span class="o">&amp;</span>          <span class="c1"># close(t-1) &gt; open(t-1)
-</span>    <span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">adx</span><span class="sh">'</span><span class="p">]</span>  <span class="o">&lt;</span> <span class="n">adx_max</span><span class="p">)</span> <span class="o">&amp;</span>                 <span class="c1"># ADX(t-1) sotto soglia
-</span>    <span class="n">time_ok</span>                                     
-<span class="p">)</span>
-
-<span class="c1"># SELL: pattern t-2 / t-1 + SMA + ADX(t-1)
-</span><span class="n">short_sig</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">sma1</span><span class="sh">'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">sma2</span><span class="sh">'</span><span class="p">])</span> <span class="o">&amp;</span>           <span class="c1"># SMA1(t-1) &lt; SMA2(t-1)
-</span>    <span class="p">(</span><span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">open</span><span class="sh">'</span><span class="p">])</span> <span class="o">&amp;</span>          <span class="c1"># close(t-2) &gt; open(t-2)
-</span>    <span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">close</span><span class="sh">'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">open</span><span class="sh">'</span><span class="p">])</span> <span class="o">&amp;</span>          <span class="c1"># close(t-1) &lt; open(t-1)
-</span>    <span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">adx</span><span class="sh">'</span><span class="p">]</span>  <span class="o">&lt;</span> <span class="n">adx_max</span><span class="p">)</span> <span class="o">&amp;</span>                 <span class="c1"># ADX(t-1) sotto soglia
-</span>    <span class="n">time_ok</span>
-<span class="p">)</span>
-
-<span class="c1"># segnale: +1 BUY, –1 SELL, 0 nessuno
-</span><span class="n">df</span><span class="p">[</span><span class="sh">'</span><span class="s">signal</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="n">long_sig</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span>
-                        <span class="n">np</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="n">short_sig</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</code></pre></div></div> <h2 id="parameters">Parameters</h2> <p>This strategy open positions based on some parameters:</p> <ul> <li> <p>Simple moving Average 1 (SMA1)</p> </li> <li> <p>SMA 2</p> </li> <li> <p>Average Directional Index (ADX)</p> </li> <li> <p>ADX Max: a threshold that filters positions</p> </li> </ul> <blockquote> <p>WARNING: For obvious reasons, I will not disclose the exact signal-generation logic of my strategy.</p> <p>However, I will provide the parameter grid used for the optimization process.</p> </blockquote> <p>Simply generate a code that adds a <code class="language-plaintext highlighter-rouge">signal</code> column to the main timeframe of the strategy (4H my case), which takes the value <code class="language-plaintext highlighter-rouge">1</code> for <code class="language-plaintext highlighter-rouge">long</code> positions, <code class="language-plaintext highlighter-rouge">-1</code> for <code class="language-plaintext highlighter-rouge">short</code> positions, and <code class="language-plaintext highlighter-rouge">0</code> otherwise.</p> <p>Additionally, I will apply a time filter, as the original study was conducted over this specific period:</p> <ul> <li> <p>Start: <code class="language-plaintext highlighter-rouge">2022-05-19</code></p> </li> <li> <p>End: <code class="language-plaintext highlighter-rouge">2025-07-09</code></p> </li> </ul> <p>This is the result:</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 </code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                        open     high      low    close  tickvol      sma1  \
 datetime                                                                     
 2022-05-19 00:00:00  1.04683  1.05006  1.04612  1.04884    11808  1.049522   
@@ -170,26 +74,26 @@ datetime
 2025-07-09 00:00:00  1.172375  18.619805       0  
 
 [4880 rows x 9 columns]
-</code></pre></div></div> <h1 id="backtest">Backtest</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ── PARAMETRI BASE ─────────────────────────────────────────────────────────
-</span><span class="n">risk_pct</span>        <span class="o">=</span> <span class="mi">15</span>
-<span class="n">extra_pips</span>      <span class="o">=</span> <span class="mi">4</span>
-<span class="n">tp_multiplier</span>   <span class="o">=</span> <span class="mf">1.3</span>
-<span class="n">pip_size</span>        <span class="o">=</span> <span class="mf">0.0001</span>
-<span class="n">pip_value</span>       <span class="o">=</span> <span class="mi">10</span>                      <span class="c1"># € per pip per 1 lotto (100k)
-</span><span class="n">min_lot</span>         <span class="o">=</span> <span class="mf">0.01</span>
-<span class="n">max_lot</span>         <span class="o">=</span> <span class="mf">50.0</span>                   <span class="c1"># tetto massimo assoluto
-</span><span class="n">leverage</span>        <span class="o">=</span> <span class="mi">500</span>                   <span class="c1"># cambia qui a piacere (1, 30, 500 …)
-</span><span class="n">init_equity</span>     <span class="o">=</span> <span class="mi">100</span>                    <span class="c1"># equity di partenza
-</span>
-<span class="n">commission_per_lot</span> <span class="o">=</span> <span class="mf">6.0</span>                <span class="c1"># € round-trip per 1 lotto
-</span><span class="n">swap_long_eur</span>      <span class="o">=</span> <span class="o">-</span><span class="mf">9.71</span>              <span class="c1"># € / lotto / notte (BUY)
-</span><span class="n">swap_short_eur</span>     <span class="o">=</span>  <span class="mf">4.50</span>              <span class="c1"># € / lotto / notte (SELL)
-</span>
-<span class="c1"># ── DATA ───────────────────────────────────────────────────────────────────
-</span><span class="n">h4</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>           <span class="c1"># contiene già colonna 'signal' (+1 / –1 / 0)
+</code></pre></div></div> <h2 id="backtest">Backtest</h2> <p>In addition to the signal-generation parameters, the strategy also includes risk management parameters:</p> <p><code class="language-plaintext highlighter-rouge">risk_pct</code> = Percentage of the equity to risk on each trade if the stop-loss is hit.</p> <p><code class="language-plaintext highlighter-rouge">extra_pips</code> = Additional “breathing room” in pips given to the stop-loss.</p> <p><code class="language-plaintext highlighter-rouge">tp_multiplier</code> = Take-profit target expressed as a multiple of the stop-loss distance.</p> <p>After the best parameters over the grid have been found, the backes function will be something like this (some values have been included due to my personal experience in strategies like this):</p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sh">'</span><span class="s">sma1_window</span><span class="sh">'</span>   <span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span>
+    <span class="sh">'</span><span class="s">sma2_window</span><span class="sh">'</span>   <span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span>
+    <span class="sh">'</span><span class="s">adx_window</span><span class="sh">'</span>    <span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">55</span><span class="p">],</span>
+    <span class="sh">'</span><span class="s">adx_max</span><span class="sh">'</span>       <span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mf">13.5</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+    <span class="sh">'</span><span class="s">risk_pct</span><span class="sh">'</span>      <span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span>
+    <span class="sh">'</span><span class="s">extra_pips</span><span class="sh">'</span>    <span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">],</span>
+    <span class="sh">'</span><span class="s">tp_multiplier</span><span class="sh">'</span> <span class="p">:</span> <span class="p">[</span><span class="mf">1.3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1"># 1) GENERATE ALL COMBINATIONS
+</span><span class="n">param_combos</span> <span class="o">=</span> <span class="nf">list</span><span class="p">(</span><span class="nf">product</span><span class="p">(</span><span class="o">*</span><span class="n">param_grid</span><span class="p">.</span><span class="nf">values</span><span class="p">()))</span>
+<span class="n">TOTAL_COMBOS</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">param_combos</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Total combinations to test: </span><span class="si">{</span><span class="n">TOTAL_COMBOS</span><span class="si">:</span><span class="p">,</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Total combinations to test: 972
+</code></pre></div></div> <p>The optimization function is straightforward: it simply loops through each parameter combination, runs the backtest, and returns the combination associated with the chosen optimization metric. In my case, I selected the final equity.</p> <blockquote> <p>NOTE:</p> <p>The backtest already accounts for swaps and commisions</p> </blockquote> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ── DATA ───────────────────────────────────────────────────────────────────
+</span><span class="n">h4</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>           <span class="c1"># already contains the 'signal' column (+1 / –1 / 0)
 </span><span class="n">m1</span> <span class="o">=</span> <span class="n">df_1m</span><span class="p">.</span><span class="nf">copy</span><span class="p">()</span>
 
-<span class="c1"># ── STATO RUN-TIME ─────────────────────────────────────────────────────────
+<span class="c1"># ── RUNTIME STATE ──────────────────────────────────────────────────────────
 </span><span class="n">equity</span>            <span class="o">=</span> <span class="n">init_equity</span>
 <span class="n">open_trade</span>        <span class="o">=</span> <span class="bp">None</span>
 <span class="n">blocked_until</span>     <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">Timestamp</span><span class="p">.</span><span class="nb">min</span>
@@ -199,7 +103,7 @@ datetime
     <span class="k">return</span> <span class="nf">max</span><span class="p">(</span><span class="n">min_lot</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="nf">floor</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">min_lot</span><span class="p">)</span> <span class="o">*</span> <span class="n">min_lot</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">nightly_swap_cash</span><span class="p">(</span><span class="n">entry_ts</span><span class="p">,</span> <span class="n">exit_ts</span><span class="p">,</span> <span class="n">lots</span><span class="p">,</span> <span class="n">dir_</span><span class="p">):</span>
-    <span class="sh">"""</span><span class="s">Swap notturno complessivo (€) fra entry e exit.</span><span class="sh">"""</span>
+    <span class="sh">"""</span><span class="s">Total overnight swap (€) between entry and exit.</span><span class="sh">"""</span>
     <span class="n">first_night</span> <span class="o">=</span> <span class="n">entry_ts</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">last_night</span>  <span class="o">=</span> <span class="n">exit_ts</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">exit_ts</span><span class="p">.</span><span class="nf">time</span><span class="p">()</span> <span class="o">==</span> <span class="n">pd</span><span class="p">.</span><span class="n">Timestamp</span><span class="p">.</span><span class="nb">min</span><span class="p">.</span><span class="nf">time</span><span class="p">():</span>
@@ -216,11 +120,11 @@ datetime
     <span class="n">total</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">nights</span><span class="p">:</span>
         <span class="n">total</span> <span class="o">+=</span> <span class="n">nightly_eur</span>
-        <span class="k">if</span> <span class="n">d</span><span class="p">.</span><span class="n">dayofweek</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>            <span class="c1"># mercoledì ⇒ +2 notti extra
+        <span class="k">if</span> <span class="n">d</span><span class="p">.</span><span class="n">dayofweek</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>            <span class="c1"># Wednesday ⇒ +2 extra nights
 </span>            <span class="n">total</span> <span class="o">+=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">nightly_eur</span>
     <span class="k">return</span> <span class="n">total</span> <span class="o">*</span> <span class="n">lots</span>
 
-<span class="c1"># ── LOOP 4-H ───────────────────────────────────────────────────────────────
+<span class="c1"># ── 4-HOUR LOOP ────────────────────────────────────────────────────────────
 </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">h4</span><span class="p">)):</span>
     <span class="n">row</span><span class="p">,</span> <span class="n">prev1</span><span class="p">,</span> <span class="n">prev2</span> <span class="o">=</span> <span class="n">h4</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">h4</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">h4</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
     <span class="nf">if </span><span class="p">(</span><span class="n">row</span><span class="p">.</span><span class="n">name</span> <span class="o">&lt;</span> <span class="n">blocked_until</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">open_trade</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="sh">'</span><span class="s">signal</span><span class="sh">'</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
@@ -230,30 +134,31 @@ datetime
 </span>    <span class="n">entry_ts</span> <span class="o">=</span> <span class="n">row</span><span class="p">.</span><span class="n">name</span>
     <span class="n">entry_px</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="sh">'</span><span class="s">open</span><span class="sh">'</span><span class="p">]</span>
 
-    <span class="n">sl_px</span> <span class="o">=</span> <span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">low</span><span class="sh">'</span><span class="p">],</span> <span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">low</span><span class="sh">'</span><span class="p">])</span> <span class="o">-</span> <span class="n">extra_pips</span> <span class="o">*</span> <span class="n">pip_size</span>
+    <span class="c1"># Stop-loss price: previous 2 lows for long, previous 2 highs for short
+</span>    <span class="n">sl_px</span> <span class="o">=</span> <span class="p">(</span><span class="nf">min</span><span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">low</span><span class="sh">'</span><span class="p">],</span> <span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">low</span><span class="sh">'</span><span class="p">])</span> <span class="o">-</span> <span class="n">extra_pips</span> <span class="o">*</span> <span class="n">pip_size</span>
              <span class="k">if</span> <span class="n">dir_</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span>
              <span class="nf">max</span><span class="p">(</span><span class="n">prev1</span><span class="p">[</span><span class="sh">'</span><span class="s">high</span><span class="sh">'</span><span class="p">],</span> <span class="n">prev2</span><span class="p">[</span><span class="sh">'</span><span class="s">high</span><span class="sh">'</span><span class="p">])</span> <span class="o">+</span> <span class="n">extra_pips</span> <span class="o">*</span> <span class="n">pip_size</span><span class="p">)</span>
     <span class="n">sl_pips</span> <span class="o">=</span> <span class="nf">abs</span><span class="p">(</span><span class="n">entry_px</span> <span class="o">-</span> <span class="n">sl_px</span><span class="p">)</span> <span class="o">/</span> <span class="n">pip_size</span>
     <span class="k">if</span> <span class="n">sl_pips</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">continue</span>
 
-    <span class="c1"># —— dimensionamento LOTTI adattivo (rischio + margine) ————————
-</span>    <span class="c1"># lotto desiderato dal risk management
+    <span class="c1"># —— Adaptive lot sizing (risk + margin) ————————————————
+</span>    <span class="c1"># Desired lot size based on risk management
 </span>    <span class="n">lots_risk</span> <span class="o">=</span> <span class="nf">round_lot</span><span class="p">((</span><span class="n">equity</span> <span class="o">*</span> <span class="n">risk_pct</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sl_pips</span> <span class="o">*</span> <span class="n">pip_value</span><span class="p">))</span>
 
-    <span class="c1"># lotto massimo finanziabile con il margine disponibile
+    <span class="c1"># Maximum lot size allowed by available margin
 </span>    <span class="n">lots_max_margin</span> <span class="o">=</span> <span class="nf">round_lot</span><span class="p">((</span><span class="n">equity</span> <span class="o">*</span> <span class="n">leverage</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">entry_px</span> <span class="o">*</span> <span class="mi">100_000</span><span class="p">))</span>
 
     <span class="n">lots</span> <span class="o">=</span> <span class="nf">min</span><span class="p">(</span><span class="n">lots_risk</span><span class="p">,</span> <span class="n">lots_max_margin</span><span class="p">,</span> <span class="n">max_lot</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">lots</span> <span class="o">&lt;</span> <span class="n">min_lot</span><span class="p">:</span>
-        <span class="k">continue</span>            <span class="c1"># nessuna size possibile → salta trade
+        <span class="k">continue</span>            <span class="c1"># No trade possible → skip
 </span>
     <span class="n">tp_px</span> <span class="o">=</span> <span class="n">entry_px</span> <span class="o">+</span> <span class="n">dir_</span> <span class="o">*</span> <span class="n">sl_pips</span> <span class="o">*</span> <span class="n">pip_size</span> <span class="o">*</span> <span class="n">tp_multiplier</span>
     <span class="n">open_trade</span> <span class="o">=</span> <span class="nf">dict</span><span class="p">(</span><span class="n">lots</span><span class="o">=</span><span class="n">lots</span><span class="p">,</span> <span class="nb">dir</span><span class="o">=</span><span class="n">dir_</span><span class="p">,</span>
                       <span class="n">entry_ts</span><span class="o">=</span><span class="n">entry_ts</span><span class="p">,</span> <span class="n">entry</span><span class="o">=</span><span class="n">entry_px</span><span class="p">,</span>
                       <span class="n">sl_px</span><span class="o">=</span><span class="n">sl_px</span><span class="p">,</span> <span class="n">tp_px</span><span class="o">=</span><span class="n">tp_px</span><span class="p">)</span>
 
-    <span class="c1"># —— scan minuti finché TP o SL ————————————————————————————————
+    <span class="c1"># —— Scan minute bars until TP or SL is hit ————————————————
 </span>    <span class="k">for</span> <span class="n">ts</span><span class="p">,</span> <span class="n">bar</span> <span class="ow">in</span> <span class="n">m1</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">entry_ts</span><span class="p">:].</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">:].</span><span class="nf">iterrows</span><span class="p">():</span>
         <span class="n">hit_tp</span> <span class="o">=</span> <span class="p">(</span><span class="n">dir_</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">bar</span><span class="p">[</span><span class="sh">'</span><span class="s">high</span><span class="sh">'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">tp_px</span><span class="p">)</span> <span class="ow">or</span> \
                  <span class="p">(</span><span class="n">dir_</span> <span class="o">==-</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">bar</span><span class="p">[</span><span class="sh">'</span><span class="s">low</span><span class="sh">'</span><span class="p">]</span>  <span class="o">&lt;=</span> <span class="n">tp_px</span><span class="p">)</span>
@@ -279,21 +184,22 @@ datetime
         <span class="n">curve</span><span class="p">.</span><span class="nf">append</span><span class="p">((</span><span class="n">ts</span><span class="p">,</span> <span class="n">equity</span><span class="p">))</span>
 
         <span class="n">open_trade</span>    <span class="o">=</span> <span class="bp">None</span>
-        <span class="n">blocked_until</span> <span class="o">=</span> <span class="n">ts</span>               <span class="c1"># non aprire finché la candela non chiude
+        <span class="n">blocked_until</span> <span class="o">=</span> <span class="n">ts</span>               <span class="c1"># Don't open a new trade until this candle closes
 </span>        <span class="k">break</span>
 
     <span class="k">if</span> <span class="n">equity</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Equity azzerata – stop back-test</span><span class="sh">"</span><span class="p">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Equity depleted – stop back-test</span><span class="sh">"</span><span class="p">)</span>
         <span class="k">break</span>
 
-<span class="c1"># ── RISULTATI ——————————————————————————————————————————————
+<span class="c1"># ── RESULTS ────────────────────────────────────────────────────────────────
 </span><span class="n">trades_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">trades</span><span class="p">)</span>
 <span class="n">equity_curve</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">curve</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sh">'</span><span class="s">ts</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">equity</span><span class="sh">'</span><span class="p">])</span>
                 <span class="p">.</span><span class="nf">set_index</span><span class="p">(</span><span class="sh">'</span><span class="s">ts</span><span class="sh">'</span><span class="p">)</span>
                 <span class="p">.</span><span class="nf">sort_index</span><span class="p">())</span>
 
 <span class="nf">print</span><span class="p">(</span><span class="n">trades_df</span><span class="p">.</span><span class="nf">tail</span><span class="p">())</span>
-<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Equity finale:</span><span class="sh">"</span><span class="p">,</span> <span class="n">equity</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Initial Equity:</span><span class="sh">"</span> <span class="mi">100</span><span class="p">,)</span>
+<span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">Final equity:</span><span class="sh">"</span><span class="p">,</span> <span class="n">equity</span><span class="p">)</span>
 
 </code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     lots  dir            entry_ts    entry    sl_px     tp_px  \
 325  50.0   -1 2025-06-06 00:00:00  1.14429  1.14991  1.136984   
@@ -307,51 +213,43 @@ datetime
 326 2025-06-12 01:57:00  1.150350 -21.00 -10800.0   687872.6221  
 327 2025-06-12 11:15:00  1.153320 -18.10  -9350.0   678522.6221  
 328 2025-06-13 13:47:00  1.149875  77.35  38600.0   717122.6221  
-329 2025-06-13 18:31:00  1.156460 -48.40 -24500.0   692622.6221  
-Equity finale: 692622.6220999856
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">equity_curve</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Equity</span><span class="sh">'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">'</span><span class="s">Equity Curve</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">xlabel</span><span class="p">(</span><span class="sh">'</span><span class="s">Time</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">ylabel</span><span class="p">(</span><span class="sh">'</span><span class="s">Equity (€)</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
-</code></pre></div></div> <p><img src="opt_2_files/opt_2_18_0.png" alt="png"></p> <h1 id="stats">Stats</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+329 2025-06-13 18:31:00  1.156460 -48.40 -24500.0   692622.6221
+Initial Equity: 100
+Final Equity: 692622.6220999856
+</code></pre></div></div> <p><img src="/assets/proj/strategy_opt_files/equity_1.png" alt="eq_1" style="max-width: 100%; height: auto;"></p> <h2 id="stats">Stats</h2> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
 
-<span class="c1"># ────────────────────── draw-down book-style ──────────────────────
+<span class="c1"># ────────────────────── DRAW-DOWN ──────────────────────
 </span><span class="k">def</span> <span class="nf">_max_drawdown</span><span class="p">(</span><span class="n">equity_ser</span><span class="p">:</span> <span class="n">pd</span><span class="p">.</span><span class="n">Series</span><span class="p">):</span>
     <span class="sh">"""</span><span class="s">
-    Restituisce (draw-down assoluto in €, draw-down % positivo).
-    Calcolo identico a quello usato nel libro/cTrader:
+    Returns (absolute drawdown in €, positive % drawdown).
+    Calculation identical to the one used in the book / cTrader:
         DD% = equity / max(equity_to_date) - 1
     </span><span class="sh">"""</span>
     <span class="n">running_max</span> <span class="o">=</span> <span class="n">equity_ser</span><span class="p">.</span><span class="nf">cummax</span><span class="p">()</span>
-    <span class="n">dd_pct_series</span> <span class="o">=</span> <span class="n">equity_ser</span> <span class="o">/</span> <span class="n">running_max</span> <span class="o">-</span> <span class="mf">1.0</span>      <span class="c1"># negativo o zero
+    <span class="n">dd_pct_series</span> <span class="o">=</span> <span class="n">equity_ser</span> <span class="o">/</span> <span class="n">running_max</span> <span class="o">-</span> <span class="mf">1.0</span>      <span class="c1"># negative or zero
 </span>    <span class="n">dd_abs_series</span> <span class="o">=</span> <span class="n">running_max</span> <span class="o">-</span> <span class="n">equity_ser</span>            <span class="c1"># €
 </span>    <span class="n">dd_abs</span> <span class="o">=</span> <span class="nf">round</span><span class="p">(</span><span class="n">dd_abs_series</span><span class="p">.</span><span class="nf">max</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
     <span class="n">dd_pct</span> <span class="o">=</span> <span class="nf">round</span><span class="p">(</span><span class="o">-</span><span class="n">dd_pct_series</span><span class="p">.</span><span class="nf">min</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dd_abs</span><span class="p">,</span> <span class="n">dd_pct</span>
 
-<span class="c1"># ───────────────────────── helper ──────────────────────────
+<span class="c1"># ───────────────────────── HELPER ──────────────────────────
 </span><span class="k">def</span> <span class="nf">_stats</span><span class="p">(</span><span class="n">trades</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">commission_per_lot</span><span class="p">,</span> <span class="n">swap_long</span><span class="p">,</span> <span class="n">swap_short</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">trades</span><span class="p">.</span><span class="n">empty</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span><span class="sh">'</span><span class="s">label</span><span class="sh">'</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span> <span class="sh">'</span><span class="s">Trades</span><span class="sh">'</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
 
-    <span class="c1"># commissioni (se mancanti)
+    <span class="c1"># commissions (if missing)
 </span>    <span class="k">if</span> <span class="sh">'</span><span class="s">commission</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">trades</span><span class="p">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">trades</span> <span class="o">=</span> <span class="n">trades</span><span class="p">.</span><span class="nf">assign</span><span class="p">(</span><span class="n">commission</span><span class="o">=</span><span class="n">trades</span><span class="p">.</span><span class="n">lots</span> <span class="o">*</span> <span class="n">commission_per_lot</span><span class="p">)</span>
 
-    <span class="c1"># swap (se mancante → ricalcolo rapido senza loop 1-m)
+    <span class="c1"># swap (if missing → quick recalculation without 1-min loop)
 </span>    <span class="k">if</span> <span class="sh">'</span><span class="s">swap</span><span class="sh">'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">trades</span><span class="p">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="n">trades</span><span class="p">.</span><span class="nb">dir</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">swap_long</span><span class="p">,</span> <span class="n">swap_short</span><span class="p">)</span>  <span class="c1"># €/lotto/notte
+        <span class="n">pt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="n">trades</span><span class="p">.</span><span class="nb">dir</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">swap_long</span><span class="p">,</span> <span class="n">swap_short</span><span class="p">)</span>  <span class="c1"># €/lot/night
 </span>        <span class="n">swap_cash</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">((</span><span class="n">trades</span><span class="p">.</span><span class="n">exit_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span>            <span class="c1"># ultimo giorno incluso?
+            <span class="p">((</span><span class="n">trades</span><span class="p">.</span><span class="n">exit_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span>            <span class="c1"># last day included?
 </span>              <span class="o">-</span> <span class="p">(</span><span class="n">trades</span><span class="p">.</span><span class="n">entry_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="p">.</span><span class="nc">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
-             <span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="n">days</span><span class="p">.</span><span class="nf">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>                   <span class="c1"># notti piene
-</span>            <span class="p">.</span><span class="nf">add</span><span class="p">(</span>                                       <span class="c1"># triplo mercoledì
-</span>                <span class="p">((</span><span class="n">trades</span><span class="p">.</span><span class="n">exit_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="n">dayofweek</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1"># exit di mercoledì?
+             <span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="n">days</span><span class="p">.</span><span class="nf">clip</span><span class="p">(</span><span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>                   <span class="c1"># full nights
+</span>            <span class="p">.</span><span class="nf">add</span><span class="p">(</span>                                      <span class="c1"># triple Wednesday
+</span>                <span class="p">((</span><span class="n">trades</span><span class="p">.</span><span class="n">exit_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="n">dayofweek</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1"># exit on Wednesday?
 </span>                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">trades</span><span class="p">.</span><span class="n">exit_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span>
                     <span class="o">&gt;</span> <span class="n">trades</span><span class="p">.</span><span class="n">entry_ts</span><span class="p">.</span><span class="n">dt</span><span class="p">.</span><span class="nf">normalize</span><span class="p">()</span><span class="o">+</span><span class="n">pd</span><span class="p">.</span><span class="nc">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
                  <span class="p">).</span><span class="nf">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span>
@@ -388,7 +286,7 @@ Equity finale: 692622.6220999856
         <span class="sh">'</span><span class="s">Avg trade €</span><span class="sh">'</span>     <span class="p">:</span> <span class="nf">round</span><span class="p">(</span><span class="n">avg_tr</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
     <span class="p">}</span>
 
-<span class="c1"># ───────────────────── funzione principale ────────────────────────
+<span class="c1"># ───────────────────── MAIN FUNCTION ────────────────────────
 </span><span class="k">def</span> <span class="nf">full_stats</span><span class="p">(</span><span class="n">trades_df</span><span class="p">,</span> <span class="n">equity_curve</span><span class="p">,</span>
                <span class="n">commission_per_lot</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
                <span class="n">swap_long_eur</span><span class="o">=-</span><span class="mf">9.71</span><span class="p">,</span>
@@ -403,10 +301,10 @@ Equity finale: 692622.6220999856
         <span class="nf">_stats</span><span class="p">(</span><span class="n">trades_df</span><span class="p">,</span><span class="sh">'</span><span class="s">Total</span><span class="sh">'</span><span class="p">,</span> <span class="n">commission_per_lot</span><span class="p">,</span> <span class="n">swap_long_eur</span><span class="p">,</span> <span class="n">swap_short_eur</span><span class="p">)</span>
     <span class="p">]</span>
 
-    <span class="c1"># draw-down complessivo
+    <span class="c1"># drawdown
 </span>    <span class="n">dd_abs</span><span class="p">,</span> <span class="n">dd_pct</span> <span class="o">=</span> <span class="nf">_max_drawdown</span><span class="p">(</span><span class="n">equity_curve</span><span class="p">[</span><span class="sh">'</span><span class="s">equity</span><span class="sh">'</span><span class="p">])</span>
-    <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="se">\n</span><span class="s">Max draw-down assoluto : </span><span class="si">{</span><span class="n">dd_abs</span><span class="si">:</span><span class="p">,.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> €</span><span class="sh">"</span><span class="p">)</span>
-    <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Max draw-down percent.  : </span><span class="si">{</span><span class="n">dd_pct</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> %</span><span class="sh">"</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="se">\n</span><span class="s">Max absolute drawdown : </span><span class="si">{</span><span class="n">dd_abs</span><span class="si">:</span><span class="p">,.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> €</span><span class="sh">"</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Max percentage drawdown: </span><span class="si">{</span><span class="n">dd_pct</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s"> %</span><span class="sh">"</span><span class="p">)</span>
 
     <span class="n">cols_order</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">Trades</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">Net profit €</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">Profit factor</span><span class="sh">'</span><span class="p">,</span>
                   <span class="sh">'</span><span class="s">Commission €</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">Swap €</span><span class="sh">'</span><span class="p">,</span>
@@ -418,7 +316,7 @@ Equity finale: 692622.6220999856
               <span class="p">.</span><span class="nf">set_index</span><span class="p">(</span><span class="sh">'</span><span class="s">label</span><span class="sh">'</span><span class="p">)</span>
               <span class="p">[</span><span class="n">cols_order</span><span class="p">])</span>
 
-<span class="c1"># --------------------------- USO ----------------------------------
+<span class="c1"># --------------------------- USAGE ----------------------------------
 </span><span class="n">stats_df</span> <span class="o">=</span> <span class="nf">full_stats</span><span class="p">(</span><span class="n">trades_df</span><span class="p">,</span> <span class="n">equity_curve</span><span class="p">,</span>
                       <span class="n">commission_per_lot</span><span class="o">=</span><span class="mf">6.0</span><span class="p">,</span>
                       <span class="n">swap_long_eur</span><span class="o">=-</span><span class="mf">9.71</span><span class="p">,</span>
@@ -426,8 +324,8 @@ Equity finale: 692622.6220999856
 
 <span class="nf">print</span><span class="p">(</span><span class="n">stats_df</span><span class="p">)</span>
 
-</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Max draw-down assoluto : 126,557.00 €
-Max draw-down percent.  : 68.53 %
+</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Max absolute drawdown : 126,557.00 €
+Max percentage drawdown  : 68.53 %
        Trades  Net profit €  Profit factor  Commission €    Swap €  Winners  \
 label                                                                         
 Long      145     421206.77           2.43      18090.36 -17320.21       91   
@@ -445,51 +343,7 @@ label
 Long       2904.87  
 Short      1466.57  
 Total      2098.55  
-</code></pre></div></div> <h1 id="portfolio">Portfolio</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">daily_eq</span> <span class="o">=</span> <span class="p">(</span><span class="n">equity_curve</span><span class="p">[</span><span class="sh">'</span><span class="s">equity</span><span class="sh">'</span><span class="p">]</span>   <span class="c1"># serie: indice-datetime, valore = equity netta
-</span>            <span class="p">.</span><span class="nf">resample</span><span class="p">(</span><span class="sh">'</span><span class="s">B</span><span class="sh">'</span><span class="p">)</span>           <span class="c1"># 1) crea un indice a frequenza Business-day
-</span>            <span class="p">.</span><span class="nf">last</span><span class="p">()</span>                  <span class="c1"># 2) per ogni giorno prende l’ultimo valore disponibile
-</span>            <span class="p">.</span><span class="nf">ffill</span><span class="p">())</span>                <span class="c1"># 3) se quel giorno non c’era alcun trade, riempie
-</span>                                     <span class="c1">#    con il valore del giorno precedente (forward-fill)
-</span>
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">portfolio</span> <span class="o">=</span> <span class="n">daily_eq</span><span class="p">.</span><span class="nf">to_frame</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="sh">'</span><span class="s">equity</span><span class="sh">'</span><span class="p">)</span>
-
-<span class="c1"># Inseriamo la prima riga manualmente con equity iniziale e data da h4
-</span><span class="n">first_date</span> <span class="o">=</span> <span class="n">h4</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">portfolio</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">first_date</span><span class="p">]</span> <span class="o">=</span> <span class="n">init_equity</span>
-<span class="n">portfolio</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">.</span><span class="nf">sort_index</span><span class="p">()</span>
-
-<span class="c1"># Calcola i ritorni percentuali semplici
-</span><span class="n">portfolio</span><span class="p">[</span><span class="sh">'</span><span class="s">returns</span><span class="sh">'</span><span class="p">]</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">[</span><span class="sh">'</span><span class="s">equity</span><span class="sh">'</span><span class="p">].</span><span class="nf">pct_change</span><span class="p">()</span>
-<span class="n">portfolio</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">.</span><span class="nf">dropna</span><span class="p">()</span>
-<span class="n">portfolio</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">.</span><span class="nf">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="sh">'</span><span class="s">equity</span><span class="sh">'</span><span class="p">)</span>
-
-<span class="nf">print</span><span class="p">(</span><span class="n">portfolio</span><span class="p">)</span>
-
-</code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>             returns
-ts                  
-2022-05-23 -0.117600
-2022-05-24  0.000000
-2022-05-25  0.000000
-2022-05-26 -0.129646
-2022-05-27  0.000000
-...              ...
-2025-06-09  0.000000
-2025-06-10  0.000000
-2025-06-11 -0.037870
-2025-06-12 -0.028840
-2025-06-13  0.020780
-
-[800 rows x 1 columns]
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">plot</span><span class="p">(</span><span class="n">portfolio</span><span class="p">.</span><span class="n">index</span><span class="p">,</span> <span class="n">portfolio</span><span class="p">[</span><span class="sh">'</span><span class="s">returns</span><span class="sh">'</span><span class="p">].</span><span class="nf">cumsum</span><span class="p">(),</span> <span class="n">label</span><span class="o">=</span><span class="sh">'</span><span class="s">Cumulative Returns</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">'</span><span class="s">Cumulative Returns</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">xlabel</span><span class="p">(</span><span class="sh">'</span><span class="s">Date</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">ylabel</span><span class="p">(</span><span class="sh">'</span><span class="s">Cumulative Return</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">legend</span><span class="p">()</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
-</code></pre></div></div> <p><img src="opt_2_files/opt_2_24_0.png" alt="png"></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ─────────────────── FUNZIONI ─────────────────────────────
+</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ─────────────────── Functions ─────────────────────────────
 </span>
 <span class="k">def</span> <span class="nf">sharpe_function</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">timeframe</span><span class="o">=</span><span class="mi">252</span><span class="p">):</span>
     <span class="n">mean</span> <span class="o">=</span> <span class="n">returns</span><span class="p">.</span><span class="nf">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">timeframe</span>
@@ -521,29 +375,17 @@ ts
     <span class="n">sims</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="nc">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="nf">normal</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="sh">"</span><span class="s">Simulations</span><span class="sh">"</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">sims</span><span class="p">.</span><span class="nf">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="sh">"</span><span class="s">Simulations</span><span class="sh">"</span><span class="p">).</span><span class="n">iloc</span><span class="p">[:</span><span class="n">t</span><span class="p">].</span><span class="nf">mean</span><span class="p">().</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="c1"># ─────────────── CALCOLO METRICHE ─────────────────────────
+<span class="c1"># ─────────────── Metrics ─────────────────────────
 </span>
 <span class="n">returns</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">[</span><span class="sh">'</span><span class="s">returns</span><span class="sh">'</span><span class="p">]</span>
 <span class="n">mu</span> <span class="o">=</span> <span class="n">returns</span><span class="p">.</span><span class="nf">mean</span><span class="p">()</span>
 <span class="n">sigma</span> <span class="o">=</span> <span class="n">returns</span><span class="p">.</span><span class="nf">std</span><span class="p">()</span>
 
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Sharpe Ratio : </span><span class="si">{</span><span class="nf">sharpe_function</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="si">:</span><span class="p">.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div> <h3 id="cumulative-returns">Cumulative returns</h3> <p><img src="/assets/proj/strategy_opt_files/cum_ret_1.png" alt="cumret_1" style="max-width: 100%; height: auto;"></p> <h3 id="sharpe-and-sortino-ratio">Sharpe and Sortino Ratio</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Sharpe Ratio : </span><span class="si">{</span><span class="nf">sharpe_function</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="si">:</span><span class="p">.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
 <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Sortino Ratio: </span><span class="si">{</span><span class="nf">sortino_function</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="si">:</span><span class="p">.</span><span class="mi">4</span><span class="n">f</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
 </code></pre></div></div> <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sharpe Ratio : 2.6897
 Sortino Ratio: 3.4151
-</code></pre></div></div> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ─────────────── DRAWDOWN CHART ───────────────────────────
-</span>
-<span class="n">drawdown</span> <span class="o">=</span> <span class="nf">drawdown_function</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span>
-<span class="n">drawdown_pct</span> <span class="o">=</span> <span class="n">drawdown</span> <span class="o">*</span> <span class="mi">100</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">fill_between</span><span class="p">(</span><span class="n">drawdown_pct</span><span class="p">.</span><span class="n">index</span><span class="p">,</span> <span class="n">drawdown_pct</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sh">"</span><span class="s">red</span><span class="sh">"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">"</span><span class="s">Drawdown (%)</span><span class="sh">"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="sh">'</span><span class="s">bold</span><span class="sh">'</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">xlabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Date</span><span class="sh">"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">ylabel</span><span class="p">(</span><span class="sh">"</span><span class="s">Drawdown (%)</span><span class="sh">"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">tight_layout</span><span class="p">()</span>
-<span class="n">plt</span><span class="p">.</span><span class="nf">show</span><span class="p">()</span>
-</code></pre></div></div> <p><img src="opt_2_files/opt_2_27_0.png" alt="png"></p> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ─────────────── VAR E CVAR ───────────────────────────────
+</code></pre></div></div> <h3 id="drawdown">Drawdown</h3> <p><img src="/assets/proj/strategy_opt_files/drawdown.png" alt="drawdown" style="max-width: 100%; height: auto;"></p> <h3 id="var-and-cvar">VAR and CVAR</h3> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ─────────────── VAR and CVAR ───────────────────────────────
 </span>
 <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Daily VaR 5%: </span><span class="si">{</span><span class="nc">VaR_function</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s">%</span><span class="sh">"</span><span class="p">)</span>
 <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">Monthly VaR 5%: </span><span class="si">{</span><span class="nc">VaR_function</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">mu</span><span class="o">*</span><span class="mi">20</span><span class="p">,</span> <span class="n">sigma</span><span class="o">*</span><span class="n">np</span><span class="p">.</span><span class="nf">sqrt</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span><span class="si">:</span><span class="p">.</span><span class="mi">2</span><span class="n">f</span><span class="si">}</span><span class="s">%</span><span class="sh">"</span><span class="p">)</span>
@@ -558,7 +400,7 @@ Annual VaR 5%: 143.55%
 Daily CVaR 5%: -16.39%
 Monthly CVaR 5%: -50.91%
 Annual CVaR 5%: 85.91%
-</code></pre></div></div> <h1 id="permutation-test">Permutation Test</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ════════════════════════════════════════════════════════════════════════════
+</code></pre></div></div> <p>The results appear to be extremely good — could this indicate potential overfitting? To verify, we can perform a permutation test.</p> <h1 id="permutation-test">Permutation Test</h1> <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># ════════════════════════════════════════════════════════════════════════════
 #  1.  DEFINISCI LO SPAZIO DEI PARAMETRI  (modifica a piacere)
 # ════════════════════════════════════════════════════════════════════════════
 </span><span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span>
