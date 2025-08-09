@@ -6,7 +6,7 @@ subtitle: MS Economics and Finance
 
 profile:
   align: right
-  image: prof_pic.jpg
+  image: profile.jpg
   image_circular: false # crops the image to make it circular
 
 social: true  # questa è la chiave che attiva i social SOLO per questa pagina
