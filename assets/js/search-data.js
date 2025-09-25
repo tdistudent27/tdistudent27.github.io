@@ -452,6 +452,16 @@ ninja.data = [{
           description: "Using Factor Models to Predict Macro Variables",
           section: "Projects",handler: () => {
               window.location.href = "/projects/FactorModels/";
+            },},{id: "projects-human-development-analysis",
+          title: 'Human Development Analysis',
+          description: "Advanced statistical methods applied to human development indicators",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/HumanDev/";
+            },},{id: "projects-local-projection-and-vars",
+          title: 'Local Projection and VARs',
+          description: "Econometric analysis comparing Local Projection and VAR approaches",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/LocalProjandVAR/";
             },},{id: "projects-portfolio-construction",
           title: 'Portfolio Construction',
           description: "Markowitz Approach to Portfolio Construction",
