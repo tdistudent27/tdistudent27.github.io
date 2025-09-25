@@ -13,11 +13,10 @@ social: true  # questa è la chiave che attiva i social SOLO per questa pagina
 
 ---
 
-I'm an Italian MSc student in Economics and Finance at Sapienza University of Rome, with a strong focus on quantitative methods, statistical modeling, and machine learning. My academic background allows me to combine rigorous analytical tools with a critical understanding of economic dynamics.
+I’m an Italian MSc student in Economics and Finance at Sapienza University of Rome, with a strong focus on quantitative methods, econometrics, and machine learning. My studies and projects have allowed me to work across a wide range of topics, from macroeconomic forecasting and policy modelling to financial econometrics and trading strategies.
 
-My main interests lie in Quantitative Trading—where I enjoy designing, backtesting, and optimizing strategies—and in applying machine learning techniques, particularly Multilayer Perceptrons, to economic and financial problems.
+My main interests include quantitative trading and financial markets, where I design, backtest, and optimise systematic strategies, but also macroeconomic analysis, where I apply factor models, VARs, and local projections to study shocks and policy transmission. I am particularly interested in how machine learning techniques, such as neural networks, can complement traditional econometric models in understanding volatility, risk premia, and broader economic dynamics.
 
-I’m passionate about freediving and spending time in nature, often taking part in wilderness survival experiences. I also enjoy staying active through swimming, running, and practicing Muay Thai.
-I have a strong interest in soccer — both playing and watching it.
+This combination of macroeconomic research, financial applications, and data science reflects my ambition to connect theory with practice, turning complex datasets into insights that matter for both markets and policy.
 
-For questions or collaborations, feel free to reach out at demar.tommaso@gmail.com.
+Outside of academics, I am passionate about freediving and outdoor survival experiences, and I enjoy staying active through swimming, running, Muay Thai, and soccer — both playing and watching.
