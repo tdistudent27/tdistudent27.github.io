@@ -447,6 +447,11 @@ ninja.data = [{
           description: "another project with an image 🎉",
           section: "Projects",handler: () => {
               window.location.href = "/projects/9_project/";
+            },},{id: "projects-asset-pricing-with-machine-learning",
+          title: 'Asset Pricing with Machine Learning',
+          description: "Master Thesis — Sapienza University of Rome",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/APML/";
             },},{id: "projects-factor-models",
           title: 'Factor Models',
           description: "Using Factor Models to Predict Macro Variables",
