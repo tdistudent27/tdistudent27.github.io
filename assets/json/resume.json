@@ -7,11 +7,13 @@
       "institution": "Sapienza University of Rome",
       "studyType": "MS Economics and Finance",
       "startDate": "Sep 2023",
-      "endDate": "",
+      "endDate": "Oct 2025",
       "courses": [
-        "Actual GPA: 4",
+        "Grade: 110 cum laude",
         "Focus on quantitative methods and financial econometrics",
-        "Expected thesis on Asset Pricing via Machine Learning"
+        "Thesis: <a href=\"/assets/pdf/Asset Pricing with Machine Learning.pdf\" target=\"_blank\">Asset Pricing with Machine Learning</a>",
+        "Supervisor: <a href=\"https://gragusa.org/\" target=\"_blank\">Prof. Giuseppe Ragusa</a>"
+
       ]
     },
     {
@@ -22,7 +24,8 @@
       "courses": [
         "Focus on Economic Theory",
         "Thesis: Dedollarization of the International Monetary System",
-        "Supervisor: Prof. Marco Di Pietro"
+        "Supervisor: <a href=\"https://marcodipietro.site.uniroma1.it/home\" target=\"_blank\">Prof. Marco Di Pietro</a>"
+
       ]
     }
   ]

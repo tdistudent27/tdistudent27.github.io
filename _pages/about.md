@@ -13,10 +13,12 @@ social: true  # questa è la chiave che attiva i social SOLO per questa pagina
 
 ---
 
-I’m an Italian MSc student in Economics and Finance at Sapienza University of Rome, with a strong focus on quantitative methods, econometrics, and machine learning. My studies and projects have allowed me to work across a wide range of topics, from macroeconomic forecasting and policy modelling to financial econometrics and trading strategies.
+I’m an Italian MSc graduate in Economics and Finance (110 cum laude) from Sapienza University of Rome, with a strong focus on quantitative methods, econometrics, and machine learning.
+My studies and research projects span macroeconomic forecasting, empirical asset pricing, and financial econometrics — fields where I integrate data-driven approaches with rigorous statistical modelling.
 
-My main interests include quantitative trading and financial markets, where I design, backtest, and optimise systematic strategies, but also macroeconomic analysis, where I apply factor models, VARs, and local projections to study shocks and policy transmission. I am particularly interested in how machine learning techniques, such as neural networks, can complement traditional econometric models in understanding volatility, risk premia, and broader economic dynamics.
+My main interests lie in understanding how economic and financial dynamics can be modelled and predicted through econometric and machine learning techniques.
+I have worked on topics such as factor models, VARs, and local projections to analyse shocks and policy transmission, as well as neural networks and dimensionality-reduction methods to uncover hidden structures in large datasets.
 
-This combination of macroeconomic research, financial applications, and data science reflects my ambition to connect theory with practice, turning complex datasets into insights that matter for both markets and policy.
+This combination of empirical modelling, machine learning, and macro-financial analysis reflects my aim to connect quantitative research with real-world applications in finance and policy.
 
-Outside of academics, I am passionate about freediving and outdoor survival experiences, and I enjoy staying active through swimming, running, Muay Thai, and soccer — both playing and watching.
+Outside of research, I’m passionate about freediving and outdoor survival experiences, and I enjoy staying active through swimming, running, Muay Thai, and soccer — both playing and watching.
