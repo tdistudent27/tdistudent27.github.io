@@ -20,7 +20,7 @@ The research question is whether their results remain valid when excluding the e
 
 - **Predicting stock returns** remains one of the most challenging and central problems in empirical finance.  
 - Advances in machine learning provide new tools to capture complex, nonlinear relationships among firm characteristics.  
-- This thesis evaluates whether such methods continue to add value in the current market environment, characterized by reduced cross-sectional predictability and structural changes in trading behavior.
+- This thesis evaluates whether such methods continue to add value in the current market environment, characterized by reduced predictability and structural changes in trading behavior.
 
 ---
 
