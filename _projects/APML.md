@@ -24,7 +24,7 @@ The research question is whether their results remain valid when excluding the e
 
 ---
 
-## [Full Thesis (PDF)](/assets/pdf/Asset_Pricing_with_Machine_Learning.pdf){:target="_blank"}
+## [Full Thesis (PDF)](/assets/pdf/Asset Pricing with Machine Learning.pdf){:target="_blank"}
 
 ---
 
