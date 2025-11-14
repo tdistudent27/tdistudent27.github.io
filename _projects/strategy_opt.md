@@ -2,7 +2,7 @@
 layout: page
 title: "Trading Strategy Optimization"
 description: This is the procedure I adopt to optimize a strategy and avoid Overfitting
-category:
+category: Projects
 importance: 7
 nav: false
 ---

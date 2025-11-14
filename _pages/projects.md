@@ -5,7 +5,7 @@ permalink: /projects/
 description: The following projects highlight the key steps of the procedure and, in some cases, include portions of the code. Feel free to contact me via email for questions, requests, or access to the full code.
 nav: true
 nav_order: 3
-display_categories: []
+display_categories: [Projects]
 horizontal: false
 ---
 

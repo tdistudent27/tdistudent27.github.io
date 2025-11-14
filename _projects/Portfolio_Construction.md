@@ -3,7 +3,7 @@ layout: page
 title: Portfolio Construction
 description: Markowitz Approach to Portfolio Construction
 importance: 5
-category:
+category: Projects
 nav: false
 ---
 

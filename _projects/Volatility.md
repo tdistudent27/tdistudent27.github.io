@@ -3,7 +3,7 @@ layout: page
 title: Volatility Forecasting
 description: A comparative analysis of volatility forecasting models applied to the Euro Stoxx 50
 importance: 3
-category:
+category: Projects
 nav: false
 ---
 

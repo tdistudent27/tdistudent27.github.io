@@ -3,7 +3,7 @@ layout: page
 title: Factor Models
 description: Using Factor Models to Predict Macro Variables
 importance: 2
-category:
+category: Projects
 nav: false
 ---
 

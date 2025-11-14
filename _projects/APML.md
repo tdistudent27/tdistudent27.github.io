@@ -3,7 +3,7 @@ layout: page
 title: "Asset Pricing with Machine Learning"
 description: "Master Thesis — Sapienza University of Rome"
 importance: 1
-category:
+category: Projects
 nav: false
 ---
 
