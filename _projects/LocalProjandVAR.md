@@ -3,7 +3,7 @@ layout: page
 title: "Local Projection and VARs"
 description: "Econometric analysis comparing Local Projection and VAR approaches"
 importance: 4
-category: Academic
+category:
 nav: false
 ---
 

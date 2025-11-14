@@ -2,8 +2,8 @@
 layout: page
 title: "Human Development Analysis"
 description: "Advanced statistical methods applied to human development indicators"
-importance: 5
-category: Academic
+importance: 6
+category:
 nav: false
 ---
 ## Introduction

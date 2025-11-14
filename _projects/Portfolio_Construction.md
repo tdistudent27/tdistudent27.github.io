@@ -2,15 +2,15 @@
 layout: page
 title: Portfolio Construction
 description: Markowitz Approach to Portfolio Construction
-importance: 3
-category: Academic
+importance: 5
+category:
 nav: false
 ---
 
 ## Introduction
 This project was carried out by **Tommaso de Martino** (Sapienza University of Rome), Health Sector by [**Sahar Shirazi**](https://www.linkedin.com/in/sahar-shirazi-906b3a167/)
 (Sapienza University of Rome), **Alberto Pio Stigliani** (Sapienza University of Rome), and [**Robert Roman**](https://www.linkedin.com/in/robert-roman-998b99213/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app) (Sapienza University of Rome).
-Each of us focused on a specific Machine Learning model:
+Each of us focused on a specific sector:
 
 ## 1. Markowitz Portfolio Optimization
 

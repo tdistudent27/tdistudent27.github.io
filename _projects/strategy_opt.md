@@ -2,8 +2,8 @@
 layout: page
 title: "Trading Strategy Optimization"
 description: This is the procedure I adopt to optimize a strategy and avoid Overfitting
-category: Personal
-importance: 3
+category:
+importance: 7
 nav: false
 ---
 
