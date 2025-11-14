@@ -477,16 +477,6 @@ ninja.data = [{
           description: "A comparative analysis of volatility forecasting models applied to the Euro Stoxx 50",
           section: "Projects",handler: () => {
               window.location.href = "/projects/Volatility/";
-            },},{id: "projects-trading-strategy-mean-reversion-z-score-version-1",
-          title: 'Trading Strategy: Mean Reversion Z-Score version 1',
-          description: "cTrader backtest interactive report",
-          section: "Projects",handler: () => {
-              window.location.href = "/projects/z-score-mean-rev-v1/";
-            },},{id: "projects-trading-strategy-mean-reversion-z-score-version-2",
-          title: 'Trading Strategy: Mean Reversion Z-Score version 2',
-          description: "cTrader backtest interactive report",
-          section: "Projects",handler: () => {
-              window.location.href = "/projects/z-score-mean-rev-v2/";
             },},{id: "projects-trading-strategy-optimization",
           title: 'Trading Strategy Optimization',
           description: "This is the procedure I adopt to optimize a strategy and avoid Overfitting",
