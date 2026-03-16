@@ -1,7 +1,17 @@
 {
-  "basics": {
-    "name": "Tommaso de Martino"
-  },
+  "work": [
+    {
+      "name": "European Central Bank",
+      "position": "Statistics and Data Science Trainee",
+      "startDate": "Feb 2026",
+      "endDate": "Present",
+      "highlights": [
+        "Develop and compute Key Risk Indicators (KRIs) using large-scale regulatory banking data to monitor risk across supervised institutions",
+        "Design Python tools and custom libraries to automate KRI computation and analytical workflows",
+        "Analyse bank-level data quality indicators through Tableau dashboards to detect anomalies and assess reporting reliability across financial institutions"
+      ]
+    }
+  ],
   "education": [
     {
       "institution": "Sapienza University of Rome",
@@ -13,7 +23,6 @@
         "Focus on quantitative methods and financial econometrics",
         "Thesis: <a href=\"/assets/pdf/Asset Pricing with Machine Learning.pdf\" target=\"_blank\">Asset Pricing with Machine Learning</a>",
         "Supervisor: <a href=\"https://gragusa.org/\" target=\"_blank\">Prof. Giuseppe Ragusa</a>"
-
       ]
     },
     {
@@ -25,7 +34,6 @@
         "Focus on Economic Theory",
         "Thesis: Dedollarization of the International Monetary System",
         "Supervisor: <a href=\"https://marcodipietro.site.uniroma1.it/home\" target=\"_blank\">Prof. Marco Di Pietro</a>"
-
       ]
     }
   ]
