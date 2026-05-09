@@ -7,8 +7,9 @@
       "endDate": "Present",
       "highlights": [
         "Develop and compute Key Risk Indicators (KRIs) using large-scale regulatory banking data to monitor risk across supervised institutions",
-        "Design Python tools and custom libraries to automate KRI computation and analytical workflows",
-        "Analyse bank-level data quality indicators through Tableau dashboards to detect anomalies and assess reporting reliability across financial institutions"
+        "Interact directly with supervisors within the Single Supervisory Mechanism (SSM) to understand risk-monitoring requirements and translate them into quantitative indicators and analytical frameworks",
+        "Develop Python-based analytical tools and data processing pipelines to support quantitative analysis, risk monitoring and large-scale financial data workflows",
+        "Worked on the integration, validation and analysis of Bloomberg market datasets, including market cap and price-to-book ratio metrics for more than 100 European banks, supporting risk analysis and financial institution monitoring activities"
       ]
     }
   ],
