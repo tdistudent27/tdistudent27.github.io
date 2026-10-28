@@ -6,9 +6,10 @@
       "startDate": "Feb 2026",
       "endDate": "Present",
       "highlights": [
-        "Build Python-based quantitative pipelines to compute cross-sectional market and credit risk metrics for 100+ European financial institutions, used directly in day-to-day market risk monitoring",
-        "Source, clean and validate Bloomberg market data (equities, rates, credit) across a large multi-asset universe, producing analytical frameworks used by senior risk officers",
-        "Translate market-risk monitoring objectives from banking supervisors into quantitative models and automated reporting, working within tight production deadlines on live market data"
+        "Built a factor-based macro forecasting framework using 126 U.S. economic time series (1959–2025), extracting 7 latent factors to produce rolling real-time forecasts for industrial production and CPI inflation, achieving out-of-sample RMSEs of 1.37 and 0.60, respectively",
+        "Led the development of Python-based pipelines automating market and credit risk analytics across 100+ European financial institutions, processing 12 million data points and reducing processing time from several days to minutes",
+        "Partnered with risk officers to design and implement quantitative frameworks for rating, liquidity and asset-risk monitoring, taking requirements from problem definition to production and supporting ongoing supervisory reporting across European banks",
+        "Validated and reconstructed 10,000 weekly equity and FX market observations using Bloomberg data, recovering missing values from daily series and performing valuation consistency checks that increased valid data coverage by 25%"
       ]
     }
   ],
