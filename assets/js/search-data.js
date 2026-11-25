@@ -407,11 +407,6 @@ ninja.data = [{
           description: "Master Thesis — Sapienza University of Rome",
           section: "Projects",handler: () => {
               window.location.href = "/projects/APML/";
-            },},{id: "projects-factor-models",
-          title: 'Factor Models',
-          description: "Using Factor Models to Predict Macro Variables",
-          section: "Projects",handler: () => {
-              window.location.href = "/projects/FactorModels/";
             },},{id: "projects-human-development-analysis",
           title: 'Human Development Analysis',
           description: "Advanced statistical methods applied to human development indicators",
